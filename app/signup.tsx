@@ -6,22 +6,22 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Button, StyleSheet, TextInput } from 'react-native';
 
-export default function App() {
+export default function SignUp() {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const router = useRouter();
   return (
     <ThemedView style={styles.container}>
-      <ThemedText>Home Screen</ThemedText>
+      <ThemedText>Sign Up</ThemedText>
+      {/* input username */}
       <TextInput placeholder="Username" style={styles.input} value={username} onChangeText={setUsername}/>
+      {/* input type password */}
       <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword}/>
+      {/* login button */}
       <Button
-        title="Login"
-        onPress={() => router.replace('/(tabs)')}
-      />
-      <Button
-        title="Go to Register"
-        onPress={() => router.navigate('/signup')}
+        title="Go to Login"
+        onPress={() => 
+          router.replace('/')}
       />
     </ThemedView>
   );
