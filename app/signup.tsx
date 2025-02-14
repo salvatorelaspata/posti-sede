@@ -20,8 +20,7 @@ export default function SignUp() {
       {/* login button */}
       <Button
         title="Go to Login"
-        onPress={() => 
-          router.replace('/')}
+        onPress={() => router.replace('/')}
       />
     </ThemedView>
   );

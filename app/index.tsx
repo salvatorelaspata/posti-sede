@@ -2,11 +2,13 @@
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useSession } from '@/context/auth';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Button, StyleSheet, TextInput } from 'react-native';
 
 export default function App() {
+  const { signIn } = useSession();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const router = useRouter();
@@ -17,7 +19,12 @@ export default function App() {
       <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword}/>
       <Button
         title="Login"
-        onPress={() => router.replace('/(tabs)')}
+        onPress={() => {
+          signIn();
+          // Navigate after signing in. You may want to tweak this to ensure sign-in is
+          // successful before navigating.
+          router.replace('/(app)');
+        }}
       />
       <Button
         title="Go to Register"
