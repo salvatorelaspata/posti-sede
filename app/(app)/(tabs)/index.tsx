@@ -1,17 +1,12 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Room } from '@/types';
 import { FontAwesome5 } from '@expo/vector-icons';
-
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-
-import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
-import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
 import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerRootView';
 import { ThemedScrollView } from '@/components/ThemedScrollView';
+import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
 
 const rooms: Room[] = [
   { id: 1, name: 'Sala Blu', capacity: 8, available: 5 },
@@ -20,11 +15,9 @@ const rooms: Room[] = [
   { id: 4, name: 'Open Space', capacity: 20, available: 8 },
 ];
 
-const snapPoints = ['50%'];
-
 const HomeScreen = () => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-
+  const scrollViewRef = useRef<ScrollView>(null);
   const switchSelectedRoom = (room: Room) => {
     if (selectedRoom?.id === room.id) {
       setSelectedRoom(null);
@@ -36,7 +29,7 @@ const HomeScreen = () => {
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
-      <ThemedScrollView>
+      <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {rooms.map((room) => (
           <TouchableOpacity
             key={room.id}
@@ -70,11 +63,11 @@ const HomeScreen = () => {
             </ThemedView>
           </TouchableOpacity>
         ))}
+        <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
       {selectedRoom && (
         <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)} />
       )}
-
     </ThemedGestureHandlerRootView >
   );
 };
@@ -177,6 +170,9 @@ const styles = StyleSheet.create({
   bottomSheet: {
     flex: 1,
     backgroundColor: 'blue',
+  },
+  bottomMargin: {
+    height: 500,
   },
 });
 

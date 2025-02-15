@@ -1,35 +1,21 @@
 import React from 'react';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Tabs as ExpoTabs, useLocalSearchParams } from 'expo-router';
-import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-// import { ThemedText } from '@/components/ThemedText';
-// import { useSession } from '@/context/auth';
 
 export default function Tabs() {
   const colorScheme = useColorScheme();
-  // get params 
   const { location } = useLocalSearchParams();
-  // const { session, isLoading } = useSession();
-  // if (isLoading) return <ThemedText>Loading...</ThemedText>;
-  // if (!session) return <Redirect href="/" />;
-
   return (
     <ExpoTabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: true,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarBackground: TabBarBackground
       }}>
       <ExpoTabs.Screen
         name="index"

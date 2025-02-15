@@ -1,13 +1,34 @@
-
+import React, { forwardRef } from 'react';
+import { ScrollView, ScrollViewProps, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { ScrollView, ScrollViewProps } from 'react-native';
+
 export type IScrollViewProps = ScrollViewProps & {
   lightColor?: string;
   darkColor?: string;
 };
 
-export function ThemedScrollView({ style, lightColor, darkColor, ...otherProps }: IScrollViewProps) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+// Utilizza forwardRef per inoltrare il ref al componente ScrollView interno
+const ThemedScrollView = forwardRef<ScrollView, IScrollViewProps>(
+  ({ style, lightColor, darkColor, ...otherProps }, ref) => {
+    const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
-  return <ScrollView style={[{ backgroundColor }, style]} {...otherProps} />;
-}
+    return (
+      <ScrollView
+        ref={ref}
+        style={[{ backgroundColor }, style]}
+        contentContainerStyle={styles.container}
+        {...otherProps}
+      >
+        {otherProps.children}
+      </ScrollView>
+    );
+  }
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
+});
+
+export { ThemedScrollView };
