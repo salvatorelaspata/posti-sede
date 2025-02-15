@@ -5,7 +5,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { useState } from 'react';
 import Calendar from "@/components/admin/Calendar";
 import Employee from "@/components/admin/Employee";
-
+import StatBox from "@/components/StatBox";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 
 export default function Admin() {
@@ -26,19 +26,11 @@ export default function Admin() {
             <ThemedScrollView style={styles.adminContainer}>
 
                 <ThemedView style={styles.statsContainer}>
-                    <ThemedView style={styles.statBox}>
-                        <ThemedText style={styles.statNumber}>85%</ThemedText>
-                        <ThemedText style={styles.statLabel}>Occupazione</ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.statBox}>
-                        <ThemedText style={styles.statNumber}>45</ThemedText>
-                        <ThemedText style={styles.statLabel}>Prenotazioni</ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.statBox}>
-                        <ThemedText style={styles.statNumber}>12</ThemedText>
-                        <ThemedText style={styles.statLabel}>Sale</ThemedText>
-                    </ThemedView>
+                    <StatBox number={85} label="Occupazione" />
+                    <StatBox number={45} label="Prenotazioni" />
+                    <StatBox number={12} label="Sale" />
                 </ThemedView>
+
 
                 {selectedIndex === 0 ? <Calendar /> : <Employee />}
             </ThemedScrollView>
@@ -56,29 +48,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         backgroundColor: '#fff',
 
-    },
-    statBox: {
-        flex: 1,
-        backgroundColor: '#f8f9fa',
-        borderRadius: 12,
-        padding: 16,
-        marginHorizontal: 4,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    statNumber: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#007AFF',
-    },
-    statLabel: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 4,
     },
     segmentedControl: {
         margin: 16,

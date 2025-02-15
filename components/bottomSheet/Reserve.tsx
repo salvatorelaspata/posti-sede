@@ -6,13 +6,20 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
+import { formatDate } from '@/constants/Calendar';
+import { useLocalSearchParams } from 'expo-router';
 
 interface ReserveBottomSheetProps {
     selectedRoom: Room;
     onClose: () => void;
+    selectedDate: Date;
 }
 
-export default function ReserveBottomSheet({ selectedRoom, onClose }: ReserveBottomSheetProps) {
+export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate }: ReserveBottomSheetProps) {
+
+    const { location } = useLocalSearchParams();
+    console.log(location)
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [isChecked, setChecked] = useState<boolean>(true);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -57,10 +64,11 @@ export default function ReserveBottomSheet({ selectedRoom, onClose }: ReserveBot
             )}
         >
             <BottomSheetView style={styles.contentContainer}>
-                <ThemedText type="defaultSemiBold" style={styles.title}>Prenota {selectedRoom.name}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.title}>{location as string} - {selectedRoom.name} - {formatDate(selectedDate, 'short')}</ThemedText>
                 <ThemedView style={styles.formContainer}>
+                    {/* <ThemedText type="defaultSemiBold" style={styles.title}>Data: {selectedDate.toLocaleDateString()}</ThemedText> */}
                     <ThemedView style={styles.formRow}>
-                        <ThemedText onPress={handleInteraGiornata}>Intera giornata</ThemedText>
+                        <ThemedText onPress={handleInteraGiornata}>Prenota intera giornata</ThemedText>
                         <Checkbox style={styles.checkbox} value={isChecked} onValueChange={handleInteraGiornata} />
                     </ThemedView>
                     <ThemedView style={styles.formRow}>
@@ -79,11 +87,11 @@ export default function ReserveBottomSheet({ selectedRoom, onClose }: ReserveBot
                     </ThemedView>
                 </ThemedView>
                 <ThemedView style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={handlePrenota} style={[styles.button, { backgroundColor: 'green', width: '70%' }]}>
+                    <TouchableOpacity onPress={handlePrenota} style={[styles.button, { backgroundColor: Colors.light.tint, width: '70%' }]}>
                         <ThemedText type="defaultSemiBold" style={styles.buttonText}>Prenota</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleChiudi} style={[styles.button, { backgroundColor: 'gray' }]}>
-                        <ThemedText type="defaultSemiBold" style={styles.buttonText}>Annulla</ThemedText>
+                    <TouchableOpacity onPress={handleChiudi} style={[styles.button, { backgroundColor: Colors.light.icon }]}>
+                        <ThemedText style={styles.buttonText}>Annulla</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
             </BottomSheetView>
@@ -94,6 +102,8 @@ export default function ReserveBottomSheet({ selectedRoom, onClose }: ReserveBot
 const styles = StyleSheet.create({
     bottomSheet: {
         zIndex: 1000,
+        borderTopWidth: 0.5,
+        borderTopColor: Colors.light.tint,
     },
     contentContainer: {
         flex: 1,

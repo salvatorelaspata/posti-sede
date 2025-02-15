@@ -7,6 +7,8 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerRootView';
 import { ThemedScrollView } from '@/components/ThemedScrollView';
 import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
+import HorizontalCalendar from '@/components/HorizontalCalendar';
+import { Colors } from '@/constants/Colors';
 
 const rooms: Room[] = [
   { id: 1, name: 'Sala Blu', capacity: 8, available: 5 },
@@ -28,6 +30,8 @@ const HomeScreen = () => {
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili</ThemedText>
+      <HorizontalCalendar />
       <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {rooms.map((room) => (
@@ -66,7 +70,7 @@ const HomeScreen = () => {
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
       {selectedRoom && (
-        <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)} />
+        <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)} selectedDate={new Date()} />
       )}
     </ThemedGestureHandlerRootView >
   );
@@ -115,8 +119,14 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedRoom: {
-    borderColor: '#007AFF',
+    borderColor: Colors.light.tint,
     borderWidth: 2,
+    // shadow
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 1, height: 5 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   roomHeader: {
     flexDirection: 'row',
@@ -129,13 +139,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   capacityBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.light.tint,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   capacityText: {
-    color: '#2E7D32',
+    color: Colors.light.whiteText,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -145,7 +155,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   availabilityText: {
-    color: '#666',
+    color: Colors.light.text,
     fontSize: 16,
   },
   progressContainer: {
@@ -157,7 +167,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.light.tint,
     borderRadius: 2,
   },
   contentContainer: {
@@ -172,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
   },
   bottomMargin: {
-    height: 500,
+    // height: 500,
   },
 });
 
