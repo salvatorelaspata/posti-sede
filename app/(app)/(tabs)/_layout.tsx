@@ -45,7 +45,8 @@ export default function Tabs() {
       <ExpoTabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          headerShown: false,
+          title: 'Impostazioni',
           tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
       />
