@@ -15,9 +15,14 @@ const ITEM_MARGIN = 5;
 const TOTAL_ITEM_WIDTH = ITEM_WIDTH + (ITEM_MARGIN * 2);
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-export default function HorizontalCalendar() {
-    const { daysInCalendar, currentDay: currentDayFromHook } = useCalendar();
-    const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
+interface HorizontalCalendarProps {
+    daysInCalendar: any[];
+    currentDay: number;
+    currentDayFromHook: number;
+    setCurrentDay: (day: number) => void;
+}
+
+export default function HorizontalCalendar({ daysInCalendar, currentDay, currentDayFromHook, setCurrentDay }: HorizontalCalendarProps) {
     const flatListRef = useRef<FlatList<any>>(null);
 
     const isDayDisabled = (workDay: number, day: number) => {

@@ -9,6 +9,7 @@ import { ThemedScrollView } from '@/components/ThemedScrollView';
 import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
 import HorizontalCalendar from '@/components/HorizontalCalendar';
 import { Colors } from '@/constants/Colors';
+import { useCalendar } from '@/hooks/useCalendar';
 
 const rooms: Room[] = [
   { id: 1, name: 'Sala Blu', capacity: 8, available: 5 },
@@ -27,11 +28,13 @@ const HomeScreen = () => {
       setSelectedRoom(room);
     }
   }
+  const { daysInCalendar, currentDay: currentDayFromHook, currentMonth, currentYear } = useCalendar();
+  const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili</ThemedText>
-      <HorizontalCalendar />
+      <HorizontalCalendar daysInCalendar={daysInCalendar} currentDay={currentDay} currentDayFromHook={currentDayFromHook} setCurrentDay={setCurrentDay} />
       <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {rooms.map((room) => (
@@ -70,7 +73,9 @@ const HomeScreen = () => {
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
       {selectedRoom && (
-        <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)} selectedDate={new Date()} />
+        <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)}
+          selectedDate={new Date(currentYear, currentMonth, currentDay)}
+        />
       )}
     </ThemedGestureHandlerRootView >
   );

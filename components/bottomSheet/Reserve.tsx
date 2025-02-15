@@ -19,7 +19,6 @@ interface ReserveBottomSheetProps {
 export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate }: ReserveBottomSheetProps) {
 
     const { location } = useLocalSearchParams();
-    console.log(location)
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [isChecked, setChecked] = useState<boolean>(true);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
