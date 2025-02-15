@@ -17,6 +17,7 @@ const locations: Location[] = [
   { id: 'to', name: 'Torino', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20torino%20with%20mountains&aspect=16:9' },
   { id: 'pa', name: 'Palermo', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20palermo%20with%20mountains&aspect=16:9' },
 ];
+
 export default function App() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const router = useRouter()

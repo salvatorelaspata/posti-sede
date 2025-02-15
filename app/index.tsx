@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSession } from '@/context/auth';
 import { Colors } from '@/constants/Colors';
+import { getTenants } from '@/db/api';
+import seed from '@/db/seed';
 
 export default function App() {
   const { signIn } = useSession();
@@ -20,6 +22,11 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  useEffect(() => {
+    getTenants().then((tenants) => {
+      console.log(tenants);
+    });
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -73,6 +80,12 @@ export default function App() {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity style={styles.button} onPress={() => seed()}>
+            <Text style={styles.buttonText}>
+              Seed
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
             <Text style={styles.toggleText}>
               Non hai un account? Registrati
@@ -105,7 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   formsContainer: {
-
     flexDirection: 'row',
   },
   form: {
