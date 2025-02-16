@@ -1,9 +1,37 @@
-import { db } from '../db';
+import { db } from '@/db';
 import { tenants, locations, rooms, users, employees, bookings } from '@/db/schema';
 
-// Dati di esempio per il multi-tenant
+// Array di nomi casuali per generare dati più realistici
+const firstNames = [
+    'Marco', 'Giuseppe', 'Alessandro', 'Andrea', 'Luigi', 'Paolo', 'Francesco', 'Roberto',
+    'Laura', 'Giulia', 'Sofia', 'Martina', 'Chiara', 'Anna', 'Elena', 'Maria'
+];
+
+const lastNames = [
+    'Rossi', 'Bianchi', 'Ferrari', 'Romano', 'Gallo', 'Costa', 'Fontana', 'Conti',
+    'Esposito', 'Ricci', 'Marino', 'Greco', 'Bruno', 'Colombo', 'Rizzo', 'Lombardi'
+];
+
+const departments = [
+    'Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations',
+    'Customer Support', 'Product', 'Legal', 'Research'
+];
+
+const emojis = ['👨‍💻', '👩‍💻', '👨‍💼', '👩‍💼', '👨‍🔧', '👩‍🔧', '👨‍🏫', '👩‍🏫'];
+const roles = ['admin', 'manager', 'user'];
+
+// Funzione per generare un nome casuale
+const getRandomName = () => {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    return { firstName, lastName, fullName: `${firstName} ${lastName}` };
+};
+
+// Funzione per generare un elemento casuale da un array
+const getRandomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
+
 const seedTenants = async () => {
-    const [companyA, companyB] = await db
+    const tenantData = await db
         .insert(tenants)
         .values([
             {
@@ -17,134 +45,179 @@ const seedTenants = async () => {
         ])
         .returning();
 
-    return { companyA, companyB };
+    return {
+        companyA: tenantData[0],
+        companyB: tenantData[1]
+    };
 };
 
 const seedLocationsGotonext = async (tenantId: string) => {
-    const [rome, milan, bergamo] = await db
-        .insert(locations)
-        .values([
-            {
-                tenantId,
-                name: 'Roma HQ',
-                image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20rome%20sunset&aspect=16:9',
-            },
-            {
-                tenantId,
-                name: 'Milano Office',
-                image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20milan%20business%20district&aspect=16:9',
-            },
-            {
-                tenantId,
-                name: 'Bergamo Office',
-                image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20bergamo%20with%20mountains&aspect=16:9',
-            },
-        ])
-        .returning();
+    const locationData = [
+        {
+            name: 'Roma HQ',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20rome%20sunset&aspect=16:9',
+        },
+        {
+            name: 'Milano Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20milan%20business%20district&aspect=16:9',
+        },
+        {
+            name: 'Bergamo Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20bergamo%20with%20mountains&aspect=16:9',
+        },
+        {
+            name: 'Torino Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20turin%20with%20alps&aspect=16:9',
+        },
+        {
+            name: 'Firenze Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20florence%20with%20dome&aspect=16:9',
+        }
+    ].map(loc => ({ ...loc, tenantId }));
 
-    return { rome, milan, bergamo };
+    return await db.insert(locations).values(locationData).returning();
 };
 
 const seedLocationsCubeconsultants = async (tenantId: string) => {
-    const [rome] = await db
-        .insert(locations)
-        .values([
-            {
-                tenantId,
-                name: 'Roma HQ',
-                image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20rome%20sunset&aspect=16:9',
-            },
-        ])
-        .returning();
+    const locationData = [
+        {
+            name: 'Roma HQ',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20rome%20sunset&aspect=16:9',
+        },
+        {
+            name: 'Napoli Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20naples%20with%20vesuvius&aspect=16:9',
+        },
+        {
+            name: 'Palermo Office',
+            image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20palermo%20with%20sea&aspect=16:9',
+        }
+    ].map(loc => ({ ...loc, tenantId }));
 
-    return { rome };
+    return await db.insert(locations).values(locationData).returning();
 };
+
 const seedRooms = async (locationId: string) => {
-    return db
-        .insert(rooms)
-        .values([
-            {
-                locationId,
-                name: 'Open Space',
-                capacity: 10,
-                available: 10
-            },
-            {
-                locationId,
-                name: 'Sala Vetro',
-                capacity: 4,
-                available: 4
-            },
-            {
-                locationId,
-                name: 'Acquario',
-                capacity: 6,
-                available: 6
-            }
-        ]);
+    const roomsData = [
+        {
+            name: 'Open Space A',
+            capacity: 20,
+            available: 20
+        },
+        {
+            name: 'Open Space B',
+            capacity: 15,
+            available: 15
+        },
+        {
+            name: 'Sala Vetro',
+            capacity: 4,
+            available: 4
+        },
+        {
+            name: 'Acquario',
+            capacity: 6,
+            available: 6
+        },
+        {
+            name: 'Sala Riunioni Grande',
+            capacity: 12,
+            available: 12
+        },
+        {
+            name: 'Sala Focus',
+            capacity: 2,
+            available: 2
+        },
+        {
+            name: 'Sala Brainstorming',
+            capacity: 8,
+            available: 8
+        }
+    ].map(room => ({ ...room, locationId }));
+
+    return await db.insert(rooms).values(roomsData).returning();
 };
 
-const seedAdminUserGotonext = async (tenantId: string) => {
-    const user = await db.insert(users).values({
+const seedUsers = async (tenantId: string, domain: string, count: number) => {
+    const usersData = [];
+
+    // Creiamo sempre un admin
+    const adminName = getRandomName();
+    usersData.push({
         tenantId,
-        email: 'admin@gotonext.it',
+        email: `admin@${domain}`,
         password: 'admin',
         role: 'admin',
         emoji: '👨‍💻',
-        fullname: 'Admin'
-    }).returning();
-
-    const employee = await db.insert(employees).values({
-        tenantId,
-        userId: user[0].id,
-        name: 'Admin',
-        department: 'Admin'
-    }).returning();
-
-    return { user, employee };
-};
-
-const seedAdminUserCubeconsultants = async (tenantId: string) => {
-    const user = await db.insert(users).values({
-        tenantId,
-        email: 'admin@cubeconsultants.it',
-        password: 'admin',
-        role: 'admin',
-        emoji: '👨‍💻',
-        fullname: 'Admin'
-    }).returning();
-
-    const employee = await db.insert(employees).values({
-        tenantId,
-        userId: user[0].id,
-        name: 'Admin',
-        department: 'Admin'
-    }).returning();
-
-    return { user, employee };
-};
-
-const seedBookingsGotonext = async (employeeId: string) => {
-    const randomDateInFiveDays = new Date(Date.now() + Math.random() * (Date.now() - new Date('2024-01-01').getTime()));
-    return db.insert(bookings).values({
-        employeeId,
-        date: randomDateInFiveDays,
-        period: 'morning'
+        fullname: adminName.fullName
     });
+
+    // Creiamo gli altri utenti
+    for (let i = 0; i < count - 1; i++) {
+        const name = getRandomName();
+        const role = getRandomElement(roles);
+        usersData.push({
+            tenantId,
+            email: `${name.firstName.toLowerCase()}.${name.lastName.toLowerCase()}@${domain}`,
+            password: 'password123', // In produzione usare password sicure e hashate
+            role,
+            emoji: getRandomElement(emojis),
+            fullname: name.fullName
+        });
+    }
+
+    const insertedUsers = await db.insert(users).values(usersData).returning();
+
+    // Creiamo i corrispondenti dipendenti
+    const employeesData = insertedUsers.map(user => ({
+        tenantId,
+        userId: user.id,
+        name: user.fullname,
+        department: getRandomElement(departments)
+    }));
+
+    return await db.insert(employees).values(employeesData).returning();
 };
 
-const seedBookingsCubeconsultants = async (employeeId: string) => {
-    const randomDateInFiveDays = new Date(Date.now() + Math.random() * (Date.now() - new Date('2024-01-01').getTime()));
-    return db.insert(bookings).values({
-        employeeId,
-        date: randomDateInFiveDays,
-        period: 'morning'
-    });
+const seedBookings = async (tenantId: string, employees: any[], rooms: any[], count: number) => {
+    if (!employees.length || !rooms.length) {
+        console.log('No employees or rooms available for bookings');
+        return [];
+    }
+
+    const bookingsData = [];
+    const periods = ['full', 'morning', 'afternoon'];
+    const statuses = ['pending', 'confirmed', 'cancelled'];
+
+    // Genera prenotazioni per i prossimi 30 giorni
+    for (let i = 0; i < count; i++) {
+        const randomDate = new Date();
+        randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30));
+
+        bookingsData.push({
+            tenantId,
+            employeeId: getRandomElement(employees).id,
+            roomId: getRandomElement(rooms).id,
+            date: randomDate,
+            period: getRandomElement(periods),
+            status: getRandomElement(statuses),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
+            cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
+        });
+    }
+
+    if (bookingsData.length === 0) return [];
+
+    return await db.insert(bookings).values(bookingsData).returning();
 };
 
 const seed = async () => {
-    // Reset database (solo per sviluppo!)
     try {
+        // Reset database
+        console.log('Cleaning database...');
         await Promise.all([
             db.delete(bookings),
             db.delete(rooms),
@@ -156,24 +229,54 @@ const seed = async () => {
 
         console.log('Seeding tenants...');
         const { companyA, companyB } = await seedTenants();
+
+        if (!companyA?.id || !companyB?.id) {
+            throw new Error('Failed to create tenants');
+        }
+
         console.log('Seeding locations...');
-        const { rome } = await seedLocationsGotonext(companyA.id);
-        const { rome: romeCubeconsultants } = await seedLocationsCubeconsultants(companyB.id);
+        const gotonextLocations = await seedLocationsGotonext(companyA.id);
+        const cubeconsultantsLocations = await seedLocationsCubeconsultants(companyB.id);
+
+        if (!gotonextLocations.length || !cubeconsultantsLocations.length) {
+            throw new Error('Failed to create locations');
+        }
+
         console.log('Seeding rooms...');
-        await seedRooms(rome.id);
-        await seedRooms(romeCubeconsultants.id);
-        console.log('Seeding admin users...');
-        const { user: adminUserGotonext, employee: adminEmployeeGotonext } = await seedAdminUserGotonext(companyA.id);
-        const { user: adminUserCubeconsultants, employee: adminEmployeeCubeconsultants } = await seedAdminUserCubeconsultants(companyB.id);
+        const gotonextRoomsPromises = gotonextLocations.map(loc => seedRooms(loc.id));
+        const cubeconsultantsRoomsPromises = cubeconsultantsLocations.map(loc => seedRooms(loc.id));
+
+        const [gotonextRooms, cubeconsultantsRooms] = await Promise.all([
+            Promise.all(gotonextRoomsPromises),
+            Promise.all(cubeconsultantsRoomsPromises)
+        ]);
+
+        console.log('Seeding users and employees...');
+        const gotonextEmployees = await seedUsers(companyA.id, 'gotonext.it', 50);
+        const cubeconsultantsEmployees = await seedUsers(companyB.id, 'cubeconsultants.it', 30);
+
         console.log('Seeding bookings...');
-        await seedBookingsGotonext(adminEmployeeGotonext[0].id);
-        await seedBookingsCubeconsultants(adminEmployeeCubeconsultants[0].id);
+        // Creiamo più prenotazioni per Gotonext
+        await seedBookings(
+            companyA.id,
+            gotonextEmployees,
+            gotonextRooms.flat(),
+            100
+        );
+
+        // Creiamo meno prenotazioni per Cubeconsultants
+        await seedBookings(
+            companyB.id,
+            cubeconsultantsEmployees,
+            cubeconsultantsRooms.flat(),
+            60
+        );
 
         console.log('Database seeded successfully!');
     } catch (error) {
         console.error('Error seeding database:', error);
+        throw error;
     }
 };
-
 
 export default seed;

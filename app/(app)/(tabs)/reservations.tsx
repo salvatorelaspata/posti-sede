@@ -7,10 +7,20 @@ import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
 import { Image } from "expo-image";
-import { isPast } from "@/hooks/useCalendar";
+
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { Booking, User } from "@/types";
+import { getMonthUserBookings } from "@/db/api";
+import { getMonthStatus, isPast } from "@/hooks/useCalendar";
+
+interface GenericObject {
+    [key: string]: any;
+}
+
+type BookingWithAny = Booking & GenericObject;
+
 
 export default function Reservations() {
     const router = useRouter();
@@ -18,11 +28,28 @@ export default function Reservations() {
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-
+    const [bookings, setBookings] = useState<BookingWithAny[]>([]);
     useLayoutEffect(() => {
         // Reservations
         if (!user) return router.replace('/login');
     }, [user]);
+
+    useEffect(() => {
+        const fetchBookings = async () => {
+            // Start of Selection
+            if (user) {
+                const bookingsData = await getMonthUserBookings(user.id ?? '', selectedMonth, selectedYear);
+
+                const formattedBookings: BookingWithAny[] = bookingsData.map((item) => ({
+                    ...item.bookings,
+                    room: item.rooms,
+                    date: new Date(item?.bookings?.date ?? ''),
+                }));
+                setBookings(formattedBookings);
+            }
+        }
+        fetchBookings();
+    }, [user, selectedMonth, selectedYear]);
 
     const handleSegmentedControlChange = (value: number) => {
         setSelectedIndex(value);
@@ -35,6 +62,9 @@ export default function Reservations() {
             } else {
                 setSelectedMonth(currentMonth - 1)
             }
+        } else if (value === 1) {
+            setSelectedMonth(new Date().getMonth())
+            setSelectedYear(new Date().getFullYear())
         } else {
             if (currentMonth === 11) {
                 setSelectedMonth(0)
@@ -45,24 +75,33 @@ export default function Reservations() {
         }
     }
 
-    const reservations = useMemo(() => {
-        const date = new Date(selectedYear, selectedMonth, Math.floor(Math.random() * 30));
-        return Array.from({ length: Math.floor(Math.random() * 5) }, () => ({
-            id: Math.random(),
-            date: new Date(date.getFullYear(), date.getMonth(), Math.floor(Math.random() * 30)),
-            roomName: 'Stanza ' + (Math.floor(Math.random() * 5) + 1),
-        }));
-    }, [selectedMonth, selectedYear]);
+    const handleNextMonth = () => {
+        if (selectedMonth === 11) {
+            setSelectedMonth(0)
+            setSelectedYear(selectedYear + 1)
+        } else {
+            setSelectedMonth(selectedMonth + 1)
+        }
+        setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
 
-    const image = require('@/assets/404.png')
+    }
 
+    const handlePreviousMonth = () => {
+        if (selectedMonth === 0) {
+            setSelectedMonth(11)
+            setSelectedYear(selectedYear - 1)
+        } else {
+            setSelectedMonth(selectedMonth - 1)
+        }
+        setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
+    }
     return (
         <ThemedView style={styles.container}>
             <ThemedText type="subtitle" style={styles.title}>Date disponibili</ThemedText>
             {/* segmented control per selezionare: passate o future */}
             <ThemedView style={styles.segmentedControlContainer}>
                 <SegmentedControl
-                    values={['Passate', 'Pianificate']}
+                    values={['Passate', 'Oggi', 'Pianificate']}
                     selectedIndex={selectedIndex}
                     style={styles.segmentedControl}
                     onChange={(event) => handleSegmentedControlChange(event.nativeEvent.selectedSegmentIndex)}
@@ -70,49 +109,37 @@ export default function Reservations() {
             </ThemedView>
             <ThemedView style={styles.monthSelectorContainer}>
                 <HorizontalMonthSelector
+                    handleNextMonth={handleNextMonth}
+                    handlePreviousMonth={handlePreviousMonth}
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
-                    onMonthChange={(month) => {
-                        setSelectedMonth(month)
-                        if (isPast(new Date(selectedYear, selectedMonth, 1))) {
-                            setSelectedIndex(0)
-                        } else {
-                            setSelectedIndex(1)
-                        }
-                    }}
-                    onYearChange={(year) => {
-                        setSelectedYear(year)
-                        if (isPast(new Date(selectedYear, selectedMonth, 1))) {
-                            setSelectedIndex(0)
-                        } else {
-                            setSelectedIndex(1)
-                        }
-                    }}
+                    onMonthChange={setSelectedMonth}
+                    onYearChange={setSelectedYear}
                 />
             </ThemedView>
             {/* crea i box inerenti alle prenotazioni del mese selezionato */}
             <ThemedView style={styles.reservationsContainer}>
                 <StatBox number={getDaysInMonth(selectedMonth, selectedYear)} label="totali" />
                 <StatBox number={getTotalWorkingDaysInMonth(selectedMonth, selectedYear)} label="lavorativi" />
-                <StatBox number={reservations.length} label="Prenotazioni" />
+                <StatBox number={bookings.length} label="Prenotazioni" />
             </ThemedView>
             {/* crea la lista delle prenotazioni */}
             <ThemedView style={styles.reservationsList}>
                 <FlatList
                     style={styles.flatList}
-                    data={reservations}
-                    keyExtractor={(item) => item.id.toString()}
+                    data={bookings}
+                    keyExtractor={(item) => item.id?.toString() ?? ''}
                     ListEmptyComponent={
                         <ThemedView style={styles.emptyListContainer}>
                             <ThemedText style={[styles.emptyListText, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} type="default">Nessuna prenotazione trovata</ThemedText>
-                            <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} />
+                            {/* <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} /> */}
                         </ThemedView>
                     }
                     renderItem={({ item }) => (
                         // se nel passato allora cambia colore
                         <ThemedView key={item.id} style={[styles.reservationItem, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
                             <ThemedText type="defaultSemiBold" style={styles.reservationDate}>{formatDate(item.date, 'full')}</ThemedText>
-                            <ThemedText style={styles.reservationRoomName}>{item.roomName}</ThemedText>
+                            <ThemedText style={styles.reservationRoomName}>{item.room.name}</ThemedText>
                         </ThemedView>
                     )}
                 />

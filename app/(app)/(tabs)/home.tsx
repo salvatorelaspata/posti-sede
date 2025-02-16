@@ -14,7 +14,8 @@ import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { useAuthStore } from '@/store/auth-store';
 import { useRouter } from 'expo-router';
-
+import { getAvailabilityForLocation } from '@/db/api';
+import { RoomComponent } from '@/components/Room';
 const HomeScreen = () => {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -22,9 +23,22 @@ const HomeScreen = () => {
   const { rooms, fetchRooms } = useTenantStore();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  const { daysInCalendar, currentDay: currentDayFromHook, currentMonth, currentYear } = useCalendar();
+  const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
+
+  const [availability, setAvailability] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (location) {
+      const fetchAvailability = async () => {
+        const availability = await getAvailabilityForLocation(location.id, new Date(currentYear, currentMonth, currentDay));
+        setAvailability(availability);
+      }
+      fetchAvailability();
+    }
+  }, [location]);
 
   useLayoutEffect(() => {
-    // Home
     if (!user) return router.replace('/login');
   }, [user]);
 
@@ -41,47 +55,16 @@ const HomeScreen = () => {
       setSelectedRoom(room);
     }
   }
-  const { daysInCalendar, currentDay: currentDayFromHook, currentMonth, currentYear } = useCalendar();
-  const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili</ThemedText>
       <HorizontalCalendar daysInCalendar={daysInCalendar} currentDay={currentDay} currentDayFromHook={currentDayFromHook} setCurrentDay={setCurrentDay} />
       <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
+      {/* <ThemedText>{JSON.stringify(availability, null, 2)}</ThemedText> */}
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {rooms.length > 0 ? rooms.map((room) => (
-          <TouchableOpacity
-            key={room.id}
-            style={[
-              styles.roomCard,
-              selectedRoom?.id === room.id && styles.selectedRoom
-            ]}
-            onPress={() => switchSelectedRoom(room)}
-          >
-            <ThemedView style={styles.roomHeader}>
-              <ThemedText style={styles.roomName}>{room.name}</ThemedText>
-              <ThemedView style={styles.capacityBadge}>
-                <ThemedText style={styles.capacityText}>
-                  {room.available}/???
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
-            <ThemedView style={styles.roomInfo}>
-              <FontAwesome5 name="users" size={20} color="#666" />
-              <ThemedText style={styles.availabilityText}>
-                {room.available} posti disponibili
-              </ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.progressContainer}>
-              <ThemedView
-                style={[
-                  styles.progressBar,
-                  { width: `${(room.available / room.capacity) * 100}%` }
-                ]}
-              />
-            </ThemedView>
-          </TouchableOpacity>
+          <RoomComponent key={room.id} room={room} selectedRoom={selectedRoom} switchSelectedRoom={switchSelectedRoom} selectedDate={new Date(currentYear, currentMonth, currentDay)} />
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
@@ -120,80 +103,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     margin: 16,
-  },
-  roomCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedRoom: {
-    borderColor: Colors.light.tint,
-    borderWidth: 2,
-    // shadow
-    shadowColor: Colors.light.tint,
-    shadowOffset: { width: 1, height: 5 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  roomHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  roomName: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  capacityBadge: {
-    backgroundColor: Colors.light.tint,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  capacityText: {
-    color: Colors.light.whiteText,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  roomInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  availabilityText: {
-    color: Colors.light.text,
-    fontSize: 16,
-  },
-  progressContainer: {
-    height: 4,
-    backgroundColor: '#eee',
-    borderRadius: 2,
-    marginTop: 12,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: Colors.light.tint,
-    borderRadius: 2,
-  },
-  contentContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  modalContainer: {
-    flex: 1,
   },
   bottomSheet: {
     flex: 1,

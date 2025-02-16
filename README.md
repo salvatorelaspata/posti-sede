@@ -26,4 +26,6 @@ Fill the `.env` file with the correct values.
 npm start
 ```
 
+# TODO
 
+- [ ] I18N

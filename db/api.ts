@@ -1,7 +1,8 @@
 
 import { db } from '@/db';
-import { eq, sql, and } from 'drizzle-orm';
-import { employees, rooms, tenants, users } from './schema';
+import { eq, sql, and, gte, lt } from 'drizzle-orm';
+import { employees, rooms, tenants, users, bookings } from './schema';
+
 
 export const getUserByEmailAndPassword = async (email: string, password: string) => {
 
@@ -74,13 +75,51 @@ export const updateUserPassword = async (id: string, password: string) => {
     return updatedUser[0];
 }
 
-export const getAvailabilityForLocation = async (locationId: string) => {
-    const availability = await db.select().from(rooms).where(eq(rooms.locationId, locationId));
+// direct api call
+export const getAvailabilityForLocation = async (locationId: string, date: Date) => {
+    // get all bookings for the location and date (join?)
+    const availability = [];
+    const _rooms = await db.select().from(rooms).where(eq(rooms.locationId, locationId));
+
+    for (const room of _rooms) {
+        const _bookings = await db.select().from(bookings).where(and(eq(bookings.roomId, room.id), eq(bookings.date, date)));
+        const _capacity = await db.select().from(rooms).where(eq(rooms.id, room.id));
+        availability.push({
+            roomId: room.id,
+            roomName: room.name,
+            bookings: _bookings,
+            capacity: _capacity[0].capacity,
+            available: _capacity[0].capacity - _bookings.length,
+        });
+    }
     return availability;
 }
 
-export const getAvailabilityForRoom = async (roomId: string) => {
-    const availability = await db.select().from(rooms).where(eq(rooms.id, roomId));
-    return availability;
+export const getBookingsForRoom = async (roomId: string, date: Date) => {
+    const firstDate = new Date(date);
+    firstDate.setHours(0, 0, 0, 0);
+    const lastDate = new Date(date);
+    lastDate.setHours(23, 59, 59, 999);
+    const _bookings = await db.select().from(bookings)
+        .where(and(eq(bookings.roomId, roomId),
+            gte(bookings.date, firstDate),
+            lt(bookings.date, lastDate)
+        ));
+    return _bookings;
 }
 
+export const getMonthUserBookings = async (userId: string, month: number, year: number) => {
+    const firstDate = new Date(year, month, 1);
+    firstDate.setHours(0, 0, 0, 0);
+    const lastDate = new Date(year, month + 1, 0);
+    lastDate.setHours(23, 59, 59, 999);
+    const _bookings = await db.select().from(users)
+        .leftJoin(employees, eq(users.id, employees.userId))
+        .leftJoin(bookings, eq(employees.id, bookings.employeeId))
+        .leftJoin(rooms, eq(bookings.roomId, rooms.id))
+        .where(and(eq(users.id, userId),
+            gte(bookings.date, firstDate),
+            lt(bookings.date, lastDate)
+        ));
+    return _bookings;
+}

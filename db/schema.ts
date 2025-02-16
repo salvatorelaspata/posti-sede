@@ -68,6 +68,11 @@ export const bookings = pgTable('bookings', {
     employeeId: uuid('employee_id').references(() => employees.id),
     date: timestamp('date').notNull(),
     period: varchar('period', { length: 50 }).$type<'full' | 'morning' | 'afternoon'>(),
+    status: varchar('status', { length: 50 }).$type<'pending' | 'confirmed' | 'cancelled'>().default('pending'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+    confirmedAt: timestamp('confirmed_at'),
+    cancelledAt: timestamp('cancelled_at'),
 });
 
 // Tabella presenze giornaliere

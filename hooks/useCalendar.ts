@@ -34,8 +34,31 @@ export function useCalendar() {
 
 export const isPast = (date: Date): boolean => {
     const today = new Date();
-    date.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
     return today > date
 };
 
+export function getMonthStatus(targetDate: Date) {
+    const current = new Date();
+
+    // Calcola l'anno/mese corrente e target (mesi 0-based)
+    const currentYear = current.getFullYear();
+    const currentMonth = current.getMonth();
+
+    const targetYear = targetDate.getFullYear();
+    const targetMonth = targetDate.getMonth();
+
+    // Calcola la differenza in mesi considerando gli anni
+    if (targetYear < currentYear) {
+        return 0
+    } else if (targetYear === currentYear) {
+        if (targetMonth < currentMonth) {
+            return 0
+        } else if (targetMonth === currentMonth) {
+            return 1
+        } else {
+            return 2
+        }
+    } else {
+        return 2
+    }
+}

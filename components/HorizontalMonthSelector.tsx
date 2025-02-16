@@ -12,25 +12,17 @@ interface HorizontalMonthSelectorProps {
     selectedYear: number;
     onMonthChange: (month: number) => void;
     onYearChange: (year: number) => void;
+    handleNextMonth: () => void;
+    handlePreviousMonth: () => void;
 }
 
-export default function HorizontalMonthSelector({ selectedMonth, selectedYear, onMonthChange, onYearChange }: HorizontalMonthSelectorProps) {
+export default function HorizontalMonthSelector({ selectedMonth, selectedYear, onMonthChange, onYearChange, handleNextMonth, handlePreviousMonth }: HorizontalMonthSelectorProps) {
 
     const handleMonthChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev') {
-            if (selectedMonth === 0) {
-                onMonthChange(11);
-                onYearChange(selectedYear - 1);
-            } else {
-                onMonthChange(selectedMonth - 1);
-            }
+            handlePreviousMonth();
         } else {
-            if (selectedMonth === 11) {
-                onMonthChange(0);
-                onYearChange(selectedYear + 1);
-            } else {
-                onMonthChange(selectedMonth + 1);
-            }
+            handleNextMonth();
         }
     };
 

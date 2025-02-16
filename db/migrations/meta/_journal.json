@@ -22,6 +22,13 @@
       "when": 1739700547300,
       "tag": "0002_robust_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1739727868372,
+      "tag": "0003_sleepy_puff_adder",
+      "breakpoints": true
     }
   ]
 }
