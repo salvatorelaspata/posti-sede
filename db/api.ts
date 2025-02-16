@@ -1,22 +1,22 @@
 
 import { db } from '@/db';
 import { eq, sql, and } from 'drizzle-orm';
-import { tenants, users } from './schema';
+import { employees, rooms, tenants, users } from './schema';
 
 export const getUserByEmailAndPassword = async (email: string, password: string) => {
-    console.log(email, password);
+
     const user = await db.select()
         .from(users)
         .where(and(eq(users.email, email), eq(users.password, password)))
         .limit(1);
-    console.log(user);
+
     return user;
 }
 
 export const getTenantFromEmail = async (email: string) => {
     const tenant = email.split('@')[1];
     const tenantId = await db.select().from(tenants).where(sql`${tenants.allowedDomains} @> ${JSON.stringify([tenant])}`).limit(1);
-    console.log(tenantId);
+
     if (tenantId.length === 0) {
         throw new Error('Tenant non trovato');
     }
@@ -28,7 +28,7 @@ export const updateUser = async (id: string, data: any) => {
         fullname: data.fullname,
         emoji: data.emoji,
     }).where(eq(users.id, id)).returning();
-    console.log(updatedUser);
+
     return updatedUser[0];
 }
 
@@ -56,5 +56,31 @@ export const createUserFromEmailAndPassword = async (email: string, password: st
         role: 'employee',
         createdAt: new Date(),
     }).returning();
+
+    await db.insert(employees).values({
+        tenantId: tenantId[0].id,
+        userId: user[0].id,
+        name: name,
+        department: 'Employee',
+    });
+
     return user;
 }
+
+export const updateUserPassword = async (id: string, password: string) => {
+    const updatedUser = await db.update(users).set({
+        password,
+    }).where(eq(users.id, id)).returning();
+    return updatedUser[0];
+}
+
+export const getAvailabilityForLocation = async (locationId: string) => {
+    const availability = await db.select().from(rooms).where(eq(rooms.locationId, locationId));
+    return availability;
+}
+
+export const getAvailabilityForRoom = async (roomId: string) => {
+    const availability = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    return availability;
+}
+

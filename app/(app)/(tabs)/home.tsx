@@ -63,7 +63,7 @@ const HomeScreen = () => {
               <ThemedText style={styles.roomName}>{room.name}</ThemedText>
               <ThemedView style={styles.capacityBadge}>
                 <ThemedText style={styles.capacityText}>
-                  {room.available}/{room.capacity}
+                  {room.available}/???
                 </ThemedText>
               </ThemedView>
             </ThemedView>

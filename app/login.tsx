@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
@@ -79,23 +79,19 @@ export default function App() {
             />
           </View>
 
-          <TouchableOpacity style={styles.button}
-            onPress={handleSignIn}>
-            <Text style={styles.buttonText}>
-              Accedi
-            </Text>
+          <TouchableOpacity style={styles.loginButton} onPress={handleSignIn}>
+            <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
+            <Text style={styles.buttonText}>Accedi</Text>
           </TouchableOpacity>
-          {/* seed */}
-          {/* <TouchableOpacity style={styles.button} onPress={() => {
-            seed();
-          }}>
-            <Text style={styles.buttonText}>
-              Seed
-            </Text>
-          </TouchableOpacity> */}
+
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
             <Text style={styles.toggleText}>
               Non hai un account? Registrati
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/')}>
+            <Text style={styles.toggleText}>
+              Torna alla home
             </Text>
           </TouchableOpacity>
           {error && <Text style={styles.errorText}>{error}</Text>}
@@ -164,10 +160,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  loginButton: {
+    backgroundColor: Colors.light.tint,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
   buttonText: {
-    color: 'white',
-    fontSize: 18,
+    color: Colors.light.whiteText,
+    fontSize: 16,
     fontWeight: 'bold',
+    marginLeft: 8,
   },
   toggleButton: {
     marginTop: 20,

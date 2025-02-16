@@ -1,6 +1,5 @@
 import { db } from '../db';
 import { tenants, locations, rooms, users, employees, bookings } from '@/db/schema';
-// import { eq } from 'drizzle-orm';
 
 // Dati di esempio per il multi-tenant
 const seedTenants = async () => {
@@ -86,47 +85,94 @@ const seedRooms = async (locationId: string) => {
 };
 
 const seedAdminUserGotonext = async (tenantId: string) => {
-    return db.insert(users).values({
+    const user = await db.insert(users).values({
         tenantId,
         email: 'admin@gotonext.it',
         password: 'admin',
         role: 'admin',
         emoji: '👨‍💻',
         fullname: 'Admin'
-    });
+    }).returning();
+
+    const employee = await db.insert(employees).values({
+        tenantId,
+        userId: user[0].id,
+        name: 'Admin',
+        department: 'Admin'
+    }).returning();
+
+    return { user, employee };
 };
 
 const seedAdminUserCubeconsultants = async (tenantId: string) => {
-    return db.insert(users).values({
+    const user = await db.insert(users).values({
         tenantId,
         email: 'admin@cubeconsultants.it',
         password: 'admin',
         role: 'admin',
         emoji: '👨‍💻',
         fullname: 'Admin'
+    }).returning();
+
+    const employee = await db.insert(employees).values({
+        tenantId,
+        userId: user[0].id,
+        name: 'Admin',
+        department: 'Admin'
+    }).returning();
+
+    return { user, employee };
+};
+
+const seedBookingsGotonext = async (employeeId: string) => {
+    const randomDateInFiveDays = new Date(Date.now() + Math.random() * (Date.now() - new Date('2024-01-01').getTime()));
+    return db.insert(bookings).values({
+        employeeId,
+        date: randomDateInFiveDays,
+        period: 'morning'
+    });
+};
+
+const seedBookingsCubeconsultants = async (employeeId: string) => {
+    const randomDateInFiveDays = new Date(Date.now() + Math.random() * (Date.now() - new Date('2024-01-01').getTime()));
+    return db.insert(bookings).values({
+        employeeId,
+        date: randomDateInFiveDays,
+        period: 'morning'
     });
 };
 
 const seed = async () => {
     // Reset database (solo per sviluppo!)
-    await Promise.all([
-        db.delete(bookings),
-        db.delete(rooms),
-        db.delete(locations),
-        db.delete(employees),
-        db.delete(users),
-        db.delete(tenants)
-    ]);
+    try {
+        await Promise.all([
+            db.delete(bookings),
+            db.delete(rooms),
+            db.delete(locations),
+            db.delete(employees),
+            db.delete(users),
+            db.delete(tenants)
+        ]);
 
-    const { companyA, companyB } = await seedTenants();
-    const { rome } = await seedLocationsGotonext(companyA.id);
-    const { rome: romeCubeconsultants } = await seedLocationsCubeconsultants(companyB.id);
-    await seedRooms(rome.id);
-    await seedRooms(romeCubeconsultants.id);
-    await seedAdminUserGotonext(companyA.id);
-    await seedAdminUserCubeconsultants(companyB.id);
+        console.log('Seeding tenants...');
+        const { companyA, companyB } = await seedTenants();
+        console.log('Seeding locations...');
+        const { rome } = await seedLocationsGotonext(companyA.id);
+        const { rome: romeCubeconsultants } = await seedLocationsCubeconsultants(companyB.id);
+        console.log('Seeding rooms...');
+        await seedRooms(rome.id);
+        await seedRooms(romeCubeconsultants.id);
+        console.log('Seeding admin users...');
+        const { user: adminUserGotonext, employee: adminEmployeeGotonext } = await seedAdminUserGotonext(companyA.id);
+        const { user: adminUserCubeconsultants, employee: adminEmployeeCubeconsultants } = await seedAdminUserCubeconsultants(companyB.id);
+        console.log('Seeding bookings...');
+        await seedBookingsGotonext(adminEmployeeGotonext[0].id);
+        await seedBookingsCubeconsultants(adminEmployeeCubeconsultants[0].id);
 
-    console.log('Database seeded successfully!');
+        console.log('Database seeded successfully!');
+    } catch (error) {
+        console.error('Error seeding database:', error);
+    }
 };
 
 

@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
 import { User } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserFromEmailAndPassword, getTenantFromEmail, getUserByEmailAndPassword, updateUser } from '@/db/api';
+import { createUserFromEmailAndPassword, getTenantFromEmail, getUserByEmailAndPassword, updateUser, updateUserPassword } from '@/db/api';
 
 type AuthState = {
     user: Partial<User> | null;
@@ -41,6 +41,20 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
             setTenant: (tenant: string | null) => set({ tenant }),
+            signInBasic: async (email, password) => {
+                set({ isLoading: true, error: null });
+                const user = await getUserByEmailAndPassword(email, password);
+                if (user.length === 0) {
+                    throw new Error('Credenziali non valide');
+                }
+                const tenant = await getTenantFromEmail(email);
+                try {
+                    await setItemAsync('authToken', user[0].id);
+                } catch (error) {
+                    throw error;
+                }
+                set({ user: user[0], tenant: tenant.id, isLoading: false });
+            },
             signInGoogle: async (user: Partial<User>, token: string) => {
                 set({ isLoading: true });
                 try {
@@ -50,12 +64,10 @@ export const useAuthStore = create<AuthState>()(
                 }
                 set({ user: user, token, isLoading: false });
             },
-
             signOut: () => {
                 deleteItemAsync('authToken');
                 set({ user: null, token: null, tenant: null });
             },
-
             hydrateAuth: async () => {
                 set({ isLoading: true });
                 try {
@@ -69,26 +81,6 @@ export const useAuthStore = create<AuthState>()(
                     set({ error: 'Failed to hydrate auth', isLoading: false });
                 }
             },
-
-            signInBasic: async (email, password) => {
-                set({ isLoading: true, error: null });
-
-                // retrieve user and tenant in one query
-                const user = await getUserByEmailAndPassword(email, password);
-                if (user.length === 0) {
-                    throw new Error('Credenziali non valide');
-                }
-
-                console.log({ user });
-
-                const tenant = await getTenantFromEmail(email);
-                try {
-                    await setItemAsync('authToken', user[0].id);
-                } catch (error) {
-                    throw error;
-                }
-                set({ user: user[0], tenant: tenant.id, isLoading: false });
-            },
             updateProfile: async (name: string, emoji: string) => {
                 const userId = get().user?.id;
                 if (!userId) {
@@ -99,15 +91,14 @@ export const useAuthStore = create<AuthState>()(
             },
             resetPassword: async (email, oldPassword, newPassword) => {
                 // TODO: send email to user with reset password link
-                // for the moment just log the email
-                console.log({ email, oldPassword, newPassword });
+
                 // check if old password is correct
                 const user = await getUserByEmailAndPassword(email, oldPassword);
                 if (user.length === 0) {
                     throw new Error('Password non valida');
                 }
                 // update password
-                const updatedUser = await updateUser(user[0].id, { password: newPassword });
+                const updatedUser = await updateUserPassword(user[0].id, newPassword);
                 set({ user: updatedUser });
             }
         }),

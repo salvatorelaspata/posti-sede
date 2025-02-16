@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
+
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
@@ -29,10 +30,9 @@ export default function LandingPage() {
                 body: 'Salve,\n vorrei informazioni sulla vostra soluzione per le postazioni di lavoro.',
             });
         } else {
-            console.log('Email non disponibile');
+            Alert.alert('Email non disponibile', 'Per favore, contattaci tramite il nostro numero di telefono');
         }
     };
-
     return (
         <ScrollView style={styles.container} bounces={false}>
             <ImageBackground
@@ -52,14 +52,14 @@ export default function LandingPage() {
 
             <View style={styles.content}>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                        <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
-                        <Text style={styles.buttonText}>Accedi</Text>
-                    </TouchableOpacity>
-
                     <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                         <MaterialIcons name="person-add" size={24} color={Colors.light.whiteText} />
                         <Text style={styles.buttonText}>Registrati</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                        <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
+                        <Text style={styles.buttonText}>Accedi</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: -30,
+        marginTop: -50,
         marginBottom: 30,
     },
     loginButton: {
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     featuresContainer: {
-        marginBottom: 30,
+        marginBottom: 8,
     },
     featureCard: {
         backgroundColor: Colors.light.whiteText,
