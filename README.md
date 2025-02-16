@@ -26,6 +26,27 @@ Fill the `.env` file with the correct values.
 npm start
 ```
 
+## Database
+
+Generate the schema.
+
+```bash
+npm run generate
+```
+
+Push the schema to the database.
+
+```bash 
+npm run push
+```
+
+Studio
+
+```bash
+npm run studio
+```
+
 # TODO
 
+- [ ] Manage google auth
 - [ ] I18N

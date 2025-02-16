@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { eq, sql, and, gte, lt } from 'drizzle-orm';
-import { employees, rooms, tenants, users, bookings } from './schema';
+import { employees, rooms, tenants, users, bookings, locations } from './schema';
 
 export const getUserByEmailAndPassword = async (email: string, password: string) => {
 
@@ -132,17 +132,71 @@ export const deleteBooking = async (bookingId: string): Promise<void> => {
 };
 
 export const insertBooking = async (tenantId: string, employeeId: string, roomId: string, date: Date, period: string, status: string) => {
-    const newBooking = await db.insert(bookings).values({
-        tenantId,
-        roomId,
-        employeeId,
-        date,
-        period,
-        status,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        confirmedAt: null,
-        cancelledAt: null
-    }).returning();
-    return newBooking[0];
+    // const newBooking = await db.insert(bookings).values({
+    //     tenantId,
+    //     roomId,
+    //     employeeId,
+    //     date,
+    //     period,
+    //     status,
+    //     createdAt: new Date(),
+    //     updatedAt: new Date(),
+    //     confirmedAt: null,
+    //     cancelledAt: null
+    // }).returning();
+    // return newBooking[0];
+}
+
+export const getAttendance = async (month: Date, year: number) => {
+    // Calcola il primo e l'ultimo giorno del mese (con orari settati a inizio/fine giornata)
+    const firstDate = new Date(year, month.getMonth(), 1);
+    firstDate.setHours(0, 0, 0, 0);
+    const lastDate = new Date(year, month.getMonth() + 1, 0);
+    lastDate.setHours(23, 59, 59, 999);
+
+    // Recupera tutte le prenotazioni nel range del mese
+    const bookingsData: any[] = await db
+        .select()
+        .from(bookings)
+        .leftJoin(employees, eq(bookings.employeeId, employees.id))
+        .leftJoin(users, eq(employees.userId, users.id))
+        .leftJoin(rooms, eq(bookings.roomId, rooms.id))
+        .leftJoin(locations, eq(rooms.locationId, locations.id))
+        .leftJoin(tenants, eq(locations.tenantId, tenants.id))
+        .where(and(gte(bookings.date, firstDate), lt(bookings.date, lastDate)));
+
+    // Raggruppa le prenotazioni per dipendente, contando i giorni unici in cui è avvenuta una prenotazione.
+    const attendanceMap = new Map();
+
+    for (const booking of bookingsData) {
+        // Utilizza l'id del dipendente (potrebbe essere disponibile da employees o come booking.employeeId)
+        const employeeId = booking.employees?.id || booking.employeeId;
+        if (!employeeId) continue;
+
+        // Converte la data in formato "YYYY-MM-DD" per escludere l'orario e contare un giorno solo una volta
+        const bookingDay = new Date(booking.date).toISOString().split('T')[0];
+        // Se il dipendente non è ancora presente nella mappa, lo aggiungiamo
+        if (!attendanceMap.has(employeeId)) {
+            attendanceMap.set(employeeId, {
+                id: employeeId,
+                employeeName: booking.employees?.name || booking.users?.fullname || 'Sconosciuto',
+                days: new Set<string>()
+            });
+        }
+        // Aggiunge la data al set dei giorni per quel dipendente
+        attendanceMap.get(employeeId).days.add(bookingDay);
+    }
+
+    // Converte la mappa in un array, calcolando il numero di giorni pianificati per ciascun dipendente
+    const attendanceList = Array.from(attendanceMap.values()).map((item: any) => ({
+        id: item.id,
+        employeeName: item.employeeName,
+        count: item.days.size
+    }));
+
+    console.log('********************');
+    console.log(attendanceList);
+    console.log('********************');
+
+    return attendanceList;
 }

@@ -1,31 +1,29 @@
-import { StyleSheet, ScrollView } from "react-native";
-import { Employee as EmployeeType } from "@/types";
+import { StyleSheet, FlatList, View } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
+import { useAuthStore } from "@/store/auth-store";
+interface EmployeeProps {
+    attendance: any[];
+}
 
-const employees: EmployeeType[] = [
-    { id: 1, name: 'Marco Rossi', department: 'Sviluppo', presences: 15 },
-    { id: 2, name: 'Laura Bianchi', department: 'Design', presences: 18 },
-    { id: 3, name: 'Giuseppe Verdi', department: 'Marketing', presences: 12 },
-    { id: 4, name: 'Anna Neri', department: 'HR', presences: 20 },
-];
-
-export default function Employee() {
+export default function Employee({ attendance }: EmployeeProps) {
+    const { user } = useAuthStore();
     return (
-        <ScrollView style={styles.employeeList}>
-            {employees.map((employee) => (
-                <ThemedView key={employee.id} style={styles.employeeCard}>
-                    <ThemedView style={styles.employeeInfo}>
-                        <ThemedText style={styles.employeeName}>{employee.name}</ThemedText>
-                        <ThemedText style={styles.employeeDepartment}>{employee.department}</ThemedText>
-                    </ThemedView>
+        <FlatList
+            data={attendance}
+            renderItem={({ item }) => (
+                <ThemedView key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.users.id ? '#E3F2FD' : '#fff' }]}>
+                    <View style={styles.employeeInfo}>
+                        <ThemedText style={styles.employeeName}>{item.users.fullname}</ThemedText>
+                        <ThemedText style={styles.employeeDepartment}>{item.employees.department}</ThemedText>
+                    </View>
                     <ThemedView style={styles.presenceBadge}>
-                        <ThemedText style={styles.presenceText}>{employee.presences}</ThemedText>
+                        <ThemedText style={styles.presenceText}>{item.count}</ThemedText>
                         <ThemedText style={styles.presenceLabel}>presenze</ThemedText>
                     </ThemedView>
                 </ThemedView>
-            ))}
-        </ScrollView>
+            )}
+        />
     )
 }
 

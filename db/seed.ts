@@ -30,6 +30,11 @@ const getRandomName = () => {
 // Funzione per generare un elemento casuale da un array
 const getRandomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
 
+// Funzione per generare una data casuale compresa tra due date
+const randomDateBetween = (start: Date, end: Date): Date => {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+};
+
 const seedTenants = async () => {
     const tenantData = await db
         .insert(tenants)
@@ -180,6 +185,7 @@ const seedUsers = async (tenantId: string, domain: string, count: number) => {
     return await db.insert(employees).values(employeesData).returning();
 };
 
+// Funzione esistente per generare prenotazioni (su un range di giorni "relativo")
 const seedBookings = async (tenantId: string, employees: any[], rooms: any[], count: number) => {
     if (!employees.length || !rooms.length) {
         console.log('No employees or rooms available for bookings');
@@ -207,6 +213,50 @@ const seedBookings = async (tenantId: string, employees: any[], rooms: any[], co
             confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
             cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
         });
+    }
+
+    if (bookingsData.length === 0) return [];
+
+    return await db.insert(bookings).values(bookingsData).returning();
+};
+
+// Nuova funzione per generare prenotazioni in un periodo specifico (es. Gen-Feb-Mar 2025)
+// con più prenotazioni per ciascun dipendente e con stanze scelte casualmente.
+const seedBookingsForPeriod = async (
+    tenantId: string,
+    employees: any[],
+    rooms: any[],
+    minBookingsPerEmployee: number,
+    maxBookingsPerEmployee: number,
+    start: Date,
+    end: Date
+) => {
+    if (!employees.length || !rooms.length) {
+        console.log('No employees or rooms available for bookings');
+        return [];
+    }
+
+    const bookingsData = [];
+    const periods = ['full', 'morning', 'afternoon'];
+    const statuses = ['pending', 'confirmed', 'cancelled'];
+
+    for (const employee of employees) {
+        const bookingsCount = Math.floor(Math.random() * (maxBookingsPerEmployee - minBookingsPerEmployee + 1)) + minBookingsPerEmployee;
+        for (let i = 0; i < bookingsCount; i++) {
+            const bookingDate = randomDateBetween(start, end);
+            bookingsData.push({
+                tenantId,
+                employeeId: employee.id,
+                roomId: getRandomElement(rooms).id,
+                date: bookingDate,
+                period: getRandomElement(periods),
+                status: getRandomElement(statuses),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
+                cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
+            });
+        }
     }
 
     if (bookingsData.length === 0) return [];
@@ -255,21 +305,45 @@ const seed = async () => {
         const gotonextEmployees = await seedUsers(companyA.id, 'gotonext.it', 50);
         const cubeconsultantsEmployees = await seedUsers(companyB.id, 'cubeconsultants.it', 30);
 
-        console.log('Seeding bookings...');
-        // Creiamo più prenotazioni per Gotonext
+        console.log('Seeding standard bookings...');
+        // Prenotazioni standard (su 30 giorni relativi)
         await seedBookings(
             companyA.id,
             gotonextEmployees,
             gotonextRooms.flat(),
             100
         );
-
-        // Creiamo meno prenotazioni per Cubeconsultants
         await seedBookings(
             companyB.id,
             cubeconsultantsEmployees,
             cubeconsultantsRooms.flat(),
             60
+        );
+
+        // Prenotazioni per i mesi di Gennaio, Febbraio e Marzo 2025
+        const startPeriod = new Date('2025-01-01');
+        const endPeriod = new Date('2025-03-31');
+
+        console.log('Seeding bookings for Jan-Feb-Mar 2025 for Gotonext...');
+        await seedBookingsForPeriod(
+            companyA.id,
+            gotonextEmployees,
+            gotonextRooms.flat(),
+            5,  // minimo prenotazioni per dipendente
+            10, // massimo prenotazioni per dipendente
+            startPeriod,
+            endPeriod
+        );
+
+        console.log('Seeding bookings for Jan-Feb-Mar 2025 for Cubeconsultants...');
+        await seedBookingsForPeriod(
+            companyB.id,
+            cubeconsultantsEmployees,
+            cubeconsultantsRooms.flat(),
+            5,
+            10,
+            startPeriod,
+            endPeriod
         );
 
         console.log('Database seeded successfully!');

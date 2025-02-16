@@ -75,13 +75,13 @@ export const bookings = pgTable('bookings', {
 });
 
 // Tabella presenze giornaliere
-export const dailyAttendances = pgTable('daily_attendances', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    tenantId: uuid('tenant_id').references(() => tenants.id),
-    date: timestamp('date').notNull(),
-    count: integer('count').notNull().default(0),
-    people: jsonb('people').$type<string[]>().notNull(),
-});
+// export const dailyAttendances = pgTable('daily_attendances', {
+//     id: uuid('id').primaryKey().defaultRandom(),
+//     tenantId: uuid('tenant_id').references(() => tenants.id),
+//     date: timestamp('date').notNull(),
+//     count: integer('count').notNull().default(0),
+//     people: jsonb('people').$type<string[]>().notNull(),
+// });
 
 export const locationsRelations = relations(locations, ({ one, many }) => ({
     tenant: one(tenants, {

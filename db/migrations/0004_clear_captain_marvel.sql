@@ -1,0 +1,1 @@
+DROP TABLE "daily_attendances" CASCADE;

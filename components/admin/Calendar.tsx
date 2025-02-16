@@ -1,23 +1,7 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "../ThemedText";
-import { useState } from "react";
-import { MonthlyAttendance } from "@/types";
 import { MaterialIcons } from "@expo/vector-icons";
-
-const monthlyAttendance: MonthlyAttendance = {
-    '2025-02-13': { count: 15, people: ['Marco Rossi', 'Laura Bianchi', 'Giuseppe Verdi'] },
-    '2025-02-14': { count: 12, people: ['Anna Neri', 'Marco Rossi', 'Laura Bianchi'] },
-    '2025-02-15': { count: 18, people: ['Giuseppe Verdi', 'Anna Neri', 'Marco Rossi'] },
-};
-
-// const formatDate = (date: Date) => {
-//     const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-//     return {
-//       day: days[date.getDay()],
-//       date: date.getDate()
-//     };
-//   };
 
 const getDatesInMonth = (date: Date) => {
     const dates: Date[] = [];
@@ -31,9 +15,14 @@ const getDatesInMonth = (date: Date) => {
     return dates;
 };
 
+interface CalendarProps {
+    selectedMonth: Date;
+    selectedYear: number;
+    onMonthChange: (date: Date) => void;
+    attendance: any[];
+}
 
-export default function Calendar() {
-    const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+export default function Calendar({ selectedMonth, selectedYear, onMonthChange, attendance }: CalendarProps) {
     const dates = getDatesInMonth(selectedMonth);
     const weeks: Date[][] = [];
     let currentWeek: Date[] = [];
@@ -61,7 +50,7 @@ export default function Calendar() {
                 <TouchableOpacity onPress={() => {
                     const newDate = new Date(selectedMonth);
                     newDate.setMonth(newDate.getMonth() - 1);
-                    setSelectedMonth(newDate);
+                    onMonthChange(newDate);
                 }}>
                     <MaterialIcons name="chevron-left" size={24} color="#333" />
                 </TouchableOpacity>
@@ -71,7 +60,7 @@ export default function Calendar() {
                 <TouchableOpacity onPress={() => {
                     const newDate = new Date(selectedMonth);
                     newDate.setMonth(newDate.getMonth() + 1);
-                    setSelectedMonth(newDate);
+                    onMonthChange(newDate);
                 }}>
                     <MaterialIcons name="chevron-right" size={24} color="#333" />
                 </TouchableOpacity>
@@ -87,7 +76,7 @@ export default function Calendar() {
                             if (!date) return <ThemedView key={`empty-${dateIndex}`} style={styles.calendarCell} />;
 
                             const dateString = date.toISOString().split('T')[0];
-                            const attendance = monthlyAttendance[dateString];
+
 
                             return (
                                 <TouchableOpacity
