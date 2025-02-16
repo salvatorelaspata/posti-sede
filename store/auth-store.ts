@@ -1,10 +1,11 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
 import { User } from '@/types';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
 import { tenants, users } from '@/db/schema';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthState = {
     user: Partial<User> | null;
@@ -101,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            // storage: secureStoreAdapter, // FIXME: remove this
+            storage: createJSONStorage(() => AsyncStorage),
             partialize: (state: AuthState) => ({
                 token: state.token,
                 user: state.user,

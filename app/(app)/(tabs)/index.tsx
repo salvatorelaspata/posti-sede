@@ -12,12 +12,20 @@ import { Colors } from '@/constants/Colors';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
+import { useAuthStore } from '@/store/auth-store';
+import { useRouter } from 'expo-router';
 
 const HomeScreen = () => {
+  const router = useRouter();
+  const { user } = useAuthStore();
   const { location } = useAppStore();
   const { rooms, fetchRooms } = useTenantStore();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (!user) return router.replace('/login');
+  }, [user]);
 
   useEffect(() => {
     if (location) {

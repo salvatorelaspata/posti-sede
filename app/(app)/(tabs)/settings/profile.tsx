@@ -4,10 +4,11 @@ import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuthStore } from "@/store/auth-store";
 
 
 // modifica profilo
@@ -16,8 +17,13 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function SettingsProfile() {
     const router = useRouter();
-    const [emoji, setEmoji] = useState('');
-    const [fullname, setFullname] = useState('');
+    const { user } = useAuthStore();
+    const [emoji, setEmoji] = useState<string>(user?.emoji || '');
+    const [fullname, setFullname] = useState<string>(user?.fullname || '');
+
+    useEffect(() => {
+        if (!user) return router.replace('/login');
+    }, [user]);
 
     const handleEmojiChange = (text: string) => {
         // check if the emoji is valid with

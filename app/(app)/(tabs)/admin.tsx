@@ -7,9 +7,18 @@ import Calendar from "@/components/admin/Calendar";
 import Employee from "@/components/admin/Employee";
 import StatBox from "@/components/StatBox";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function Admin() {
+    const router = useRouter();
+    const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    useEffect(() => {
+        if (!user) return router.replace('/login');
+    }, [user]);
 
     return (
         <ThemedView style={styles.adminContainer}>

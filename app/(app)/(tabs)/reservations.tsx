@@ -8,11 +8,20 @@ import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/consta
 import StatBox from "@/components/StatBox";
 import { Image } from "expo-image";
 import { isPast } from "@/hooks/useCalendar";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function Reservations() {
+    const router = useRouter();
+    const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+    useEffect(() => {
+        if (!user) return router.replace('/login');
+    }, [user]);
 
     const handleSegmentedControlChange = (value: number) => {
         setSelectedIndex(value);

@@ -7,9 +7,17 @@ import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuthStore } from "@/store/auth-store";
+import { useEffect } from "react";
 
 export default function ChangePassword() {
     const router = useRouter();
+    const { user } = useAuthStore();
+
+    useEffect(() => {
+        if (!user) return router.replace('/login');
+    }, [user]);
+
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}

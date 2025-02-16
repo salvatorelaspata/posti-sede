@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,6 +14,11 @@ const SettingsScreen = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [biometric, setBiometric] = useState(true);
     const { user, signOut } = useAuthStore();
+
+    useEffect(() => {
+        if (!user) return router.replace('/login');
+    }, [user]);
+
     const handleDeleteAccount = () => {
         Alert.alert(
             "Elimina Account",

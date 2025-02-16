@@ -12,9 +12,13 @@ import { useAppStore } from '@/store/app-store';
 
 export default function App() {
   const router = useRouter()
-  const { tenant } = useAuthStore();
+  const { user, tenant } = useAuthStore();
   const { locations, fetchLocations } = useTenantStore();
   const { setLocation } = useAppStore();
+
+  useEffect(() => {
+    if (!user) return router.replace('/login');
+  }, [user]);
 
   useEffect(() => {
     if (tenant) {
