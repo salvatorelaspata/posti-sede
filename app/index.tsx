@@ -13,26 +13,23 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
-import { getTenants } from '@/db/api';
-
-import { ThemedView } from '@/components/ThemedView';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { Tenant } from '@/types';
 import { useAuthStore } from '@/store/auth-store';
+import seed from '@/db/seed';
+
 
 export default function App() {
-  const { setTenant } = useAuthStore();
-
+  const { signInBasic, user, tenant } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [selectedTenantIndex, setSelectedTenantIndex] = useState<number>(0);
-  useEffect(() => {
-    getTenants().then((tenants) => {
-      setTenants(tenants);
-      setSelectedTenantIndex(0);
-    });
-  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      await signInBasic(email, password);
+      router.replace('/(app)');
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <KeyboardAvoidingView
@@ -76,28 +73,20 @@ export default function App() {
             />
           </View>
 
-          {/* development select tenant*/}
-          <ThemedView>
-            <SegmentedControl
-              values={tenants.map((tenant) => tenant.name)}
-              selectedIndex={selectedTenantIndex}
-              onChange={(event) => {
-                setSelectedTenantIndex(event.nativeEvent.selectedSegmentIndex);
-              }}
-            />
-          </ThemedView>
-
           <TouchableOpacity style={styles.button}
-            onPress={() => {
-              console.log(tenants[selectedTenantIndex]);
-              setTenant(tenants[selectedTenantIndex].id);
-              router.replace('/(app)');
-            }}>
+            onPress={handleSignIn}>
             <Text style={styles.buttonText}>
               Accedi
             </Text>
           </TouchableOpacity>
-
+          {/* seed */}
+          <TouchableOpacity style={styles.button} onPress={() => {
+            seed();
+          }}>
+            <Text style={styles.buttonText}>
+              Seed
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
             <Text style={styles.toggleText}>
               Non hai un account? Registrati

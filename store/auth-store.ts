@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import SecureStore from 'expo-secure-store';
 import { User } from '@/types';
+import { db } from '@/db';
+import { eq } from 'drizzle-orm';
+import { tenants, users } from '@/db/schema';
 
 type AuthState = {
     user: Partial<User> | null;
@@ -43,10 +46,12 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true });
                 try {
                     await SecureStore.setItemAsync('authToken', token);
-                    set({ user, token, isLoading: false });
                 } catch (error) {
                     set({ error: 'Failed to save session', isLoading: false });
                 }
+
+                set({ user: user, token, isLoading: false });
+
             },
 
             signOut: () => {
@@ -71,21 +76,23 @@ export const useAuthStore = create<AuthState>()(
             signInBasic: async (email, password) => {
                 set({ isLoading: true, error: null });
                 try {
-                    // Simula chiamata API al backend
-                    const response = await fetch('/api/auth/basic', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password }),
-                    });
+                    // retrieve user and tenant in one query
+                    const user = await db.select()
+                        .from(users)
+                        .leftJoin(tenants, eq(users.tenantId, tenants.id))
+                        .where(eq(users.email, email) && eq(users.password, password))
+                        .limit(1);
 
-                    if (!response.ok) throw new Error('Credenziali non valide');
+                    if (user.length === 0) {
+                        throw new Error('Credenziali non valide');
+                    }
+                    const tenant = user[0].tenants ? user[0].tenants.id : null;
+                    await SecureStore.setItemAsync('authToken', user[0].users.id);
 
-                    const { user, token } = await response.json();
-
-                    await SecureStore.setItemAsync('authToken', token);
-                    set({ user, token, isLoading: false });
+                    set({ user: user[0].users, tenant: tenant, isLoading: false });
 
                 } catch (error: any) {
+                    console.log(error);
                     set({ error: error.message || 'Login failed', isLoading: false });
                 }
             },

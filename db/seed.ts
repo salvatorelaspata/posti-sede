@@ -85,10 +85,20 @@ const seedRooms = async (locationId: string) => {
         ]);
 };
 
-const seedAdminUser = async (tenantId: string) => {
+const seedAdminUserGotonext = async (tenantId: string) => {
     return db.insert(users).values({
         tenantId,
-        email: 'admin@gotonext.com',
+        email: 'admin@gotonext.it',
+        password: 'admin',
+        role: 'admin'
+    });
+};
+
+const seedAdminUserCubeconsultants = async (tenantId: string) => {
+    return db.insert(users).values({
+        tenantId,
+        email: 'admin@cubeconsultants.it',
+        password: 'admin',
         role: 'admin'
     });
 };
@@ -109,7 +119,8 @@ const seed = async () => {
     const { rome: romeCubeconsultants } = await seedLocationsCubeconsultants(companyB.id);
     await seedRooms(rome.id);
     await seedRooms(romeCubeconsultants.id);
-    await seedAdminUser(companyA.id);
+    await seedAdminUserGotonext(companyA.id);
+    await seedAdminUserCubeconsultants(companyB.id);
 
     console.log('Database seeded successfully!');
 };
