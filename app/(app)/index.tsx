@@ -1,39 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Location } from '@/types';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-
-
-const locations: Location[] = [
-  { id: 'rm', name: 'Roma', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20rome%20sunset&aspect=16:9' },
-
-  { id: 'mi', name: 'Milano', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20milan%20business%20district&aspect=16:9' },
-  { id: 'bg', name: 'Bergamo', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20bergamo%20with%20mountains&aspect=16:9' },
-  { id: 'to', name: 'Torino', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20torino%20with%20mountains&aspect=16:9' },
-  { id: 'pa', name: 'Palermo', image: 'https://api.a0.dev/assets/image?text=modern%20office%20building%20in%20palermo%20with%20mountains&aspect=16:9' },
-];
+import { useAuthStore } from '@/store/auth-store';
+import { useTenantStore } from '@/store/tenant-store';
+import { useAppStore } from '@/store/app-store';
 
 export default function App() {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const router = useRouter()
+  const { tenant } = useAuthStore();
+  const { locations, fetchLocations } = useTenantStore();
+  const { setLocation } = useAppStore();
+
+  useEffect(() => {
+    if (tenant) {
+      fetchLocations(tenant)
+        .then(console.log)
+        .catch(console.error);
+    }
+  }, [tenant]);
+
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
       <ThemedText type="title" style={styles.title}>Seleziona la sede</ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
           data={locations}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               key={item.id}
               style={styles.locationCard}
               onPress={() => {
-                setSelectedLocation(item)
-                router.push(`/(app)/(tabs)?location=${item.name}`)
+                setLocation(item);
+                router.push(`/(app)/(tabs)`)
               }}
             >
               <ThemedView style={styles.locationImageContainer}>

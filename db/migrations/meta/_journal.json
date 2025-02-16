@@ -8,6 +8,13 @@
       "when": 1739660876933,
       "tag": "0000_funny_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1739665496182,
+      "tag": "0001_powerful_calypso",
+      "breakpoints": true
     }
   ]
 }

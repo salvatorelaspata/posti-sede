@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Room } from '@/types';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -10,17 +10,23 @@ import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
 import HorizontalCalendar from '@/components/HorizontalCalendar';
 import { Colors } from '@/constants/Colors';
 import { useCalendar } from '@/hooks/useCalendar';
-
-const rooms: Room[] = [
-  { id: 1, name: 'Sala Blu', capacity: 8, available: 5 },
-  { id: 2, name: 'Sala Verde', capacity: 12, available: 3 },
-  { id: 3, name: 'Sala Rossa', capacity: 6, available: 6 },
-  { id: 4, name: 'Open Space', capacity: 20, available: 8 },
-];
+import { useTenantStore } from '@/store/tenant-store';
+import { useAppStore } from '@/store/app-store';
 
 const HomeScreen = () => {
+  const { location } = useAppStore();
+  const { rooms, fetchRooms } = useTenantStore();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    console.log({ location });
+    if (location) {
+      fetchRooms(location.id);
+      console.log({ rooms });
+    }
+  }, [location]);
+
   const switchSelectedRoom = (room: Room) => {
     if (selectedRoom?.id === room.id) {
       setSelectedRoom(null);

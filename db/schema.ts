@@ -23,6 +23,7 @@ export const users = pgTable('users', {
     id: uuid('id').primaryKey().defaultRandom(),
     tenantId: uuid('tenant_id').references(() => tenants.id),
     email: varchar('email', { length: 256 }).notNull(),
+    password: varchar('password', { length: 256 }),
     googleId: varchar('google_id', { length: 256 }),
     role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
     createdAt: timestamp('created_at').defaultNow(),

@@ -11,20 +11,26 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useSession } from '@/context/auth';
+
 import { Colors } from '@/constants/Colors';
 import { getTenants } from '@/db/api';
-import seed from '@/db/seed';
+
+import { ThemedView } from '@/components/ThemedView';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { Tenant } from '@/types';
+import { useAuthStore } from '@/store/auth-store';
 
 export default function App() {
-  const { signIn } = useSession();
+  const { setTenant } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [selectedTenantIndex, setSelectedTenantIndex] = useState<number>(0);
   useEffect(() => {
     getTenants().then((tenants) => {
-      console.log(tenants);
+      setTenants(tenants);
+      setSelectedTenantIndex(0);
     });
   }, []);
 
@@ -70,19 +76,25 @@ export default function App() {
             />
           </View>
 
+          {/* development select tenant*/}
+          <ThemedView>
+            <SegmentedControl
+              values={tenants.map((tenant) => tenant.name)}
+              selectedIndex={selectedTenantIndex}
+              onChange={(event) => {
+                setSelectedTenantIndex(event.nativeEvent.selectedSegmentIndex);
+              }}
+            />
+          </ThemedView>
+
           <TouchableOpacity style={styles.button}
             onPress={() => {
-              signIn();
+              console.log(tenants[selectedTenantIndex]);
+              setTenant(tenants[selectedTenantIndex].id);
               router.replace('/(app)');
             }}>
             <Text style={styles.buttonText}>
               Accedi
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={() => seed()}>
-            <Text style={styles.buttonText}>
-              Seed
             </Text>
           </TouchableOpacity>
 

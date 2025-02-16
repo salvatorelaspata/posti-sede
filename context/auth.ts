@@ -2,7 +2,7 @@ import { useContext, createContext } from 'react';
 
 
 export const AuthContext = createContext<{
-  signIn: () => void;
+  signIn: (tenant: string) => void;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
