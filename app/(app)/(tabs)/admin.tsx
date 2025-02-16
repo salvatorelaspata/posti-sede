@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import Calendar from "@/components/admin/Calendar";
 import Employee from "@/components/admin/Employee";
 import StatBox from "@/components/StatBox";
@@ -16,7 +16,8 @@ export default function Admin() {
     const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+        // Admin
         if (!user) return router.replace('/login');
     }, [user]);
 

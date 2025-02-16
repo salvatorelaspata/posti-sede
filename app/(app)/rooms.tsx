@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedView } from '@/components/ThemedView';
@@ -15,8 +15,7 @@ export default function App() {
   const { user, tenant } = useAuthStore();
   const { locations, fetchLocations } = useTenantStore();
   const { setLocation } = useAppStore();
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!user) return router.replace('/login');
   }, [user]);
 
@@ -39,7 +38,7 @@ export default function App() {
               style={styles.locationCard}
               onPress={() => {
                 setLocation(item);
-                router.push(`/(app)/(tabs)`)
+                router.push(`/(app)/(tabs)/home`)
               }}
             >
               <ThemedView style={styles.locationImageContainer}>

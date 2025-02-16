@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { FlatList, StyleSheet } from "react-native";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
@@ -19,7 +19,8 @@ export default function Reservations() {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+        // Reservations
         if (!user) return router.replace('/login');
     }, [user]);
 

@@ -21,7 +21,7 @@ export default function Tabs() {
         tabBarBackground: TabBarBackground,
       }}>
       <ExpoTabs.Screen
-        name="index"
+        name="home"
         options={{
           title: `Sede ${location?.name}`,
           tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={28} name="house.fill" color={color} />,

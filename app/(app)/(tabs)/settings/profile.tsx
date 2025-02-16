@@ -4,7 +4,7 @@ import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -17,11 +17,11 @@ import { useAuthStore } from "@/store/auth-store";
 
 export default function SettingsProfile() {
     const router = useRouter();
-    const { user } = useAuthStore();
+    const { user, updateProfile } = useAuthStore();
     const [emoji, setEmoji] = useState<string>(user?.emoji || '');
     const [fullname, setFullname] = useState<string>(user?.fullname || '');
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!user) return router.replace('/login');
     }, [user]);
 
@@ -29,13 +29,27 @@ export default function SettingsProfile() {
         // check if the emoji is valid with
         const isSingleEmoji = (str: string) => {
             const emojiPresentation = /\p{Emoji_Presentation}/gu;
-            return emojiPresentation.test(str) && str.replace(emojiPresentation, '') === '';
+            return emojiPresentation.test(str) && str.replace(emojiPresentation, '') === '' || str.length === 0;
         };
 
         if (isSingleEmoji(text)) {
             setEmoji(text);
         } else {
             Alert.alert('Emoji non valido', 'Per favore inserisci un emoji valido');
+        }
+    }
+
+    const handleSave = async () => {
+        if (!fullname || !emoji) {
+            Alert.alert('Errore', 'Per favore inserisci un nome e un emoji');
+            return;
+        }
+        try {
+            await updateProfile(fullname, emoji);
+            Alert.alert('Successo', 'Profilo modificato con successo');
+            router.back();
+        } catch (error) {
+            Alert.alert('Errore', 'Si è verificato un errore durante la modifica del profilo');
         }
     }
 
@@ -83,7 +97,7 @@ export default function SettingsProfile() {
                     <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]} onPress={() => router.back()}>
                         <ThemedText type="default" style={{ color: Colors.light.background }}>Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]}>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]} onPress={handleSave}>
                         <ThemedText type="defaultSemiBold" style={{ color: Colors.light.background }}>Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>

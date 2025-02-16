@@ -1,22 +1,39 @@
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuthStore } from "@/store/auth-store";
-import { useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 
 export default function ChangePassword() {
     const router = useRouter();
-    const { user } = useAuthStore();
+    const { user, resetPassword } = useAuthStore();
+    const [oldPassword, setOldPassword] = useState<string>('');
+    const [newPassword, setNewPassword] = useState<string>('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!user) return router.replace('/login');
     }, [user]);
+
+    const handleResetPassword = async () => {
+        if (!user?.email) return;
+        if (newPassword !== confirmNewPassword) {
+            Alert.alert('Errore', 'Le password non corrispondono');
+            return;
+        }
+        try {
+            await resetPassword(user?.email, oldPassword, newPassword);
+            Alert.alert('Successo', 'Password cambiata con successo');
+            router.back();
+        } catch (error) {
+            Alert.alert('Errore', 'Errore durante il cambio password');
+        }
+    }
 
     return (
         <ParallaxScrollView
@@ -41,6 +58,8 @@ export default function ChangePassword() {
                         style={styles.input}
                         placeholder="Password corrente"
                         secureTextEntry={true}
+                        value={oldPassword}
+                        onChangeText={setOldPassword}
                     />
 
                     <ThemedText type="default" >Nuova password</ThemedText>
@@ -48,6 +67,8 @@ export default function ChangePassword() {
                         style={styles.input}
                         placeholder="Nuova password"
                         secureTextEntry={true}
+                        value={newPassword}
+                        onChangeText={setNewPassword}
                     />
 
                     {/* repeat new password
@@ -57,6 +78,8 @@ export default function ChangePassword() {
                         style={styles.input}
                         placeholder="Ripeti nuova password"
                         secureTextEntry={true}
+                        value={confirmNewPassword}
+                        onChangeText={setConfirmNewPassword}
                     />
                 </ThemedView>
                 <ThemedView style={styles.spacer} />
@@ -64,7 +87,7 @@ export default function ChangePassword() {
                     <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]}>
                         <ThemedText type="default" style={{ color: Colors.light.background }}>Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]}>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]} onPress={handleResetPassword}>
                         <ThemedText type="defaultSemiBold" style={{ color: Colors.light.background }}>Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>

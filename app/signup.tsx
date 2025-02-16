@@ -7,17 +7,35 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
+import { useAuthStore } from '@/store/auth-store';
 
 export default function SignUp() {
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const { signUp } = useAuthStore();
+  const handleSignUp = async () => {
+    if (!email || !password || !name) {
+      Alert.alert('Errore', 'Tutti i campi sono obbligatori');
+      return;
+    }
+    try {
+      await signUp(email, password, name);
+      router.navigate('/login');
+    } catch (error) {
+      Alert.alert('Errore', `Si è verificato un errore durante la registrazione:\n\n${error}`);
+    }
+  }
+
+
+
 
   return (
     <KeyboardAvoidingView
@@ -72,13 +90,13 @@ export default function SignUp() {
             />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={() => router.navigate('/')}>
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
             <Text style={styles.buttonText}>
               Registrati
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/')}>
+          <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/login')}>
             <Text style={styles.toggleText}>
               Hai già un account? Accedi
             </Text>

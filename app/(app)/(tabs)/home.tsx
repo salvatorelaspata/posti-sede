@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Room } from '@/types';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -23,7 +23,8 @@ const HomeScreen = () => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Home
     if (!user) return router.replace('/login');
   }, [user]);
 

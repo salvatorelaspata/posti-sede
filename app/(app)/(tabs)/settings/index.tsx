@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +15,7 @@ const SettingsScreen = () => {
     const [biometric, setBiometric] = useState(true);
     const { user, signOut } = useAuthStore();
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!user) return router.replace('/login');
     }, [user]);
 
@@ -69,7 +69,7 @@ const SettingsScreen = () => {
                     <Text style={styles.sectionTitle}>Sede</Text>
                     <SettingItem
                         icon={<Ionicons name="location-outline" size={24} color="#333" />}
-                        title="Modifica Sede"
+                        title="Cambia Sede"
                         onPress={() => router.replace('/(app)/rooms')}
                     />
                 </View>
