@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { formatDate } from '@/constants/Calendar';
-import { useLocalSearchParams } from 'expo-router';
+import { useAppStore } from '@/store/app-store';
 
 interface ReserveBottomSheetProps {
     selectedRoom: Room;
@@ -18,7 +18,7 @@ interface ReserveBottomSheetProps {
 
 export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate }: ReserveBottomSheetProps) {
 
-    const { location } = useLocalSearchParams();
+    const { location } = useAppStore();
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [isChecked, setChecked] = useState<boolean>(true);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -63,7 +63,7 @@ export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate
             )}
         >
             <BottomSheetView style={styles.contentContainer}>
-                <ThemedText type="defaultSemiBold" style={styles.title}>{location as string} - {selectedRoom.name} - {formatDate(selectedDate, 'short')}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.title}>{location?.name} - {selectedRoom.name} - {formatDate(selectedDate, 'short')}</ThemedText>
                 <ThemedView style={styles.formContainer}>
                     {/* <ThemedText type="defaultSemiBold" style={styles.title}>Data: {selectedDate.toLocaleDateString()}</ThemedText> */}
                     <ThemedView style={styles.formRow}>

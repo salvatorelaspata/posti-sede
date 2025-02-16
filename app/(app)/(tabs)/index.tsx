@@ -20,10 +20,8 @@ const HomeScreen = () => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    console.log({ location });
     if (location) {
       fetchRooms(location.id);
-      console.log({ rooms });
     }
   }, [location]);
 
@@ -43,7 +41,7 @@ const HomeScreen = () => {
       <HorizontalCalendar daysInCalendar={daysInCalendar} currentDay={currentDay} currentDayFromHook={currentDayFromHook} setCurrentDay={setCurrentDay} />
       <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
-        {rooms.map((room) => (
+        {rooms.length > 0 ? rooms.map((room) => (
           <TouchableOpacity
             key={room.id}
             style={[
@@ -75,7 +73,7 @@ const HomeScreen = () => {
               />
             </ThemedView>
           </TouchableOpacity>
-        ))}
+        )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
       {selectedRoom && (
@@ -194,6 +192,10 @@ const styles = StyleSheet.create({
   },
   bottomMargin: {
     // height: 500,
+  },
+  noRoomsText: {
+    textAlign: 'center',
+    marginTop: 16,
   },
 });
 

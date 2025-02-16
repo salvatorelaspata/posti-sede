@@ -19,8 +19,6 @@ export default function App() {
   useEffect(() => {
     if (tenant) {
       fetchLocations(tenant)
-        .then(console.log)
-        .catch(console.error);
     }
   }, [tenant]);
 

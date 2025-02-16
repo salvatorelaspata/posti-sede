@@ -14,20 +14,26 @@ import { router } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/auth-store';
-import seed from '@/db/seed';
+// import seed from '@/db/seed';
 
 
 export default function App() {
   const { signInBasic, user, tenant } = useAuthStore();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const handleSignIn = async () => {
     try {
+      if (!email || !password) {
+        setError('Email e password sono obbligatori');
+        return;
+      }
+
       await signInBasic(email, password);
-      router.replace('/(app)');
+
+      router.replace('/(app)/rooms');
     } catch (error) {
-      console.error(error);
+      setError('Email o password errati');
     }
   }
 
@@ -80,18 +86,19 @@ export default function App() {
             </Text>
           </TouchableOpacity>
           {/* seed */}
-          <TouchableOpacity style={styles.button} onPress={() => {
+          {/* <TouchableOpacity style={styles.button} onPress={() => {
             seed();
           }}>
             <Text style={styles.buttonText}>
               Seed
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
             <Text style={styles.toggleText}>
               Non hai un account? Registrati
             </Text>
           </TouchableOpacity>
+          {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
       </LinearGradient>
     </KeyboardAvoidingView>
@@ -169,5 +176,9 @@ const styles = StyleSheet.create({
   toggleText: {
     color: '#4c669f',
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
   },
 });

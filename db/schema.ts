@@ -22,6 +22,8 @@ export const tenants = pgTable('tenants', {
 export const users = pgTable('users', {
     id: uuid('id').primaryKey().defaultRandom(),
     tenantId: uuid('tenant_id').references(() => tenants.id),
+    emoji: varchar('emoji', { length: 256 }),
+    fullname: varchar('fullname', { length: 256 }),
     email: varchar('email', { length: 256 }).notNull(),
     password: varchar('password', { length: 256 }),
     googleId: varchar('google_id', { length: 256 }),

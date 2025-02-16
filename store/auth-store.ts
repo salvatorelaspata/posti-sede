@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import SecureStore from 'expo-secure-store';
+import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
 import { User } from '@/types';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
@@ -20,17 +20,17 @@ type AuthState = {
     resetPassword: (email: string) => Promise<void>;
 };
 
-const secureStoreAdapter = {
-    getItem: async (name: string): Promise<string | null> => {
-        return await SecureStore.getItemAsync(name);
-    },
-    setItem: async (name: string, value: string): Promise<void> => {
-        await SecureStore.setItemAsync(name, value);
-    },
-    removeItem: async (name: string): Promise<void> => {
-        await SecureStore.deleteItemAsync(name);
-    },
-};
+// const secureStoreAdapter = {
+//     getItem: async (name: string): Promise<string | null> => {
+//         return await getItemAsync(name);
+//     },
+//     setItem: async (name: string, value: string): Promise<void> => {
+//         await setItemAsync(name, value);
+//     },
+//     removeItem: async (name: string): Promise<void> => {
+//         await deleteItemAsync(name);
+//     },
+// };
 
 export const useAuthStore = create<AuthState>()(
     persist(
@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
             signIn: async (user: Partial<User>, token: string) => {
                 set({ isLoading: true });
                 try {
-                    await SecureStore.setItemAsync('authToken', token);
+                    await setItemAsync('authToken', token);
                 } catch (error) {
                     set({ error: 'Failed to save session', isLoading: false });
                 }
@@ -55,14 +55,14 @@ export const useAuthStore = create<AuthState>()(
             },
 
             signOut: () => {
-                SecureStore.deleteItemAsync('authToken');
+                deleteItemAsync('authToken');
                 set({ user: null, token: null, tenant: null });
             },
 
             hydrateAuth: async () => {
                 set({ isLoading: true });
                 try {
-                    const token = await SecureStore.getItemAsync('authToken');
+                    const token = await getItemAsync('authToken');
                     if (token) {
                         // Aggiungi qui una chiamata API per verificare il token
                         // e ottenere user/tenant aggiornati
@@ -75,26 +75,24 @@ export const useAuthStore = create<AuthState>()(
 
             signInBasic: async (email, password) => {
                 set({ isLoading: true, error: null });
-                try {
-                    // retrieve user and tenant in one query
-                    const user = await db.select()
-                        .from(users)
-                        .leftJoin(tenants, eq(users.tenantId, tenants.id))
-                        .where(eq(users.email, email) && eq(users.password, password))
-                        .limit(1);
 
-                    if (user.length === 0) {
-                        throw new Error('Credenziali non valide');
-                    }
-                    const tenant = user[0].tenants ? user[0].tenants.id : null;
-                    await SecureStore.setItemAsync('authToken', user[0].users.id);
+                // retrieve user and tenant in one query
+                const user = await db.select()
+                    .from(users)
+                    .leftJoin(tenants, eq(users.tenantId, tenants.id))
+                    .where(eq(users.email, email) && eq(users.password, password))
+                    .limit(1);
 
-                    set({ user: user[0].users, tenant: tenant, isLoading: false });
-
-                } catch (error: any) {
-                    console.log(error);
-                    set({ error: error.message || 'Login failed', isLoading: false });
+                if (user.length === 0) {
+                    throw new Error('Credenziali non valide');
                 }
+                const tenant = user[0].tenants ? user[0].tenants.id : null;
+                try {
+                    await setItemAsync('authToken', user[0].users.id);
+                } catch (error) {
+                    throw error;
+                }
+                set({ user: user[0].users, tenant: tenant, isLoading: false });
             },
 
             resetPassword: async (email) => {

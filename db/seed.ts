@@ -90,7 +90,9 @@ const seedAdminUserGotonext = async (tenantId: string) => {
         tenantId,
         email: 'admin@gotonext.it',
         password: 'admin',
-        role: 'admin'
+        role: 'admin',
+        emoji: '👨‍💻',
+        fullname: 'Admin'
     });
 };
 
@@ -99,7 +101,9 @@ const seedAdminUserCubeconsultants = async (tenantId: string) => {
         tenantId,
         email: 'admin@cubeconsultants.it',
         password: 'admin',
-        role: 'admin'
+        role: 'admin',
+        emoji: '👨‍💻',
+        fullname: 'Admin'
     });
 };
 
@@ -124,5 +128,6 @@ const seed = async () => {
 
     console.log('Database seeded successfully!');
 };
+
 
 export default seed;

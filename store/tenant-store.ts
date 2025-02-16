@@ -25,7 +25,6 @@ export const useTenantStore = create<TenantState>((set: any) => ({
     },
 
     fetchRooms: async (locationId: string) => {
-        console.log('fetchRooms', locationId);
         const result = await db
             .select()
             .from(rooms)

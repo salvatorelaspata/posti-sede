@@ -1,6 +1,6 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
-import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
@@ -27,10 +27,9 @@ export default function SettingsProfile() {
         };
 
         if (isSingleEmoji(text)) {
-            console.log('emoji valido');
             setEmoji(text);
         } else {
-            console.log('emoji non valido');
+            Alert.alert('Emoji non valido', 'Per favore inserisci un emoji valido');
         }
     }
 

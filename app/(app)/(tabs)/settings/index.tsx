@@ -3,17 +3,17 @@ import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import SettingItem from '@/components/SettingsItem';
-import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/auth-store';
 
 const SettingsScreen = () => {
     const router = useRouter();
     const [notifications, setNotifications] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [biometric, setBiometric] = useState(true);
-
+    const { user, signOut } = useAuthStore();
     const handleDeleteAccount = () => {
         Alert.alert(
             "Elimina Account",
@@ -29,6 +29,19 @@ const SettingsScreen = () => {
         );
     };
 
+    const handleLogout = () => {
+        Alert.alert("Logout", "Sei stato disconnesso con successo.", [
+            { text: "Annulla", style: "cancel" },
+            {
+                text: "Logout", style: "destructive",
+                onPress: () => {
+                    signOut();
+                    router.replace('/login');
+                }
+            }
+        ]);
+    }
+
     return (
         <ThemedView style={styles.container}>
             {/* Header Profile Section */}
@@ -39,13 +52,22 @@ const SettingsScreen = () => {
                 end={{ x: 1, y: 1 }}
             >
                 <View style={styles.profileImagePlaceholder}>
-                    <Text style={styles.profileInitials}>JS</Text>
+                    <Text style={styles.profileInitials}>{user?.emoji}</Text>
                 </View>
-                <Text style={styles.profileName}>John Smith</Text>
-                <Text style={styles.profileEmail}>john.smith@example.com</Text>
+                <Text style={styles.profileName}>{user?.fullname}</Text>
+                <Text style={styles.profileEmail}>{user?.email}</Text>
             </LinearGradient>
             <ScrollView style={styles.container}>
 
+                {/* Location Settings */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Sede</Text>
+                    <SettingItem
+                        icon={<Ionicons name="location-outline" size={24} color="#333" />}
+                        title="Modifica Sede"
+                        onPress={() => router.replace('/(app)/rooms')}
+                    />
+                </View>
                 {/* Profile Settings */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Profilo</Text>
@@ -94,7 +116,7 @@ const SettingsScreen = () => {
                         icon={<Feather name="log-out" size={24} color="#DC3545" />}
                         title="Logout"
                         color="#DC3545"
-                        onPress={() => Alert.alert("Logout", "Sei stato disconnesso con successo.")}
+                        onPress={handleLogout}
                     />
                     <SettingItem
                         icon={<MaterialIcons name="delete-outline" size={24} color="#DC3545" />}
@@ -135,8 +157,10 @@ const styles = StyleSheet.create({
     },
     profileInitials: {
         color: 'white',
-        fontSize: 28,
+        fontSize: 50,
         fontWeight: 'bold',
+        textAlign: 'center',
+        textAlignVertical: 'center',
     },
     profileName: {
         color: 'white',
