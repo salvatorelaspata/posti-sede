@@ -1,8 +1,6 @@
-
 import { db } from '@/db';
 import { eq, sql, and, gte, lt } from 'drizzle-orm';
 import { employees, rooms, tenants, users, bookings } from './schema';
-
 
 export const getUserByEmailAndPassword = async (email: string, password: string) => {
 
@@ -122,4 +120,29 @@ export const getMonthUserBookings = async (userId: string, month: number, year: 
             lt(bookings.date, lastDate)
         ));
     return _bookings;
+}
+
+export const deleteBooking = async (bookingId: string): Promise<void> => {
+    try {
+        await db.delete(bookings).where(eq(bookings.id, bookingId));
+    } catch (error) {
+        console.error("Errore nell'API deleteBooking:", error);
+        throw error;
+    }
+};
+
+export const insertBooking = async (tenantId: string, employeeId: string, roomId: string, date: Date, period: string, status: string) => {
+    const newBooking = await db.insert(bookings).values({
+        tenantId,
+        roomId,
+        employeeId,
+        date,
+        period,
+        status,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        confirmedAt: null,
+        cancelledAt: null
+    }).returning();
+    return newBooking[0];
 }

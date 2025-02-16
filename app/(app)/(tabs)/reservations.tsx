@@ -12,8 +12,9 @@ import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Booking, User } from "@/types";
-import { getMonthUserBookings } from "@/db/api";
+import { getMonthUserBookings, deleteBooking } from "@/db/api";
 import { getMonthStatus, isPast } from "@/hooks/useCalendar";
+import { Ionicons } from "@expo/vector-icons";
 
 interface GenericObject {
     [key: string]: any;
@@ -95,6 +96,17 @@ export default function Reservations() {
         }
         setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
     }
+
+    const handleDeleteBooking = async (bookingId: string) => {
+        try {
+            await deleteBooking(bookingId);
+            // Aggiorna la lista delle prenotazioni dopo la cancellazione
+            setBookings(bookings.filter(booking => booking.id !== bookingId));
+        } catch (error) {
+            console.error("Errore durante la cancellazione della prenotazione:", error);
+        }
+    };
+
     return (
         <ThemedView style={styles.container}>
             <ThemedText type="subtitle" style={styles.title}>Date disponibili</ThemedText>
@@ -136,10 +148,14 @@ export default function Reservations() {
                         </ThemedView>
                     }
                     renderItem={({ item }) => (
-                        // se nel passato allora cambia colore
                         <ThemedView key={item.id} style={[styles.reservationItem, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
                             <ThemedText type="defaultSemiBold" style={styles.reservationDate}>{formatDate(item.date, 'full')}</ThemedText>
                             <ThemedText style={styles.reservationRoomName}>{item.room.name}</ThemedText>
+                            {!isPast(item.date) && (
+                                <ThemedView style={styles.deleteButton}>
+                                    <Ionicons name="trash-outline" size={24} color="red" />
+                                </ThemedView>
+                            )}
                         </ThemedView>
                     )}
                 />
@@ -210,5 +226,9 @@ const styles = StyleSheet.create({
     },
     reservationItemPast: {
         opacity: 0.7,
+    },
+    deleteButton: {
+        color: 'red',
+        marginLeft: 10,
     },
 }); 

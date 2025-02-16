@@ -4,8 +4,7 @@ import {
     integer,
     jsonb,
     uuid,
-    timestamp,
-    uniqueIndex
+    timestamp
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -84,11 +83,27 @@ export const dailyAttendances = pgTable('daily_attendances', {
     people: jsonb('people').$type<string[]>().notNull(),
 });
 
+export const locationsRelations = relations(locations, ({ one, many }) => ({
+    tenant: one(tenants, {
+        fields: [locations.tenantId],
+        references: [tenants.id],
+    }),
+    rooms: many(rooms),
+}));
+
 // Relazioni
 export const tenantsRelations = relations(tenants, ({ many }) => ({
     locations: many(locations),
     users: many(users),
     employees: many(employees),
+}));
+
+export const roomsRelations = relations(rooms, ({ one, many }) => ({
+    location: one(locations, {
+        fields: [rooms.locationId],
+        references: [locations.id],
+    }),
+    bookings: many(bookings),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -99,3 +114,30 @@ export const usersRelations = relations(users, ({ one }) => ({
     employee: one(employees)
 }));
 
+export const employeesRelations = relations(employees, ({ one, many }) => ({
+    tenant: one(tenants, {
+        fields: [employees.tenantId],
+        references: [tenants.id],
+    }),
+    user: one(users, {
+        fields: [employees.userId],
+        references: [users.id],
+    }),
+    bookings: many(bookings),
+}));
+
+
+export const bookingsRelations = relations(bookings, ({ one }) => ({
+    tenant: one(tenants, {
+        fields: [bookings.tenantId],
+        references: [tenants.id],
+    }),
+    employee: one(employees, {
+        fields: [bookings.employeeId],
+        references: [employees.id],
+    }),
+    room: one(rooms, {
+        fields: [bookings.roomId],
+        references: [rooms.id],
+    }),
+}));
