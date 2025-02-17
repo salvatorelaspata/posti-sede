@@ -6,19 +6,13 @@ import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
-import { useAuthStore } from '@/store/auth-store';
 // import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
     const router = useRouter();
-    // const { user } = useAuthStore();
-    // useEffect(() => {
-    //     if (user) {
-    //         router.replace('/(app)/rooms');
-    //     }
-    // }, [user]);
+
     const handleLogin = () => {
         router.push('/login');
     };

@@ -12,12 +12,9 @@ import { useAppStore } from '@/store/app-store';
 
 export default function App() {
   const router = useRouter()
-  const { user, tenant } = useAuthStore();
+  const { tenant } = useAuthStore();
   const { locations, fetchLocations } = useTenantStore();
   const { setLocation } = useAppStore();
-  useLayoutEffect(() => {
-    if (!user) return router.replace('/login');
-  }, [user]);
 
   useEffect(() => {
     if (tenant) {
@@ -26,7 +23,7 @@ export default function App() {
   }, [tenant]);
 
   return (
-    <ThemedSafeAreaView style={styles.locationContainer}>
+    <ThemedView style={styles.locationContainer}>
       <ThemedText type="title" style={styles.title}>Seleziona la sede</ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
@@ -56,14 +53,13 @@ export default function App() {
           )}
         />
       </ThemedView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   locationContainer: {
     flex: 1,
-
   },
   title: {
     textAlign: 'center',

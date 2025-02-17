@@ -1,20 +1,16 @@
 import { StyleSheet } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { useLayoutEffect, useState } from 'react';
+import { useState } from 'react';
 import Calendar from "@/components/admin/Calendar";
 import Employee from "@/components/admin/Employee";
 import StatBox from "@/components/StatBox";
-import { useAuthStore } from "@/store/auth-store";
-import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { useAdminStore } from "@/store/admin-store";
 import { useAppStore } from "@/store/app-store";
 
 export default function Admin() {
-    const router = useRouter();
-    const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear, fetchStats, stats, fetchAttendance } = useAdminStore();
@@ -24,11 +20,6 @@ export default function Admin() {
         fetchAttendance(location?.id ?? '', selectedMonth, selectedYear);
         fetchStats(location?.id ?? '', selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear, location]);
-
-    useLayoutEffect(() => {
-        // Admin
-        if (!user) return router.replace('/login');
-    }, [user]);
 
     return (
         <ThemedView style={styles.adminContainer}>

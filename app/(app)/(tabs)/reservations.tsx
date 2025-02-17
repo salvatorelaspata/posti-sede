@@ -2,14 +2,12 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { FlatList, StyleSheet } from "react-native";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
-import { Image } from "expo-image";
 
 import { useAuthStore } from "@/store/auth-store";
-import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Booking, User } from "@/types";
 import { getMonthUserBookings, deleteBooking } from "@/db/api";
@@ -24,16 +22,11 @@ type BookingWithAny = Booking & GenericObject;
 
 
 export default function Reservations() {
-    const router = useRouter();
     const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [bookings, setBookings] = useState<BookingWithAny[]>([]);
-    useLayoutEffect(() => {
-        // Reservations
-        if (!user) return router.replace('/login');
-    }, [user]);
 
     useEffect(() => {
         const fetchBookings = async () => {

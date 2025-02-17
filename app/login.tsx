@@ -14,35 +14,57 @@ import { router } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/auth-store';
+import { useSignIn } from '@clerk/clerk-expo';
 // import seed from '@/db/seed';
 
 
 export default function App() {
-  const { user, signInBasic } = useAuthStore();
+  const { signIn, setActive, isLoaded } = useSignIn()
+  // const { signInBasic } = useAuthStore();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // useLayoutEffect(() => {
-  //   if (user) {
+  // const handleSignIn = async () => {
+  //   try {
+  //     if (!email || !password) {
+  //       setError('Email e password sono obbligatori');
+  //       return;
+  //     }
+
+  //     await signInBasic(email, password);
+
   //     router.replace('/(app)/rooms');
+  //   } catch (error) {
+  //     setError('Email o password errati');
   //   }
-  // }, [user]);
-  const handleSignIn = async () => {
+  // }
+  const onSignInPress = React.useCallback(async () => {
+    if (!isLoaded) return
+
+    // Start the sign-in process using the email and password provided
     try {
-      if (!email || !password) {
-        setError('Email e password sono obbligatori');
-        return;
+      const signInAttempt = await signIn.create({
+        identifier: email,
+        password,
+      })
+
+      // If sign-in process is complete, set the created session as active
+      // and redirect the user
+      if (signInAttempt.status === 'complete') {
+        await setActive({ session: signInAttempt.createdSessionId })
+        router.replace('/')
+      } else {
+        // If the status isn't complete, check why. User might need to
+        // complete further steps.
+        console.error(JSON.stringify(signInAttempt, null, 2))
       }
-
-      await signInBasic(email, password);
-
-      router.replace('/(app)/rooms');
-    } catch (error) {
-      setError('Email o password errati');
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2))
     }
-  }
-
+  }, [isLoaded, email, password])
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -85,7 +107,7 @@ export default function App() {
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleSignIn}>
+          <TouchableOpacity style={styles.loginButton} onPress={onSignInPress}>
             <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
             <Text style={styles.buttonText}>Accedi</Text>
           </TouchableOpacity>

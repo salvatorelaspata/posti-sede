@@ -8,17 +8,14 @@ import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerR
 import { ThemedScrollView } from '@/components/ThemedScrollView';
 import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
 import HorizontalCalendar from '@/components/HorizontalCalendar';
-import { Colors } from '@/constants/Colors';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
-import { useAuthStore } from '@/store/auth-store';
 import { useRouter } from 'expo-router';
 import { getAvailabilityForLocation } from '@/db/api';
 import { RoomComponent } from '@/components/Room';
 const HomeScreen = () => {
   const router = useRouter();
-  const { user } = useAuthStore();
   const { location } = useAppStore();
   const { rooms, fetchRooms } = useTenantStore();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -37,10 +34,6 @@ const HomeScreen = () => {
       fetchAvailability();
     }
   }, [location]);
-
-  useLayoutEffect(() => {
-    if (!user) return router.replace('/login');
-  }, [user]);
 
   useEffect(() => {
     if (location) {

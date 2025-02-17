@@ -7,7 +7,7 @@ import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuthStore } from "@/store/auth-store";
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 
 export default function ChangePassword() {
     const router = useRouter();
@@ -15,10 +15,6 @@ export default function ChangePassword() {
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
-
-    useLayoutEffect(() => {
-        if (!user) return router.replace('/login');
-    }, [user]);
 
     const handleResetPassword = async () => {
         if (!user?.email) return;

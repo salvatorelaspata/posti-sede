@@ -15,10 +15,6 @@ const SettingsScreen = () => {
     const [biometric, setBiometric] = useState(true);
     const { user, signOut } = useAuthStore();
 
-    useLayoutEffect(() => {
-        if (!user) return router.replace('/login');
-    }, [user]);
-
     const handleDeleteAccount = () => {
         Alert.alert(
             "Elimina Account",

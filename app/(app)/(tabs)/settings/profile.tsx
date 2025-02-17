@@ -21,10 +21,6 @@ export default function SettingsProfile() {
     const [emoji, setEmoji] = useState<string>(user?.emoji || '');
     const [fullname, setFullname] = useState<string>(user?.fullname || '');
 
-    useLayoutEffect(() => {
-        if (!user) return router.replace('/login');
-    }, [user]);
-
     const handleEmojiChange = (text: string) => {
         // check if the emoji is valid with
         const isSingleEmoji = (str: string) => {
