@@ -1,12 +1,13 @@
-import { StyleSheet, FlatList, View } from "react-native";
+import { StyleSheet, FlatList, View, Pressable } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { useAuthStore } from "@/store/auth-store";
 import { useAdminStore } from "@/store/admin-store";
-
+import { useRouter } from "expo-router";
 export default function Employee() {
     const { user } = useAuthStore();
     const { attendance } = useAdminStore();
+    const router = useRouter();
     return (
         <FlatList
             data={attendance}
@@ -16,12 +17,18 @@ export default function Employee() {
                         <ThemedText style={styles.employeeName}>{item.employeeName}</ThemedText>
                         <ThemedText style={styles.employeeDepartment}>{item.employeeDepartment}</ThemedText>
                     </View>
-                    <ThemedView style={styles.presenceBadge}>
-                        <ThemedText style={styles.presenceText}>{item.days.size}</ThemedText>
+                    <Pressable onPress={() => {
+                        router.push({
+                            pathname: '/(app)/modalDetailBooking',
+                            params: { employee: item.id }
+                        })
+                    }} style={styles.presenceBadge}>
+                        <ThemedText style={styles.presenceText}>{item.days.length}</ThemedText>
                         <ThemedText style={styles.presenceLabel}>presenze</ThemedText>
-                    </ThemedView>
+                    </Pressable>
                 </ThemedView>
             )}
+
         />
     )
 }

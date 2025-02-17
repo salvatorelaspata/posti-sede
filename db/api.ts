@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { eq, sql, and, gte, lt } from 'drizzle-orm';
 import { employees, rooms, tenants, users, bookings, locations } from './schema';
 import { User } from '@/types';
+import { formatDate } from '@/constants/Calendar';
 export const getUserByEmailAndPassword = async (email: string, password: string) => {
 
     const user = await db.select()
@@ -166,17 +167,21 @@ export const getAttendance = async (locationId: string, month: number, year: num
         .where(and(gte(bookings.date, firstDate), lt(bookings.date, lastDate), eq(rooms.locationId, locationId)));
 
     // Raggruppa le prenotazioni per dipendente, contando i giorni unici in cui è avvenuta una prenotazione.
-    const attendanceMap = new Map<string, { id: string, employeeName: string, employeeDepartment: string, userId: string, days: Set<string>, users: User }>();
+    const attendanceMap = new Map<string, {
+        id: string,
+        employeeName: string,
+        employeeDepartment: string,
+        userId: string,
+        days: string[],
+        users: User
+    }>();
     try {
         for (let i = 0; i < bookingsData.length; i++) {
             const booking = bookingsData[i];
-            // Utilizza l'id del dipendente (potrebbe essere disponibile da employees o come booking.employeeId)
             const employeeId = booking.employees?.id || booking.employeeId;
 
             if (!employeeId) continue;
 
-            // Converte la data in formato "YYYY-MM-DD" per escludere l'orario e contare un giorno solo una volta
-            // Se il dipendente non è ancora presente nella mappa, lo aggiungiamo
             if (!attendanceMap.has(employeeId)) {
                 attendanceMap.set(employeeId, {
                     id: employeeId,
@@ -184,14 +189,15 @@ export const getAttendance = async (locationId: string, month: number, year: num
                     employeeDepartment: booking.employees?.department || 'Sconosciuto',
                     userId: booking.users?.id || 'Sconosciuto',
                     users: booking.users,
-                    days: new Set<string>()
+                    days: []
                 });
             }
-
-            // Aggiunge la data al set dei giorni per quel dipendente
-            attendanceMap.get(employeeId)?.days.add(booking.date);
+            const _employee = attendanceMap.get(employeeId);
+            // format date
+            const formattedDate = formatDate(booking.bookings.date, 'full');
+            if (_employee) _employee.days.push(formattedDate ?? 'Nessuna prenotazione');
         }
-
+        if (attendanceMap.size === 0) return [];
         return Array.from(attendanceMap.values());
     } catch (error) {
         console.error("Errore nell'API getAttendance:", error);
