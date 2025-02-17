@@ -2,6 +2,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "../ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useAdminStore } from "@/store/admin-store";
 
 const getDatesInMonth = (date: Date) => {
     const dates: Date[] = [];
@@ -16,14 +17,14 @@ const getDatesInMonth = (date: Date) => {
 };
 
 interface CalendarProps {
-    selectedMonth: Date;
-    selectedYear: number;
     onMonthChange: (date: Date) => void;
-    attendance: any[];
 }
 
-export default function Calendar({ selectedMonth, selectedYear, onMonthChange, attendance }: CalendarProps) {
-    const dates = getDatesInMonth(selectedMonth);
+export default function Calendar({ onMonthChange }: CalendarProps) {
+    const { attendance } = useAdminStore();
+    const { selectedMonth, selectedYear } = useAdminStore();
+    const dates = getDatesInMonth(new Date(selectedYear, selectedMonth, 1));
+
     const weeks: Date[][] = [];
     let currentWeek: Date[] = [];
 
@@ -55,7 +56,7 @@ export default function Calendar({ selectedMonth, selectedYear, onMonthChange, a
                     <MaterialIcons name="chevron-left" size={24} color="#333" />
                 </TouchableOpacity>
                 <ThemedText style={styles.monthText}>
-                    {selectedMonth.toLocaleString('it-IT', { month: 'long', year: 'numeric' })}
+                    {new Date(selectedYear, selectedMonth, 1).toLocaleString('it-IT', { month: 'long', year: 'numeric' })}
                 </ThemedText>
                 <TouchableOpacity onPress={() => {
                     const newDate = new Date(selectedMonth);
@@ -95,7 +96,7 @@ export default function Calendar({ selectedMonth, selectedYear, onMonthChange, a
                                     <ThemedText style={styles.calendarDate}>{date.getDate()}</ThemedText>
                                     {attendance && (
                                         <ThemedView style={styles.attendanceCount}>
-                                            <ThemedText style={styles.attendanceCountText}>{attendance.count}</ThemedText>
+                                            <ThemedText style={styles.attendanceCountText}>{attendance.length}</ThemedText>
                                         </ThemedView>
                                     )}
                                 </TouchableOpacity>

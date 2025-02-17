@@ -9,23 +9,21 @@ import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
-import { getAttendance } from "@/db/api";
+import { useAdminStore } from "@/store/admin-store";
+import { useAppStore } from "@/store/app-store";
 
 export default function Admin() {
     const router = useRouter();
     const { user } = useAuthStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [selectedMonth, setSelectedMonth] = useState(new Date());
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [attendance, setAttendance] = useState<any[]>([]);
+
+    const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear, fetchStats, stats, fetchAttendance } = useAdminStore();
+    const { location } = useAppStore();
 
     useEffect(() => {
-        const fetchAttendance = async () => {
-            const attendance = await getAttendance(selectedMonth, selectedYear);
-            setAttendance(attendance);
-        };
-        fetchAttendance();
-    }, [selectedMonth, selectedYear]);
+        fetchAttendance(location?.id ?? '', selectedMonth, selectedYear);
+        fetchStats(location?.id ?? '', selectedMonth, selectedYear);
+    }, [selectedMonth, selectedYear, location]);
 
     useLayoutEffect(() => {
         // Admin
@@ -47,29 +45,30 @@ export default function Admin() {
             <ThemedView style={styles.adminContainer}>
 
                 <ThemedView style={styles.statsContainer}>
-                    <StatBox number={85} label="Occupazione" />
-                    <StatBox number={45} label="Prenotazioni" />
-                    <StatBox number={12} label="Sale" />
+                    <StatBox number={`${stats.occupancy}%`} label="Occupazione" />
+                    <StatBox number={stats.bookings} label="Prenotazioni" />
+                    <StatBox number={stats.rooms} label="Stanze" />
                 </ThemedView>
                 <ThemedView style={styles.monthSelectorContainer}>
                     <HorizontalMonthSelector
-                        handleNextMonth={() => { }}
-                        handlePreviousMonth={() => { }}
-                        selectedMonth={selectedMonth.getMonth()}
+                        handleNextMonth={() => {
+                            setSelectedMonth(selectedMonth + 1);
+                        }}
+                        handlePreviousMonth={() => {
+                            setSelectedMonth(selectedMonth - 1);
+                        }}
+                        selectedMonth={selectedMonth}
                         selectedYear={selectedYear}
                         onMonthChange={(month) => {
-                            setSelectedMonth(new Date(selectedYear, month, 1));
+                            setSelectedMonth(month);
                         }}
                         onYearChange={setSelectedYear}
                     />
                 </ThemedView>
                 {selectedIndex === 0 ?
-                    <Calendar
-                        selectedMonth={selectedMonth}
-                        selectedYear={selectedYear}
-                        onMonthChange={setSelectedMonth}
-                        attendance={attendance}
-                    /> : <Employee attendance={attendance} />}
+                    <Calendar onMonthChange={(date) => { setSelectedMonth(date.getMonth()) }} /> :
+                    <Employee />
+                }
             </ThemedView>
         </ThemedView>
     );

@@ -2,23 +2,22 @@ import { StyleSheet, FlatList, View } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { useAuthStore } from "@/store/auth-store";
-interface EmployeeProps {
-    attendance: any[];
-}
+import { useAdminStore } from "@/store/admin-store";
 
-export default function Employee({ attendance }: EmployeeProps) {
+export default function Employee() {
     const { user } = useAuthStore();
+    const { attendance } = useAdminStore();
     return (
         <FlatList
             data={attendance}
             renderItem={({ item }) => (
-                <ThemedView key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.users.id ? '#E3F2FD' : '#fff' }]}>
+                <ThemedView key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.userId ? '#E3F2FD' : '#fff' }]}>
                     <View style={styles.employeeInfo}>
-                        <ThemedText style={styles.employeeName}>{item.users.fullname}</ThemedText>
-                        <ThemedText style={styles.employeeDepartment}>{item.employees.department}</ThemedText>
+                        <ThemedText style={styles.employeeName}>{item.employeeName}</ThemedText>
+                        <ThemedText style={styles.employeeDepartment}>{item.employeeDepartment}</ThemedText>
                     </View>
                     <ThemedView style={styles.presenceBadge}>
-                        <ThemedText style={styles.presenceText}>{item.count}</ThemedText>
+                        <ThemedText style={styles.presenceText}>{item.days.size}</ThemedText>
                         <ThemedText style={styles.presenceLabel}>presenze</ThemedText>
                     </ThemedView>
                 </ThemedView>

@@ -3,11 +3,12 @@ import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
 interface StatBoxProps {
-    number?: number;
+    number?: number | string;
     label?: string;
 }
 
 export default function StatBox({ number, label }: StatBoxProps) {
+
     return (
         <ThemedView style={styles.statBox}>
             {number !== undefined && <ThemedText style={styles.statNumber}>{number}</ThemedText>}
