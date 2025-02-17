@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -6,12 +6,19 @@ import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
-import seed from '@/db/seed';
+import { useAuthStore } from '@/store/auth-store';
+// import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
     const router = useRouter();
+    // const { user } = useAuthStore();
+    // useEffect(() => {
+    //     if (user) {
+    //         router.replace('/(app)/rooms');
+    //     }
+    // }, [user]);
     const handleLogin = () => {
         router.push('/login');
     };
@@ -64,7 +71,7 @@ export default function LandingPage() {
                 </View>
 
                 <View style={styles.featuresContainer}>
-                    <Button title="Seed" onPress={seed} />
+                    {/* <Button title="Seed" onPress={seed} /> */}
                     <View style={styles.featureCard}>
                         <MaterialIcons name="location-city" size={32} color={Colors.light.tint} />
                         <Text style={styles.featureTitle}>Multi-sede</Text>

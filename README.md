@@ -46,6 +46,22 @@ Studio
 npm run studio
 ```
 
+## EAS
+
+Build the app for the development profile.
+
+```bash
+eas build --profile development --platform ios
+```
+
+Build the app for the preview profile.
+
+```bash
+eas build --profile preview --platform ios
+```
+
+
+
 # TODO
 
 - [ ] Manage google auth

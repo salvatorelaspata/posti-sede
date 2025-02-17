@@ -4,5 +4,6 @@ export default function App() {
   return (<Stack screenOptions={{ headerShown: false }}>
     <Stack.Screen name="index" />
     <Stack.Screen name="modalDetailBooking" options={{ presentation: 'modal' }} />
+    <Stack.Screen name="modalDetailLocation" options={{ presentation: 'modal' }} />
   </Stack>);
 }

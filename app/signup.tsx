@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,14 @@ export default function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [name, setName] = useState<string>('');
-  const { signUp } = useAuthStore();
+  const { signUp, user } = useAuthStore();
+
+  // useEffect(() => {
+  //   if (user) {
+  //     router.replace('/(app)/rooms');
+  //   }
+  // }, [user]);
+
   const handleSignUp = async () => {
     if (!email || !password || !name) {
       Alert.alert('Errore', 'Tutti i campi sono obbligatori');

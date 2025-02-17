@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,10 +18,16 @@ import { useAuthStore } from '@/store/auth-store';
 
 
 export default function App() {
-  const { signInBasic } = useAuthStore();
+  const { user, signInBasic } = useAuthStore();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
+
+  // useLayoutEffect(() => {
+  //   if (user) {
+  //     router.replace('/(app)/rooms');
+  //   }
+  // }, [user]);
   const handleSignIn = async () => {
     try {
       if (!email || !password) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Room } from '@/types';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerRootView';
@@ -60,9 +60,12 @@ const HomeScreen = () => {
     <ThemedGestureHandlerRootView style={styles.container}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili</ThemedText>
       <HorizontalCalendar daysInCalendar={daysInCalendar} currentDay={currentDay} currentDayFromHook={currentDayFromHook} setCurrentDay={setCurrentDay} />
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili</ThemedText>
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+        <Ionicons name="information-circle" size={24} color="black" />
+      </TouchableOpacity></ThemedText>
       {/* <ThemedText>{JSON.stringify(availability, null, 2)}</ThemedText> */}
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
+        {/* button to show svg */}
         {rooms.length > 0 ? rooms.map((room) => (
           <RoomComponent key={room.id} room={room} selectedRoom={selectedRoom} switchSelectedRoom={switchSelectedRoom} selectedDate={new Date(currentYear, currentMonth, currentDay)} />
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
