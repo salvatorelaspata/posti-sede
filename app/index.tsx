@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
+import { useUser } from '@clerk/clerk-expo';
 // import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const router = useRouter();
+    const { user } = useUser();
+    if (user) return <Redirect href="/(app)/rooms" />
 
+    const router = useRouter();
     const handleLogin = () => {
         router.push('/login');
     };

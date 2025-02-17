@@ -4,8 +4,7 @@ import { useAuth } from '@clerk/clerk-expo';
 
 export default function App() {
   const { isSignedIn } = useAuth()
-
-  if (isSignedIn) {
+  if (!isSignedIn) {
     return <Redirect href={'/'} />
   }
   return (<Stack screenOptions={{ headerShown: false }}>

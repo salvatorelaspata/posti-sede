@@ -1,29 +1,35 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useAuthStore } from '@/store/auth-store';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
+import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
+import { getTenantFromEmail } from '@/db/api';
+import { useUser } from '@clerk/clerk-expo';
 
 export default function App() {
   const router = useRouter()
-  const { tenant } = useAuthStore();
+  const { user } = useUser();
   const { locations, fetchLocations } = useTenantStore();
-  const { setLocation } = useAppStore();
+  const { setLocation, setTenant } = useAppStore();
 
   useEffect(() => {
-    if (tenant) {
-      fetchLocations(tenant)
+    const getLocations = async () => {
+      if (user) {
+        const tenant = await getTenantFromEmail(user.emailAddresses[0].emailAddress);
+        setTenant(tenant);
+        fetchLocations(tenant.id)
+      }
     }
-  }, [tenant]);
+    getLocations();
+  }, [user]);
 
   return (
-    <ThemedView style={styles.locationContainer}>
+    <ThemedSafeAreaView style={styles.locationContainer}>
       <ThemedText type="title" style={styles.title}>Seleziona la sede</ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
@@ -53,7 +59,7 @@ export default function App() {
           )}
         />
       </ThemedView>
-    </ThemedView>
+    </ThemedSafeAreaView>
   );
 }
 

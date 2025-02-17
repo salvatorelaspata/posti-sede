@@ -41,7 +41,6 @@ export const useAdminStore = create<AdminState>()(
             attendance: [],
             fetchAttendance: async (locationId: string, month: number, year: number) => {
                 const attendance = await getAttendance(locationId, month, year);
-                console.log("attendance", attendance.length);
                 set({ attendance });
             },
         }),

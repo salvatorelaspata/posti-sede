@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { useAppStore } from "@/store/app-store";
-import { SvgUri } from 'react-native-svg';
+// import { SvgUri } from 'react-native-svg';
 import { Image } from "expo-image";
 export default function ModalDetailLocation() {
     const { location: locationFromStore } = useAppStore();

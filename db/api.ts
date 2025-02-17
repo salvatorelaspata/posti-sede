@@ -3,15 +3,7 @@ import { eq, sql, and, gte, lt } from 'drizzle-orm';
 import { employees, rooms, tenants, users, bookings, locations } from './schema';
 import { User } from '@/types';
 import { formatDate } from '@/constants/Calendar';
-export const getUserByEmailAndPassword = async (email: string, password: string) => {
 
-    const user = await db.select()
-        .from(users)
-        .where(and(eq(users.email, email), eq(users.password, password)))
-        .limit(1);
-
-    return user;
-}
 
 export const getTenantFromEmail = async (email: string) => {
     const tenant = email.split('@')[1];
@@ -23,6 +15,24 @@ export const getTenantFromEmail = async (email: string) => {
     return tenantId[0];
 }
 
+
+export const checkTenant = async (email: string) => {
+    const tenant = email.split('@')[1];
+    const tenantId = await db.select().from(tenants).where(sql`${tenants.allowedDomains} @> ${JSON.stringify([tenant])}`)
+    return tenantId.length > 0;
+}
+
+// deprecated
+export const getUserByEmailAndPassword = async (email: string, password: string) => {
+    const user = await db.select()
+        .from(users)
+        .where(and(eq(users.email, email), eq(users.password, password)))
+        .limit(1);
+
+    return user;
+}
+
+// deprecated
 export const updateUser = async (id: string, data: any) => {
     const updatedUser = await db.update(users).set({
         fullname: data.fullname,
@@ -41,11 +51,12 @@ export const createUserFromEmailAndPassword = async (email: string, password: st
     }
 
     // check if user already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, email))
-    if (existingUser.length > 0) {
-        throw new Error('Utente già esistente');
-    }
+    // const existingUser = await db.select().from(users).where(eq(users.email, email))
+    // if (existingUser.length > 0) {
+    //     throw new Error('Utente già esistente');
+    // }
 
+    // to be deprecated
     const user = await db.insert(users).values({
         tenantId: tenantId[0].id,
         emoji: '👤 ',
@@ -67,6 +78,8 @@ export const createUserFromEmailAndPassword = async (email: string, password: st
     return user;
 }
 
+
+// deprecated
 export const updateUserPassword = async (id: string, password: string) => {
     const updatedUser = await db.update(users).set({
         password,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,96 +7,116 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Button,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-import { useAuthStore } from '@/store/auth-store';
-import { useSignUp } from '@clerk/clerk-expo';
+import { useSignUp, useUser } from '@clerk/clerk-expo';
+import { checkTenant, createUserFromEmailAndPassword } from '@/db/api';
+
 
 export default function SignUp() {
-
+  const { user } = useUser();
+  if (user) return <Redirect href="/(app)/rooms" />
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  // const { signUp } = useAuthStore();
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
   const [pendingVerification, setPendingVerification] = useState<boolean>(false)
   const [code, setCode] = useState<string>('')
+  const [error, setError] = useState<string>('')
   const { isLoaded, signUp, setActive } = useSignUp()
+
   const handleSignUp = async () => {
-    // if (!email || !password || !name) {
-    //   Alert.alert('Errore', 'Tutti i campi sono obbligatori');
-    //   return;
-    // }
-    // try {
-    //   await signUp(email, password, name);
-    //   router.navigate('/login');
-    // } catch (error) {
-    //   Alert.alert('Errore', `Si è verificato un errore durante la registrazione:\n\n${error}`);
-    // }
-
+    if (!email || !password || !firstName || !lastName) {
+      Alert.alert('Errore', 'Tutti i campi sono obbligatori');
+      return;
+    }
+    // check if the email (domain) is allowed
+    const isAllowed = await checkTenant(email)
+    if (!isAllowed) {
+      Alert.alert('Errore', 'Il dominio dell\'email non è autorizzato');
+      return;
+    }
     if (!isLoaded) return
-
-    // Start sign-up process using email and password provided
     try {
       await signUp.create({
         emailAddress: email,
         password,
+        firstName,
+        lastName,
       })
-
-      // Send user an email with verification code
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-
-      // Set 'pendingVerification' to true to display second form
-      // and capture OTP code
       setPendingVerification(true)
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
+      setError('')
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      if (err.status === 422) {
+        setError(`La password è stata trovata in una violazione dei dati online. Per la sicurezza dell'account, si prega di utilizzare una password diversa.`)
+      } else {
+        setError('Errore durante la registrazione')
+      }
     }
 
   }
   const onVerifyPress = async () => {
     if (!isLoaded) return
-
     try {
-      // Use the code the user provided to attempt verification
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
         code,
       })
-
-      // If verification was completed, set the session to active
-      // and redirect the user
       if (signUpAttempt.status === 'complete') {
+        await createUserFromEmailAndPassword(email, "", firstName + " " + lastName)
         await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace('/')
+        router.replace('/(app)/rooms')
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
         console.error(JSON.stringify(signUpAttempt, null, 2))
+        setError('Codice OTP errato')
       }
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
+      setError('Codice OTP errato')
     }
   }
 
   if (pendingVerification) {
     return (
-      <>
-        <Text>Verify your email</Text>
-        <TextInput
-          value={code}
-          placeholder="Enter your verification code"
-          onChangeText={(code) => setCode(code)}
-        />
-        <Button title="Verify" onPress={onVerifyPress} />
-      </>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <LinearGradient
+          colors={Colors.light.gradient as [string, string, string]}
+          style={styles.gradient}
+        >
+          <View style={styles.headerContainer}>
+            <MaterialIcons name="email" size={60} color="white" />
+            <Text style={styles.headerText}>
+              Verify your email
+            </Text>
+          </View>
+
+          <View style={styles.form}>
+            <TextInput
+              value={code}
+              placeholder="Enter your verification code"
+              onChangeText={(code) => setCode(code)}
+            />
+            {error && <Text style={styles.errorText}>{error}</Text>}
+            <Button title="Verify" onPress={onVerifyPress} />
+
+          </View>
+
+        </LinearGradient>
+      </KeyboardAvoidingView>
+
     )
   }
 
@@ -122,13 +142,22 @@ export default function SignUp() {
             <MaterialIcons name="person" size={24} color="#666" />
             <TextInput
               style={styles.input}
-              placeholder="Nome completo"
-              value={name}
-              onChangeText={setName}
+              placeholder="Nome"
+              value={firstName}
+              onChangeText={setFirstName}
               placeholderTextColor="#666"
             />
           </View>
-
+          <View style={styles.inputContainer}>
+            <MaterialIcons name="person" size={24} color="#666" />
+            <TextInput
+              style={styles.input}
+              placeholder="Cognome"
+              value={lastName}
+              onChangeText={setLastName}
+              placeholderTextColor="#666"
+            />
+          </View>
           <View style={styles.inputContainer}>
             <MaterialIcons name="email" size={24} color="#666" />
             <TextInput
@@ -153,7 +182,7 @@ export default function SignUp() {
               placeholderTextColor="#666"
             />
           </View>
-
+          {error && <Text style={styles.errorText}>{error}</Text>}
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
             <Text style={styles.buttonText}>
               Registrati
@@ -240,5 +269,9 @@ const styles = StyleSheet.create({
   toggleText: {
     color: '#4c669f',
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });

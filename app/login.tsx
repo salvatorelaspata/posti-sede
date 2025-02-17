@@ -10,38 +10,37 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
-import { useAuthStore } from '@/store/auth-store';
-import { useSignIn } from '@clerk/clerk-expo';
+import { useSignIn, useUser } from '@clerk/clerk-expo';
+import { checkTenant } from '@/db/api';
 // import seed from '@/db/seed';
 
 
-export default function App() {
+export default function Login() {
+  const { user } = useUser();
+  if (user) return <Redirect href="/(app)/rooms" />
+
   const { signIn, setActive, isLoaded } = useSignIn()
-  // const { signInBasic } = useAuthStore();
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // const handleSignIn = async () => {
-  //   try {
-  //     if (!email || !password) {
-  //       setError('Email e password sono obbligatori');
-  //       return;
-  //     }
-
-  //     await signInBasic(email, password);
-
-  //     router.replace('/(app)/rooms');
-  //   } catch (error) {
-  //     setError('Email o password errati');
-  //   }
-  // }
   const onSignInPress = React.useCallback(async () => {
     if (!isLoaded) return
 
+
+    if (!email || !password) {
+      setError('Email e password sono obbligatori')
+      return
+    }
+    const tenant = await checkTenant(email);
+    if (!tenant) {
+      setError('Email non valida')
+      return
+    }
     // Start the sign-in process using the email and password provided
     try {
       const signInAttempt = await signIn.create({
@@ -53,7 +52,8 @@ export default function App() {
       // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+
+        router.replace('/(app)/rooms')
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
@@ -63,6 +63,7 @@ export default function App() {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
+      setError('Email o password errati')
     }
   }, [isLoaded, email, password])
   return (

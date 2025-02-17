@@ -6,12 +6,12 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppStore } from '@/store/app-store';
-import { useAuthStore } from '@/store/auth-store';
+import { useUser } from '@clerk/clerk-expo';
 
 export default function Tabs() {
   const colorScheme = useColorScheme();
   const { location } = useAppStore();
-  const { user } = useAuthStore();
+  const { user } = useUser();
   return (
     <ExpoTabs
       screenOptions={{
@@ -38,7 +38,7 @@ export default function Tabs() {
       <ExpoTabs.Screen
         name="admin"
         options={{
-          href: user?.role === 'admin' ? '/admin' : null,
+          href: user?.publicMetadata.role === 'admin' ? '/admin' : null,
           title: `Admin Section - Sede ${location?.name}`,
           tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}

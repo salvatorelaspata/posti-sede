@@ -60,9 +60,30 @@ Build the app for the preview profile.
 eas build --profile preview --platform ios
 ```
 
+## Install on simulator
+
+```bash
+eas build:run -p ios --latest
+```
+
+## Teck Stack
+
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.dev/)
+- [Neon](https://neon.tech/)
+- [Drizzle](https://orm.drizzle.team/)
+- [Zustand](https://zustand.docs.pmnd.rs/)
+- [Clerk](https://clerk.com/)
 
 
 # TODO
 
 - [ ] Manage google auth
 - [ ] I18N
+
+## Thanks
+
+Fast development:
+
+- [Cursor](https://www.cursor.com/)
+- [a0](https://a0.dev/)

@@ -6,24 +6,30 @@ import { StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useAuthStore } from "@/store/auth-store";
+
 import { useState } from "react";
+import { useUser } from "@clerk/clerk-expo";
 
 export default function ChangePassword() {
     const router = useRouter();
-    const { user, resetPassword } = useAuthStore();
+    const { user } = useUser();
+
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
 
     const handleResetPassword = async () => {
-        if (!user?.email) return;
+        if (!user?.emailAddresses[0].emailAddress) return;
         if (newPassword !== confirmNewPassword) {
             Alert.alert('Errore', 'Le password non corrispondono');
             return;
         }
         try {
-            await resetPassword(user?.email, oldPassword, newPassword);
+            await user.updatePassword({
+                newPassword: newPassword,
+                currentPassword: oldPassword,
+            });
+
             Alert.alert('Successo', 'Password cambiata con successo');
             router.back();
         } catch (error) {
@@ -80,7 +86,7 @@ export default function ChangePassword() {
                 </ThemedView>
                 <ThemedView style={styles.spacer} />
                 <ThemedView style={styles.footer}>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]}>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]} onPress={() => router.back()}>
                         <ThemedText type="default" style={{ color: Colors.light.background }}>Annulla</ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]} onPress={handleResetPassword}>

@@ -6,14 +6,14 @@ import SettingItem from '@/components/SettingsItem';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
-import { useAuthStore } from '@/store/auth-store';
-
+import { useAuth, useUser } from '@clerk/clerk-expo';
 const SettingsScreen = () => {
     const router = useRouter();
     const [notifications, setNotifications] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [biometric, setBiometric] = useState(true);
-    const { user, signOut } = useAuthStore();
+    const { user } = useUser();
+    const { signOut } = useAuth();
 
     const handleDeleteAccount = () => {
         Alert.alert(
@@ -37,7 +37,7 @@ const SettingsScreen = () => {
                 text: "Logout", style: "destructive",
                 onPress: () => {
                     signOut();
-                    router.replace('/login');
+                    router.replace('/');
                 }
             }
         ]);
@@ -53,10 +53,10 @@ const SettingsScreen = () => {
                 end={{ x: 1, y: 1 }}
             >
                 <View style={styles.profileImagePlaceholder}>
-                    <Text style={styles.profileInitials}>{user?.emoji}</Text>
+                    <Text style={styles.profileInitials}>{user?.imageUrl}</Text>
                 </View>
-                <Text style={styles.profileName}>{user?.fullname}</Text>
-                <Text style={styles.profileEmail}>{user?.email}</Text>
+                <Text style={styles.profileName}>{user?.fullName}</Text>
+                <Text style={styles.profileEmail}>{user?.emailAddresses[0].emailAddress}</Text>
             </LinearGradient>
             <ScrollView style={styles.container}>
 

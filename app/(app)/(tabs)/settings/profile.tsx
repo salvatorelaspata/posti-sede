@@ -8,43 +8,25 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useAuthStore } from "@/store/auth-store";
-
-
-// modifica profilo
-// - emoji profilo
-// - nome completo
+import { useUser } from "@clerk/clerk-expo";
 
 export default function SettingsProfile() {
     const router = useRouter();
-    const { user, updateProfile } = useAuthStore();
-    const [emoji, setEmoji] = useState<string>(user?.emoji || '');
-    const [fullname, setFullname] = useState<string>(user?.fullname || '');
-
-    const handleEmojiChange = (text: string) => {
-        // check if the emoji is valid with
-        const isSingleEmoji = (str: string) => {
-            const emojiPresentation = /\p{Emoji_Presentation}/gu;
-            return emojiPresentation.test(str) && str.replace(emojiPresentation, '') === '' || str.length === 0;
-        };
-
-        if (isSingleEmoji(text)) {
-            setEmoji(text);
-        } else {
-            Alert.alert('Emoji non valido', 'Per favore inserisci un emoji valido');
-        }
-    }
+    const { user } = useUser();
+    const [firstName, setFirstName] = useState<string>(user?.firstName || '');
+    const [lastName, setLastName] = useState<string>(user?.lastName || '');
 
     const handleSave = async () => {
-        if (!fullname || !emoji) {
-            Alert.alert('Errore', 'Per favore inserisci un nome e un emoji');
+        if (!firstName || !lastName) {
+            Alert.alert('Errore', 'Per favore inserisci nome e cognome');
             return;
         }
         try {
-            await updateProfile(fullname, emoji);
+            await user?.update({ firstName: firstName.toString(), lastName: lastName.toString() });
             Alert.alert('Successo', 'Profilo modificato con successo');
             router.back();
         } catch (error) {
+            console.log(error);
             Alert.alert('Errore', 'Si è verificato un errore durante la modifica del profilo');
         }
     }
@@ -66,26 +48,23 @@ export default function SettingsProfile() {
                     <ThemedText type="title" style={styles.title}>Profilo</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
-                    {/* emoji selector */}
-                    <ThemedView style={[styles.selector, { flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }]}>
-                        <ThemedText type="default" >Emoji</ThemedText>
-
-                        <TextInput
-                            style={[styles.selectorInput, { width: 74, height: 74, fontSize: 64, padding: 0 }]}
-                            value={emoji}
-                            onChangeText={handleEmojiChange}
-                        />
-
-                    </ThemedView>
-                    {/* fullname */}
+                    {/* first name */}
                     <ThemedView style={styles.selector}>
-                        <ThemedText type="default" >Fullname</ThemedText>
+                        <ThemedText type="default" >Nome</ThemedText>
                         <TextInput
                             style={styles.selectorInput}
-                            value={fullname}
-                            onChangeText={setFullname}
+                            value={firstName}
+                            onChangeText={setFirstName}
                         />
-
+                    </ThemedView>
+                    {/* last name */}
+                    <ThemedView style={styles.selector}>
+                        <ThemedText type="default" >Cognome</ThemedText>
+                        <TextInput
+                            style={styles.selectorInput}
+                            value={lastName}
+                            onChangeText={setLastName}
+                        />
                     </ThemedView>
                 </ThemedView>
                 <ThemedView style={styles.spacer} />

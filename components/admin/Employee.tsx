@@ -1,11 +1,11 @@
 import { StyleSheet, FlatList, View, Pressable } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
-import { useAuthStore } from "@/store/auth-store";
+import { useUser } from "@clerk/clerk-expo";
 import { useAdminStore } from "@/store/admin-store";
 import { useRouter } from "expo-router";
 export default function Employee() {
-    const { user } = useAuthStore();
+    const { user } = useUser();
     const { attendance } = useAdminStore();
     const router = useRouter();
     return (

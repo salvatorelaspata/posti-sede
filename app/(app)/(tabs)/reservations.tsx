@@ -7,12 +7,12 @@ import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
 
-import { useAuthStore } from "@/store/auth-store";
 import { useEffect } from "react";
 import { Booking, User } from "@/types";
 import { getMonthUserBookings, deleteBooking } from "@/db/api";
 import { getMonthStatus, isPast } from "@/hooks/useCalendar";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "@clerk/clerk-expo";
 
 interface GenericObject {
     [key: string]: any;
@@ -20,9 +20,8 @@ interface GenericObject {
 
 type BookingWithAny = Booking & GenericObject;
 
-
 export default function Reservations() {
-    const { user } = useAuthStore();
+    const { user } = useUser()
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
