@@ -12,21 +12,22 @@ export default function Employee() {
         <FlatList
             data={attendance}
             renderItem={({ item }) => (
-                <ThemedView key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.userId ? '#E3F2FD' : '#fff' }]}>
-                    <View style={styles.employeeInfo}>
-                        <ThemedText style={styles.employeeName}>{item.employeeName}</ThemedText>
-                        <ThemedText style={styles.employeeDepartment}>{item.employeeDepartment}</ThemedText>
-                    </View>
-                    <Pressable onPress={() => {
+                <Pressable
+                    onPress={() => {
                         router.push({
                             pathname: '/(app)/modalDetailBooking',
                             params: { employee: item.id }
                         })
-                    }} style={styles.presenceBadge}>
+                    }} key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.userId ? '#E3F2FD' : '#fff' }]}>
+                    <View style={styles.employeeInfo}>
+                        <ThemedText style={styles.employeeName}>{item.employeeName}</ThemedText>
+                        <ThemedText style={styles.employeeDepartment}>{item.employeeDepartment}</ThemedText>
+                    </View>
+                    <ThemedView style={styles.presenceBadge}>
                         <ThemedText style={styles.presenceText}>{item.days.length}</ThemedText>
                         <ThemedText style={styles.presenceLabel}>presenze</ThemedText>
-                    </Pressable>
-                </ThemedView>
+                    </ThemedView>
+                </Pressable>
             )}
 
         />
