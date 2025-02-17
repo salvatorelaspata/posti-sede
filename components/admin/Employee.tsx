@@ -10,15 +10,19 @@ export default function Employee() {
     const router = useRouter();
     return (
         <FlatList
+            keyExtractor={(item) => item.id}
             data={attendance}
+            style={{ flex: 1, paddingTop: 16 }}
             renderItem={({ item }) => (
                 <Pressable
+
+                    style={[styles.employeeCard, { backgroundColor: user?.id === item.userId ? '#E3F2FD' : '#fff' }]}
                     onPress={() => {
                         router.push({
                             pathname: '/(app)/modalDetailBooking',
                             params: { employee: item.id }
                         })
-                    }} key={item.id} style={[styles.employeeCard, { backgroundColor: user?.id === item.userId ? '#E3F2FD' : '#fff' }]}>
+                    }}>
                     <View style={styles.employeeInfo}>
                         <ThemedText style={styles.employeeName}>{item.employeeName}</ThemedText>
                         <ThemedText style={styles.employeeDepartment}>{item.employeeDepartment}</ThemedText>
@@ -35,9 +39,6 @@ export default function Employee() {
 }
 
 const styles = StyleSheet.create({
-    employeeList: {
-        padding: 8,
-    },
     employeeCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -46,6 +47,13 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
+        // shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        marginHorizontal: 16,
     },
     employeeInfo: {
         flex: 1,
