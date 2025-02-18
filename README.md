@@ -6,19 +6,13 @@
 npm install
 ```
 
-## Environment
-
-```bash
-cp .env.sample .env
-```
-
-Fill the `.env` file with the correct values.
+## Environment variables
 
 - `EXPO_PUBLIC_DATABASE_URL`: The URL of the database.
-- `EXPO_PUBLIC_DATABASE_DRIVER`: The driver of the database. (neon, postgres, etc.)
+- `EXPO_PUBLIC_DATABASE_DRIVER`: The driver of the database. (neon)
+- `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`: The publishable key of the Clerk project.
 
-> [!NOTE]
-> For now only neon is supported.
+Set environment variables in the `.env.local` file.
 
 ## Run
 
@@ -60,11 +54,30 @@ Build the app for the preview profile.
 eas build --profile preview --platform ios
 ```
 
+### Sync environment variables
+
+Pull environment variables from EAS.
+
+```bash
+eas env:pull --profile <profile>
+```
+
+Push environment variables to EAS.
+
+```bash
+eas env:push --profile <profile>
+```
+
+> [!NOTE]
+> The profile is the name of the profile in the `eas.json` file.
+
+
 ## Install on simulator
 
 ```bash
 eas build:run -p ios --latest
 ```
+
 
 ## Teck Stack
 

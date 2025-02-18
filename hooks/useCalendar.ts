@@ -37,6 +37,14 @@ export const isPast = (date: Date): boolean => {
     return today > date
 };
 
+export const isPastWithToday = (date: Date): boolean => {
+    const today = new Date();
+    today.setHours(6, 0, 0, 0);
+    const dateToCompare = new Date(date.toISOString().split('T')[0]);
+    dateToCompare.setHours(6, 0, 0, 0);
+    return today >= dateToCompare;
+};
+
 export function getMonthStatus(targetDate: Date) {
     const current = new Date();
 

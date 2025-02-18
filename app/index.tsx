@@ -7,7 +7,7 @@ import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
 import { useUser } from '@clerk/clerk-expo';
-// import seed from '@/db/seed';
+import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
@@ -68,7 +68,7 @@ export default function LandingPage() {
                 </View>
 
                 <View style={styles.featuresContainer}>
-                    {/* <Button title="Seed" onPress={seed} /> */}
+                    <Button title="Seed" onPress={seed} />
                     <View style={styles.featureCard}>
                         <MaterialIcons name="location-city" size={32} color={Colors.light.tint} />
                         <Text style={styles.featureTitle}>Multi-sede</Text>

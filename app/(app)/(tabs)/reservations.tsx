@@ -8,9 +8,9 @@ import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/consta
 import StatBox from "@/components/StatBox";
 
 import { useEffect } from "react";
-import { Booking, User } from "@/types";
-import { getMonthUserBookings, deleteBooking } from "@/db/api";
-import { getMonthStatus, isPast } from "@/hooks/useCalendar";
+import { Booking } from "@/types";
+import { getMonthEmployeeBookings, deleteBooking, getEmployeeByClerkId } from "@/db/api";
+import { getMonthStatus, isPast, isPastWithToday } from "@/hooks/useCalendar";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
 
@@ -31,7 +31,8 @@ export default function Reservations() {
         const fetchBookings = async () => {
             // Start of Selection
             if (user) {
-                const bookingsData = await getMonthUserBookings(user.id ?? '', selectedMonth, selectedYear);
+                const employee = await getEmployeeByClerkId(user.id ?? '');
+                const bookingsData = await getMonthEmployeeBookings(employee?.id ?? '', selectedMonth, selectedYear);
 
                 const formattedBookings: BookingWithAny[] = bookingsData.map((item) => ({
                     ...item.bookings,
@@ -143,7 +144,7 @@ export default function Reservations() {
                         <ThemedView key={item.id} style={[styles.reservationItem, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
                             <ThemedText type="defaultSemiBold" style={styles.reservationDate}>{formatDate(item.date, 'full')}</ThemedText>
                             <ThemedText style={styles.reservationRoomName}>{item.room.name}</ThemedText>
-                            {!isPast(item.date) && (
+                            {!isPastWithToday(item.date) && (
                                 <ThemedView style={styles.deleteButton}>
                                     <Ionicons name="trash-outline" size={24} color="red" />
                                 </ThemedView>

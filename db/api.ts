@@ -1,8 +1,8 @@
 import { db } from '@/db';
 import { eq, sql, and, gte, lt } from 'drizzle-orm';
-import { employees, rooms, tenants, users, bookings, locations } from './schema';
-import { User } from '@/types';
+import { employees, rooms, tenants, bookings, locations } from './schema';
 import { formatDate } from '@/constants/Calendar';
+import { Employee } from '@/types';
 
 
 export const getTenantFromEmail = async (email: string) => {
@@ -23,26 +23,26 @@ export const checkTenant = async (email: string) => {
 }
 
 // deprecated
-export const getUserByEmailAndPassword = async (email: string, password: string) => {
-    const user = await db.select()
-        .from(users)
-        .where(and(eq(users.email, email), eq(users.password, password)))
-        .limit(1);
+// export const getUserByEmailAndPassword = async (email: string, password: string) => {
+//     const user = await db.select()
+//         .from(users)
+//         .where(and(eq(users.email, email), eq(users.password, password)))
+//         .limit(1);
 
-    return user;
-}
+//     return user;
+// }
 
 // deprecated
-export const updateUser = async (id: string, data: any) => {
-    const updatedUser = await db.update(users).set({
-        fullname: data.fullname,
-        emoji: data.emoji,
-    }).where(eq(users.id, id)).returning();
+// export const updateUser = async (id: string, data: any) => {
+//     const updatedUser = await db.update(users).set({
+//         fullname: data.fullname,
+//         emoji: data.emoji,
+//     }).where(eq(users.id, id)).returning();
 
-    return updatedUser[0];
-}
+//     return updatedUser[0];
+// }
 
-export const createUserFromEmailAndPassword = async (email: string, password: string, name: string) => {
+export const createEmployeeFromEmailAndPassword = async (email: string, clerkId: string, firstname: string, lastname: string) => {
     // get tenant from email
     const tenant = email.split('@')[1];
     const tenantId = await db.select().from(tenants).where(sql`${tenants.allowedDomains} @> ${JSON.stringify([tenant])}`)
@@ -57,34 +57,40 @@ export const createUserFromEmailAndPassword = async (email: string, password: st
     // }
 
     // to be deprecated
-    const user = await db.insert(users).values({
+    // const user = await db.insert(users).values({
+    //     tenantId: tenantId[0].id,
+    //     emoji: '👤 ',
+    //     fullname: name,
+    //     email,
+    //     password,
+    //     googleId: null,
+    //     role: 'employee',
+    //     createdAt: new Date(),
+    // }).returning();
+
+    const employee = await db.insert(employees).values({
         tenantId: tenantId[0].id,
-        emoji: '👤 ',
-        fullname: name,
-        email,
-        password,
-        googleId: null,
-        role: 'employee',
-        createdAt: new Date(),
+        clerkId: clerkId,
+        email: email,
+        firstName: firstname,
+        lastName: lastname,
     }).returning();
 
-    await db.insert(employees).values({
-        tenantId: tenantId[0].id,
-        userId: user[0].id,
-        name: name,
-        department: 'Employee',
-    });
-
-    return user;
+    return employee[0];
 }
 
 
 // deprecated
-export const updateUserPassword = async (id: string, password: string) => {
-    const updatedUser = await db.update(users).set({
-        password,
-    }).where(eq(users.id, id)).returning();
-    return updatedUser[0];
+// export const updateUserPassword = async (id: string, password: string) => {
+//     const updatedUser = await db.update(users).set({
+//         password,
+//     }).where(eq(users.id, id)).returning();
+//     return updatedUser[0];
+// }
+
+export const getEmployeeByClerkId = async (clerkId: string) => {
+    const employee = await db.select().from(employees).where(eq(employees.clerkId, clerkId));
+    return employee[0];
 }
 
 // direct api call
@@ -120,16 +126,15 @@ export const getBookingsForRoom = async (roomId: string, date: Date) => {
     return _bookings;
 }
 
-export const getMonthUserBookings = async (userId: string, month: number, year: number) => {
+export const getMonthEmployeeBookings = async (employeeId: string, month: number, year: number) => {
     const firstDate = new Date(year, month, 1);
     firstDate.setHours(0, 0, 0, 0);
     const lastDate = new Date(year, month + 1, 0);
     lastDate.setHours(23, 59, 59, 999);
-    const _bookings = await db.select().from(users)
-        .leftJoin(employees, eq(users.id, employees.userId))
+    const _bookings = await db.select().from(employees)
         .leftJoin(bookings, eq(employees.id, bookings.employeeId))
         .leftJoin(rooms, eq(bookings.roomId, rooms.id))
-        .where(and(eq(users.id, userId),
+        .where(and(eq(employees.id, employeeId),
             gte(bookings.date, firstDate),
             lt(bookings.date, lastDate)
         ));
@@ -173,7 +178,6 @@ export const getAttendance = async (locationId: string, month: number, year: num
         .select()
         .from(bookings)
         .leftJoin(employees, eq(bookings.employeeId, employees.id))
-        .leftJoin(users, eq(employees.userId, users.id))
         .leftJoin(rooms, eq(bookings.roomId, rooms.id))
         .leftJoin(locations, eq(rooms.locationId, locations.id))
         .leftJoin(tenants, eq(locations.tenantId, tenants.id))
@@ -186,7 +190,7 @@ export const getAttendance = async (locationId: string, month: number, year: num
         employeeDepartment: string,
         userId: string,
         days: string[],
-        users: User
+        employee: Employee
     }>();
     try {
         for (let i = 0; i < bookingsData.length; i++) {
@@ -198,10 +202,10 @@ export const getAttendance = async (locationId: string, month: number, year: num
             if (!attendanceMap.has(employeeId)) {
                 attendanceMap.set(employeeId, {
                     id: employeeId,
-                    employeeName: booking.users?.fullname || 'Sconosciuto',
+                    employeeName: booking.employees?.firstName || 'Sconosciuto',
                     employeeDepartment: booking.employees?.department || 'Sconosciuto',
-                    userId: booking.users?.id || 'Sconosciuto',
-                    users: booking.users,
+                    userId: booking.employees?.clerkId || 'Sconosciuto',
+                    employee: booking.employees,
                     days: []
                 });
             }
@@ -236,4 +240,37 @@ export const getAdminStats = async (locationId: string, month: number, year: num
         );
     const occupancy = (stats.length / _rooms.length).toFixed(1);
     return { occupancy, bookings: stats.length, rooms: _rooms.length };
-}   
+}
+
+export const bookRoom = async (roomId: string, tenantId: string, employeeId: string, date: Date) => {
+    const newBooking = await db.insert(bookings).values({
+        roomId,
+        tenantId,
+        employeeId,
+        date,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        confirmedAt: null,
+        cancelledAt: null
+    }).returning();
+    return newBooking[0];
+}
+
+export const getBookingUserByDate = async (employeeId: string, date: Date) => {
+    const firstDate = new Date(date);
+    firstDate.setHours(0, 0, 0, 0);
+    const lastDate = new Date(date);
+    lastDate.setHours(23, 59, 59, 999);
+    // const booking = await db.select().from(employees)
+    //     .leftJoin(bookings, eq(employees.id, bookings.employeeId))
+    //     .where(and(eq(employees.clerkId, clerkId),
+    //         // gte(bookings.date, firstDate),
+    //         // lt(bookings.date, lastDate)
+    //     ));
+    const booking = await db.select().from(bookings)
+        .where(and(eq(bookings.employeeId, employeeId),
+            gte(bookings.date, firstDate),
+            lt(bookings.date, lastDate)
+        ));
+    return booking.map(b => ({ date: b.date, roomId: b.roomId }));
+}

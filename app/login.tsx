@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -23,10 +24,28 @@ export default function Login() {
   if (user) return <Redirect href="/(app)/rooms" />
 
   const { signIn, setActive, isLoaded } = useSignIn()
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [validEmail, setValidEmail] = useState<boolean>(false);
+  const onSignEmailPress = React.useCallback(async () => {
+    try {
+      const tenant = await checkTenant(email);
+      if (!tenant) {
+        setError('Email non valida')
+        return
+      }
+      setValidEmail(true);
+      setIsLoading(false);
+    } catch (err) {
+      console.error(JSON.stringify(err, null, 2))
+      setError('Email non valida')
+      setIsLoading(false);
+    }
+  }, [isLoaded, email, password])
+
 
   const onSignInPress = React.useCallback(async () => {
     if (!isLoaded) return
@@ -34,11 +53,13 @@ export default function Login() {
 
     if (!email || !password) {
       setError('Email e password sono obbligatori')
+      setIsLoading(false);
       return
     }
     const tenant = await checkTenant(email);
     if (!tenant) {
       setError('Email non valida')
+      setIsLoading(false);
       return
     }
     // Start the sign-in process using the email and password provided
@@ -59,11 +80,13 @@ export default function Login() {
         // complete further steps.
         console.error(JSON.stringify(signInAttempt, null, 2))
       }
+      setIsLoading(false);
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
       setError('Email o password errati')
+      setIsLoading(false);
     }
   }, [isLoaded, email, password])
   return (
@@ -95,22 +118,34 @@ export default function Login() {
               placeholderTextColor="#666"
             />
           </View>
+          {validEmail && (
+            <View style={styles.inputContainer}>
+              <MaterialIcons name="lock" size={24} color="#666" />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#666"
+              />
+            </View>
+          )}
 
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="lock" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor="#666"
-            />
-          </View>
-
-          <TouchableOpacity style={styles.loginButton} onPress={onSignInPress}>
-            <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
-            <Text style={styles.buttonText}>Accedi</Text>
+          <TouchableOpacity style={styles.loginButton} onPress={() => {
+            setIsLoading(true);
+            if (validEmail) {
+              onSignInPress()
+            } else {
+              onSignEmailPress()
+            }
+          }}>
+            {isLoading ? <ActivityIndicator size="small" color={Colors.light.whiteText} /> :
+              <>
+                <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
+                <Text style={styles.buttonText}>Accedi</Text>
+              </>
+            }
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>

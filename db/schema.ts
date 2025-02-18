@@ -18,20 +18,34 @@ export const tenants = pgTable('tenants', {
 });
 
 // Tabella utenti con autenticazione
-export const users = pgTable('users', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    tenantId: uuid('tenant_id').references(() => tenants.id),
-    emoji: varchar('emoji', { length: 256 }),
-    fullname: varchar('fullname', { length: 256 }),
-    email: varchar('email', { length: 256 }).notNull(),
-    password: varchar('password', { length: 256 }),
-    googleId: varchar('google_id', { length: 256 }),
-    role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
-    createdAt: timestamp('created_at').defaultNow(),
-});
+// export const users = pgTable('users', {
+//     id: uuid('id').primaryKey().defaultRandom(),
+//     tenantId: uuid('tenant_id').references(() => tenants.id),
+//     emoji: varchar('emoji', { length: 256 }),
+//     fullname: varchar('fullname', { length: 256 }),
+//     email: varchar('email', { length: 256 }).notNull(),
+//     password: varchar('password', { length: 256 }),
+//     googleId: varchar('google_id', { length: 256 }),
+//     role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
+//     createdAt: timestamp('created_at').defaultNow(),
+// });
 
 // Definizione separata dell'indice unico per email
 // export const usersEmailUnique = uniqueIndex('email_unique').on(users.email);
+
+// Tabella dipendenti (legata al tenant)
+export const employees = pgTable('employees', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').references(() => tenants.id),
+    // userId: uuid('user_id').references(() => users.id),
+    clerkId: varchar('clerk_id', { length: 256 }).notNull(),
+    role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
+    email: varchar('email', { length: 256 }).notNull(),
+    firstName: varchar('first_name', { length: 256 }).notNull(),
+    lastName: varchar('last_name', { length: 256 }).notNull(),
+    department: varchar('department', { length: 256 }),
+    createdAt: timestamp('created_at').defaultNow()
+});
 
 // Tabella sedi (multi-tenant)
 export const locations = pgTable('locations', {
@@ -50,14 +64,6 @@ export const rooms = pgTable('rooms', {
     available: integer('available').notNull().default(0),
 });
 
-// Tabella dipendenti (legata al tenant)
-export const employees = pgTable('employees', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    tenantId: uuid('tenant_id').references(() => tenants.id),
-    userId: uuid('user_id').references(() => users.id),
-    name: varchar('name', { length: 256 }).notNull(),
-    department: varchar('department', { length: 256 }).notNull(),
-});
 
 // Tabella prenotazioni
 export const bookings = pgTable('bookings', {
@@ -94,7 +100,7 @@ export const locationsRelations = relations(locations, ({ one, many }) => ({
 // Relazioni
 export const tenantsRelations = relations(tenants, ({ many }) => ({
     locations: many(locations),
-    users: many(users),
+    // users: many(users),
     employees: many(employees),
 }));
 
@@ -106,22 +112,26 @@ export const roomsRelations = relations(rooms, ({ one, many }) => ({
     bookings: many(bookings),
 }));
 
-export const usersRelations = relations(users, ({ one }) => ({
-    tenant: one(tenants, {
-        fields: [users.tenantId],
-        references: [tenants.id]
-    }),
-    employee: one(employees)
-}));
+// export const usersRelations = relations(users, ({ one }) => ({
+//     tenant: one(tenants, {
+//         fields: [users.tenantId],
+//         references: [tenants.id]
+//     }),
+//     employee: one(employees)
+// }));
 
 export const employeesRelations = relations(employees, ({ one, many }) => ({
     tenant: one(tenants, {
         fields: [employees.tenantId],
         references: [tenants.id],
     }),
-    user: one(users, {
-        fields: [employees.userId],
-        references: [users.id],
+    // user: one(users, {
+    //     fields: [employees.userId],
+    //     references: [users.id],
+    // }),
+    employee: one(employees, {
+        fields: [employees.id],
+        references: [employees.id],
     }),
     bookings: many(bookings),
 }));

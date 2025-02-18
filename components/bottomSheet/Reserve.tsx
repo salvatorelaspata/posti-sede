@@ -14,9 +14,10 @@ interface ReserveBottomSheetProps {
     selectedRoom: Room;
     onClose: () => void;
     selectedDate: Date;
+    handleBooking: () => Promise<void>;
 }
 
-export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate }: ReserveBottomSheetProps) {
+export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate, handleBooking }: ReserveBottomSheetProps) {
 
     const { location } = useAppStore();
     const bottomSheetRef = useRef<BottomSheet>(null);
@@ -39,7 +40,8 @@ export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate
         }
     }
 
-    const handlePrenota = () => {
+    const handlePrenota = async () => {
+        await handleBooking();
         Alert.alert('Successo', 'Prenotazione effettuata con successo');
         bottomSheetRef.current?.close();
         onClose();

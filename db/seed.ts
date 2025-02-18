@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { tenants, locations, rooms, users, employees, bookings } from '@/db/schema';
+import { tenants, locations, rooms, employees, bookings } from '@/db/schema';
 
 // Array di nomi casuali per generare dati più realistici
 const firstNames = [
@@ -18,7 +18,7 @@ const departments = [
 ];
 
 const emojis = ['👨‍💻', '👩‍💻', '👨‍💼', '👩‍💼', '👨‍🔧', '👩‍🔧', '👨‍🏫', '👩‍🏫'];
-const roles = ['admin', 'manager', 'user'];
+const roles = ['admin', 'manager', 'employee'];
 
 // Funzione per generare un nome casuale
 const getRandomName = () => {
@@ -144,137 +144,147 @@ const seedRooms = async (locationId: string) => {
     return await db.insert(rooms).values(roomsData).returning();
 };
 
-const seedUsers = async (tenantId: string, domain: string, count: number) => {
-    const usersData = [];
+// const seedUsers = async (tenantId: string, domain: string, count: number) => {
+//     const employeeData = [];
 
-    // Creiamo sempre un admin
-    const adminName = getRandomName();
-    usersData.push({
-        tenantId,
-        email: `admin@${domain}`,
-        password: 'admin',
-        role: 'admin',
-        emoji: '👨‍💻',
-        fullname: adminName.fullName
-    });
+//     // Creiamo sempre un admin
+//     const adminName = getRandomName();
+//     employeeData.push({
+//         tenantId: tenantId,
+//         // userId: ,
+//         clerkId: `clerk_1`,
+//         role: 'admin',
+//         email: `${adminName.firstName.toLowerCase()}.${adminName.lastName.toLowerCase()}@${domain}`,
+//         firstName: adminName.firstName,
+//         lastName: adminName.lastName,
+//         department: getRandomElement(departments),
+//         createdAt: new Date(),
+//     });
 
-    // Creiamo gli altri utenti
-    for (let i = 0; i < count - 1; i++) {
-        const name = getRandomName();
-        const role = getRandomElement(roles);
-        usersData.push({
-            tenantId,
-            email: `${name.firstName.toLowerCase()}.${name.lastName.toLowerCase()}@${domain}`,
-            password: 'password123', // In produzione usare password sicure e hashate
-            role,
-            emoji: getRandomElement(emojis),
-            fullname: name.fullName
-        });
-    }
+//     // Creiamo gli altri employees
+//     for (let i = 0; i < count - 1; i++) {
+//         const name = getRandomName();
+//         const role = getRandomElement(roles) as 'admin' | 'manager' | 'employee';
+//         employeeData.push({
+//             tenantId,
+//             clerkId: `clerk_${i + 2}`,
+//             email: `${name.firstName.toLowerCase()}.${name.lastName.toLowerCase()}@${domain}`,
+//             role: role,
+//             firstName: name.firstName,
+//             lastName: name.lastName,
+//             department: getRandomElement(departments),
+//             createdAt: new Date(),
+//         });
+//     }
 
-    const insertedUsers = await db.insert(users).values(usersData).returning();
+//     const insertedEmployees = await db.insert(employees).values(employeeData).returning();
 
-    // Creiamo i corrispondenti dipendenti
-    const employeesData = insertedUsers.map(user => ({
-        tenantId,
-        userId: user.id,
-        name: user.fullname,
-        department: getRandomElement(departments)
-    }));
+//     return insertedEmployees;
 
-    return await db.insert(employees).values(employeesData).returning();
-};
+//     // Creiamo i corrispondenti dipendenti
+//     // const employeesData = insertedEmployees.map(employee => ({
+//     //     tenantId,
+//     //     clerkId: employee.clerkId,
+//     //     role: employee.role,
+//     //     email: employee.email,
+//     //     firstName: employee.firstName,
+//     //     lastName: employee.lastName,
+//     //     department: employee.department,
+//     //     createdAt: employee.createdAt,
+//     // }));
+
+//     // return await db.insert(employees).values(employeesData).returning();
+// };
 
 // Funzione esistente per generare prenotazioni (su un range di giorni "relativo")
-const seedBookings = async (tenantId: string, employees: any[], rooms: any[], count: number) => {
-    if (!employees.length || !rooms.length) {
-        console.log('No employees or rooms available for bookings');
-        return [];
-    }
+// const seedBookings = async (tenantId: string, employees: any[], rooms: any[], count: number) => {
+//     if (!employees.length || !rooms.length) {
+//         console.log('No employees or rooms available for bookings');
+//         return [];
+//     }
 
-    const bookingsData = [];
-    const periods = ['full', 'morning', 'afternoon'];
-    const statuses = ['pending', 'confirmed', 'cancelled'];
+//     const bookingsData = [];
+//     const periods = ['full', 'morning', 'afternoon'];
+//     const statuses = ['pending', 'confirmed', 'cancelled'];
 
-    // Genera prenotazioni per i prossimi 30 giorni
-    for (let i = 0; i < count; i++) {
-        const randomDate = new Date();
-        randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30));
+//     // Genera prenotazioni per i prossimi 30 giorni
+//     for (let i = 0; i < count; i++) {
+//         const randomDate = new Date();
+//         randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30));
 
-        bookingsData.push({
-            tenantId,
-            employeeId: getRandomElement(employees).id,
-            roomId: getRandomElement(rooms).id,
-            date: randomDate,
-            period: getRandomElement(periods),
-            status: getRandomElement(statuses),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
-            cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
-        });
-    }
+//         bookingsData.push({
+//             tenantId,
+//             employeeId: getRandomElement(employees).id,
+//             roomId: getRandomElement(rooms).id,
+//             date: randomDate,
+//             period: getRandomElement(periods),
+//             status: getRandomElement(statuses),
+//             createdAt: new Date(),
+//             updatedAt: new Date(),
+//             confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
+//             cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
+//         });
+//     }
 
-    if (bookingsData.length === 0) return [];
+//     if (bookingsData.length === 0) return [];
 
-    return await db.insert(bookings).values(bookingsData).returning();
-};
+//     return await db.insert(bookings).values(bookingsData).returning();
+// };
 
 // Nuova funzione per generare prenotazioni in un periodo specifico (es. Gen-Feb-Mar 2025)
 // con più prenotazioni per ciascun dipendente e con stanze scelte casualmente.
-const seedBookingsForPeriod = async (
-    tenantId: string,
-    employees: any[],
-    rooms: any[],
-    minBookingsPerEmployee: number,
-    maxBookingsPerEmployee: number,
-    start: Date,
-    end: Date
-) => {
-    if (!employees.length || !rooms.length) {
-        console.log('No employees or rooms available for bookings');
-        return [];
-    }
+// const seedBookingsForPeriod = async (
+//     tenantId: string,
+//     employees: any[],
+//     rooms: any[],
+//     minBookingsPerEmployee: number,
+//     maxBookingsPerEmployee: number,
+//     start: Date,
+//     end: Date
+// ) => {
+//     if (!employees.length || !rooms.length) {
+//         console.log('No employees or rooms available for bookings');
+//         return [];
+//     }
 
-    const bookingsData = [];
-    const periods = ['full', 'morning', 'afternoon'];
-    const statuses = ['pending', 'confirmed', 'cancelled'];
+//     const bookingsData = [];
+//     const periods = ['full', 'morning', 'afternoon'];
+//     const statuses = ['pending', 'confirmed', 'cancelled'];
 
-    for (const employee of employees) {
-        const bookingsCount = Math.floor(Math.random() * (maxBookingsPerEmployee - minBookingsPerEmployee + 1)) + minBookingsPerEmployee;
-        for (let i = 0; i < bookingsCount; i++) {
-            const bookingDate = randomDateBetween(start, end);
-            bookingsData.push({
-                tenantId,
-                employeeId: employee.id,
-                roomId: getRandomElement(rooms).id,
-                date: bookingDate,
-                period: getRandomElement(periods),
-                status: getRandomElement(statuses),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
-                cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
-            });
-        }
-    }
+//     for (const employee of employees) {
+//         const bookingsCount = Math.floor(Math.random() * (maxBookingsPerEmployee - minBookingsPerEmployee + 1)) + minBookingsPerEmployee;
+//         for (let i = 0; i < bookingsCount; i++) {
+//             const bookingDate = randomDateBetween(start, end);
+//             bookingsData.push({
+//                 tenantId,
+//                 employeeId: employee.id,
+//                 roomId: getRandomElement(rooms).id,
+//                 date: bookingDate,
+//                 period: getRandomElement(periods),
+//                 status: getRandomElement(statuses),
+//                 createdAt: new Date(),
+//                 updatedAt: new Date(),
+//                 confirmedAt: getRandomElement(statuses) === 'confirmed' ? new Date() : null,
+//                 cancelledAt: getRandomElement(statuses) === 'cancelled' ? new Date() : null
+//             });
+//         }
+//     }
 
-    if (bookingsData.length === 0) return [];
+//     if (bookingsData.length === 0) return [];
 
-    return await db.insert(bookings).values(bookingsData).returning();
-};
+//     return await db.insert(bookings).values(bookingsData).returning();
+// };
 
 const seed = async () => {
     try {
         // Reset database
         console.log('Cleaning database...');
         await Promise.all([
-            db.delete(bookings),
+            db.delete(tenants),
             db.delete(rooms),
             db.delete(locations),
-            db.delete(employees),
-            db.delete(users),
-            db.delete(tenants)
+            // db.delete(bookings),
+            // db.delete(employees),
         ]);
 
         console.log('Seeding tenants...');
@@ -302,49 +312,49 @@ const seed = async () => {
         ]);
 
         console.log('Seeding users and employees...');
-        const gotonextEmployees = await seedUsers(companyA.id, 'gotonext.it', 50);
-        const cubeconsultantsEmployees = await seedUsers(companyB.id, 'cubeconsultants.it', 30);
+        // const gotonextEmployees = await seedUsers(companyA.id, 'gotonext.it', 50);
+        // const cubeconsultantsEmployees = await seedUsers(companyB.id, 'cubeconsultants.it', 30);
 
-        console.log('Seeding standard bookings...');
+        // console.log('Seeding standard bookings...');
         // Prenotazioni standard (su 30 giorni relativi)
-        await seedBookings(
-            companyA.id,
-            gotonextEmployees,
-            gotonextRooms.flat(),
-            100
-        );
-        await seedBookings(
-            companyB.id,
-            cubeconsultantsEmployees,
-            cubeconsultantsRooms.flat(),
-            60
-        );
+        // await seedBookings(
+        //     companyA.id,
+        //     gotonextEmployees,
+        //     gotonextRooms.flat(),
+        //     100
+        // );
+        // await seedBookings(
+        //     companyB.id,
+        //     cubeconsultantsEmployees,
+        //     cubeconsultantsRooms.flat(),
+        //     60
+        // );
 
         // Prenotazioni per i mesi di Gennaio, Febbraio e Marzo 2025
-        const startPeriod = new Date('2025-01-01');
-        const endPeriod = new Date('2025-03-31');
+        // const startPeriod = new Date('2025-01-01');
+        // const endPeriod = new Date('2025-03-31');
 
-        console.log('Seeding bookings for Jan-Feb-Mar 2025 for Gotonext...');
-        await seedBookingsForPeriod(
-            companyA.id,
-            gotonextEmployees,
-            gotonextRooms.flat(),
-            5,  // minimo prenotazioni per dipendente
-            10, // massimo prenotazioni per dipendente
-            startPeriod,
-            endPeriod
-        );
+        // console.log('Seeding bookings for Jan-Feb-Mar 2025 for Gotonext...');
+        // await seedBookingsForPeriod(
+        //     companyA.id,
+        //     gotonextEmployees,
+        //     gotonextRooms.flat(),
+        //     5,  // minimo prenotazioni per dipendente
+        //     10, // massimo prenotazioni per dipendente
+        //     startPeriod,
+        //     endPeriod
+        // );
 
-        console.log('Seeding bookings for Jan-Feb-Mar 2025 for Cubeconsultants...');
-        await seedBookingsForPeriod(
-            companyB.id,
-            cubeconsultantsEmployees,
-            cubeconsultantsRooms.flat(),
-            5,
-            10,
-            startPeriod,
-            endPeriod
-        );
+        // console.log('Seeding bookings for Jan-Feb-Mar 2025 for Cubeconsultants...');
+        // await seedBookingsForPeriod(
+        //     companyB.id,
+        //     cubeconsultantsEmployees,
+        //     cubeconsultantsRooms.flat(),
+        //     5,
+        //     10,
+        //     startPeriod,
+        //     endPeriod
+        // );
 
         console.log('Database seeded successfully!');
     } catch (error) {

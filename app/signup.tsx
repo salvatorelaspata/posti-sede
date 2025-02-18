@@ -15,7 +15,7 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useSignUp, useUser } from '@clerk/clerk-expo';
-import { checkTenant, createUserFromEmailAndPassword } from '@/db/api';
+import { checkTenant, createEmployeeFromEmailAndPassword } from '@/db/api';
 
 
 export default function SignUp() {
@@ -69,7 +69,8 @@ export default function SignUp() {
         code,
       })
       if (signUpAttempt.status === 'complete') {
-        await createUserFromEmailAndPassword(email, "", firstName + " " + lastName)
+        const clerkId = signUpAttempt?.createdUserId || ""
+        await createEmployeeFromEmailAndPassword(email, clerkId, firstName, lastName)
         await setActive({ session: signUpAttempt.createdSessionId })
         router.replace('/(app)/rooms')
       } else {
@@ -104,11 +105,15 @@ export default function SignUp() {
           </View>
 
           <View style={styles.form}>
-            <TextInput
-              value={code}
-              placeholder="Enter your verification code"
-              onChangeText={(code) => setCode(code)}
-            />
+            <View style={styles.inputContainer}>
+              <MaterialIcons name="email" size={24} color="#666" />
+              <TextInput
+                value={code}
+                style={styles.input}
+                placeholder="Enter your verification code"
+                onChangeText={(code) => setCode(code)}
+              />
+            </View>
             {error && <Text style={styles.errorText}>{error}</Text>}
             <Button title="Verify" onPress={onVerifyPress} />
 

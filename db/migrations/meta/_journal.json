@@ -36,6 +36,13 @@
       "when": 1739729495644,
       "tag": "0004_clear_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1739888512331,
+      "tag": "0005_public_rafael_vega",
+      "breakpoints": true
     }
   ]
 }

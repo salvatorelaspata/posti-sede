@@ -12,9 +12,10 @@ interface RoomComponentProps {
     selectedRoom: Room | null;
     switchSelectedRoom: (room: Room) => void;
     selectedDate: Date;
+    booked: boolean;
 }
 
-export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selectedDate }: RoomComponentProps) => {
+export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selectedDate, booked }: RoomComponentProps) => {
     const { available, capacity } = room;
     const [availability, setAvailability] = useState<number>(0);
     useEffect(() => {
@@ -29,9 +30,11 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
             key={room.id}
             style={[
                 styles.roomCard,
-                selectedRoom?.id === room.id && styles.selectedRoom
+                selectedRoom?.id === room.id && styles.selectedRoom,
+                booked && styles.booked
             ]}
             onPress={() => switchSelectedRoom(room)}
+            disabled={booked}
         >
             <ThemedView style={styles.roomHeader}>
                 <ThemedText style={styles.roomName}>{room.name}</ThemedText>
@@ -55,6 +58,11 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
                     ]}
                 />
             </ThemedView>
+            {booked && (
+                <ThemedText style={styles.bookedText}>
+                    Prenotato
+                </ThemedText>
+            )}
         </TouchableOpacity>
     );
 };
@@ -132,4 +140,12 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
     },
+    booked: {},
+    bookedText: {
+        color: 'green',
+        fontSize: 16,
+        textAlign: 'right',
+        textDecorationLine: 'underline',
+        fontWeight: '600',
+    }
 });
