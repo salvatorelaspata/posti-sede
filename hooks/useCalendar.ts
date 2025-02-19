@@ -14,8 +14,19 @@ export function useCalendar() {
         dayOfWeek: new Date(currentYear, currentMonth, i + 1).toLocaleDateString('it-IT', { weekday: 'short' })
     }));
 
+    const goToPreviousMonth = () => {
+        setCurrentMonth(currentMonth - 1);
+        setCurrentYear(currentYear);
+    }
+
+    const goToNextMonth = () => {
+        setCurrentMonth(currentMonth + 1);
+        setCurrentYear(currentYear);
+    }
+
     useEffect(() => {
         const currentDate = new Date();
+        currentDate.setHours(6, 0, 0, 0);
         setCurrentDate(currentDate);
         setCurrentMonth(currentDate.getMonth());
         setCurrentYear(currentDate.getFullYear());
@@ -29,12 +40,17 @@ export function useCalendar() {
         currentDay,
         daysInMonth,
         daysInCalendar,
+        goToPreviousMonth,
+        goToNextMonth
     }
 }
 
 export const isPast = (date: Date): boolean => {
     const today = new Date();
-    return today > date
+    today.setHours(6, 0, 0, 0);
+    const dateToCompare = new Date(date.toISOString().split('T')[0]);
+    dateToCompare.setHours(6, 0, 0, 0);
+    return today > dateToCompare;
 };
 
 export const isPastWithToday = (date: Date): boolean => {

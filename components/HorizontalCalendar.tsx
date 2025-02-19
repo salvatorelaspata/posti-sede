@@ -1,7 +1,6 @@
 import { StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
-import { useCalendar } from "@/hooks/useCalendar";
 import { useEffect, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import {
@@ -39,8 +38,15 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
         return availableDay?.day || currentDayFromHook;
     };
 
-    const scrollToDay = (day: number) => {
-        let index = day - 1;
+    const scrollToDay = (day: number | string) => {
+        console.log(day);
+        // check if day is a number or a string 
+        let index
+        if (typeof day === 'string') {
+            index = day === '<' ? daysInCalendar.length - 2 : 0;
+        } else {
+            index = day - 1;
+        }
 
         flatListRef.current?.scrollToIndex({
             index: index,
@@ -115,7 +121,17 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
         <GestureHandlerRootView style={styles.calendar}>
             <FlatList
                 ref={flatListRef}
-                data={daysInCalendar}
+                data={[
+                    // {
+                    //     day: '<',
+                    //     dayOfWeekIndex: 5,
+                    //     dayOfWeek: 'prev'
+                    // },
+                    ...daysInCalendar, {
+                        day: '>',
+                        dayOfWeekIndex: 5,
+                        dayOfWeek: 'next'
+                    }]}
                 renderItem={renderItem}
                 keyExtractor={item => item.day.toString()}
                 horizontal

@@ -64,8 +64,10 @@ const HomeScreen = () => {
     if (booked) {
       Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno');
       return;
-    }
-    if (selectedRoom?.id === room.id) {
+    } else if (room.capacity <= availability.length) {
+      Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
+      return;
+    } else if (selectedRoom?.id === room.id) {
       setSelectedRoom(null);
     } else {
       setSelectedRoom(room);
@@ -89,15 +91,17 @@ const HomeScreen = () => {
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili</ThemedText>
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili ({currentMonth + 1}/{currentYear})</ThemedText>
       <HorizontalCalendar
         daysInCalendar={daysInCalendar}
         currentDay={currentDay}
         currentDayFromHook={currentDayFromHook}
         setCurrentDay={setCurrentDay} />
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
-        <Ionicons name="information-circle" size={24} color="black" />
-      </TouchableOpacity></ThemedText>
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili
+        <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+          <Ionicons name="information-circle" size={24} color="black" />
+        </TouchableOpacity>
+      </ThemedText>
       {/* <ThemedText>{JSON.stringify(availability, null, 2)}</ThemedText> */}
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {/* button to show svg */}

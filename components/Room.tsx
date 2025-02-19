@@ -18,10 +18,12 @@ interface RoomComponentProps {
 export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selectedDate, booked }: RoomComponentProps) => {
     const { available, capacity } = room;
     const [availability, setAvailability] = useState<number>(0);
+    const [isFull, setIsFull] = useState<boolean>(false);
     useEffect(() => {
         const fetchAvailability = async () => {
             const bookings = await getBookingsForRoom(room.id, selectedDate);
             setAvailability(bookings.length);
+            setIsFull(bookings.length >= capacity);
         }
         fetchAvailability();
     }, [room, selectedDate]);
@@ -61,6 +63,11 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
             {booked && (
                 <ThemedText style={styles.bookedText}>
                     Prenotato
+                </ThemedText>
+            )}
+            {isFull && (
+                <ThemedText style={styles.fullText}>
+                    Pieno
                 </ThemedText>
             )}
         </TouchableOpacity>
@@ -143,6 +150,13 @@ const styles = StyleSheet.create({
     booked: {},
     bookedText: {
         color: 'green',
+        fontSize: 16,
+        textAlign: 'right',
+        textDecorationLine: 'underline',
+        fontWeight: '600',
+    },
+    fullText: {
+        color: 'red',
         fontSize: 16,
         textAlign: 'right',
         textDecorationLine: 'underline',
