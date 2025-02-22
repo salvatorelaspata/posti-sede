@@ -31,9 +31,6 @@ export default function LandingPage() {
     };
 
     const handleContactSales = async () => {
-        // Gestione contatto vendite
-        // send email to sales@postisede.it
-        // check if mail is available
         if (await canOpenURL('mailto:sales@postisede.it')) {
             composeAsync({
                 recipients: ['sales@postisede.it'],
@@ -56,13 +53,9 @@ export default function LandingPage() {
                         style={styles.headerImage}
                     >
                         <LinearGradient
-                            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.8)']}
+                            colors={['rgba(0,0,0,0.1)', Colors.light.tint]}
                             style={styles.gradient}
                         >
-                            {/* <ThemedView style={styles.headerContent}>
-                                <ThemedText style={styles.title}>posti sede</ThemedText>
-                                <ThemedText style={styles.subtitle}>Gestisci gli spazi di lavoro in modo intelligente</ThemedText>
-                            </ThemedView> */}
                         </LinearGradient>
                     </ImageBackground>
                 </HeaderImage>

@@ -38,6 +38,7 @@ export default function Admin() {
                 <ThemedView style={styles.statsContainer}>
                     <StatBox number={`${stats.occupancy}%`} label="Occupazione" />
                     <StatBox number={stats.bookings} label="Prenotazioni" />
+                    {/* <StatBox number={stats.rooms} label="Stanze" /> */}
                     <StatBox number={stats.rooms} label="Stanze" />
                 </ThemedView>
                 <ThemedView style={styles.monthSelectorContainer}>

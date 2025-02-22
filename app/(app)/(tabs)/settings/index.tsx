@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Animated } from 'react-native';
+import CheckBox from 'expo-checkbox';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import SettingItem from '@/components/SettingsItem';
@@ -7,13 +8,30 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors, gradientHeader } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
+
 const SettingsScreen = () => {
     const router = useRouter();
     const [notifications, setNotifications] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [biometric, setBiometric] = useState(true);
+    const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
+    const notificationTypesOpacity = useState(new Animated.Value(0))[0];
     const { user } = useUser();
     const { signOut } = useAuth();
+
+    type NotificationTypes = {
+        dayBefore: boolean;
+        currentDay: boolean;
+        weeklySummary: boolean;
+        monthlySummary: boolean;
+    };
+
+    const [notificationTypes, setNotificationTypes] = useState<NotificationTypes>({
+        dayBefore: false,
+        currentDay: false,
+        weeklySummary: false,
+        monthlySummary: false,
+    });
 
     const handleDeleteAccount = () => {
         Alert.alert(
@@ -36,12 +54,37 @@ const SettingsScreen = () => {
             {
                 text: "Logout", style: "destructive",
                 onPress: () => {
-                    signOut();
-                    router.replace('/');
+                    const toggleNotificationType = (type: keyof NotificationTypes) => {
+                        router.replace('/');
+                    }
                 }
             }
         ]);
     }
+
+    const toggleNotificationType = (type: keyof NotificationTypes) => {
+        setNotificationTypes(prevState => ({
+            ...prevState,
+            [type]: !prevState[type],
+        }));
+    };
+
+    useEffect(() => {
+        if (notifications) {
+            setNotificationTypesVisible(true);
+            Animated.timing(notificationTypesOpacity, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            Animated.timing(notificationTypesOpacity, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start(() => setNotificationTypesVisible(false));
+        }
+    }, [notifications]);
 
     return (
         <ThemedView style={styles.container}>
@@ -94,6 +137,40 @@ const SettingsScreen = () => {
                         onPress={() => setNotifications(!notifications)}
                         isSwitch
                     />
+                    {notificationTypesVisible && (
+                        <Animated.View style={{ opacity: notificationTypesOpacity, margin: 16 }}>
+
+                            <View style={styles.checkboxContainer}>
+                                <CheckBox
+                                    value={notificationTypes.dayBefore}
+                                    onValueChange={() => toggleNotificationType('dayBefore')}
+
+                                />
+                                <Text style={styles.checkboxLabel}>Ricordami il giorno prima</Text>
+                            </View>
+                            <View style={styles.checkboxContainer}>
+                                <CheckBox
+                                    value={notificationTypes.currentDay}
+                                    onValueChange={() => toggleNotificationType('currentDay')}
+                                />
+                                <Text style={styles.checkboxLabel}>Ricordami il giorno corrente</Text>
+                            </View>
+                            <View style={styles.checkboxContainer}>
+                                <CheckBox
+                                    value={notificationTypes.weeklySummary}
+                                    onValueChange={() => toggleNotificationType('weeklySummary')}
+                                />
+                                <Text style={styles.checkboxLabel}>Resoconto settimanale</Text>
+                            </View>
+                            <View style={styles.checkboxContainer}>
+                                <CheckBox
+                                    value={notificationTypes.monthlySummary}
+                                    onValueChange={() => toggleNotificationType('monthlySummary')}
+                                />
+                                <Text style={styles.checkboxLabel}>Resoconto mensile</Text>
+                            </View>
+                        </Animated.View>
+                    )}
                     <SettingItem
                         icon={<Ionicons name="moon-outline" size={24} color="#333" />}
                         title="Modalità Scura"
@@ -219,6 +296,15 @@ const styles = StyleSheet.create({
     version: {
         color: '#666',
         fontSize: 12,
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    checkboxLabel: {
+        marginLeft: 10,
+        fontSize: 16,
     },
 });
 

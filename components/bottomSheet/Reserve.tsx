@@ -24,7 +24,7 @@ export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate
     const [isChecked, setChecked] = useState<boolean>(true);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-    const snapPoints = useMemo(() => ['25%', '35%'], []);
+    const snapPoints = useMemo(() => ['30%', '40%', '60%'], []);
     // callbacks
     const handleSheetChanges = useCallback((index: number) => {
         console.log('handleSheetChanges', index);

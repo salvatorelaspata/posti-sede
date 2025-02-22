@@ -26,31 +26,30 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
     const dates = getDatesInMonth(new Date(selectedYear, selectedMonth, 1));
 
     const weeks: Date[][] = [];
-    let currentWeek: Date[] = [];
+    let currentWeek: (Date | null)[] = [];
 
     dates.forEach((date) => {
         if (currentWeek.length === 0 && date.getDay() !== 0) {
             for (let i = 0; i < date.getDay(); i++) {
-                currentWeek.push(new Date());
+                currentWeek.push(null);
             }
         }
         currentWeek.push(date);
         if (currentWeek.length === 7) {
-            weeks.push(currentWeek);
+            weeks.push(currentWeek.filter(date => date !== null) as Date[]);
             currentWeek = [];
         }
     });
 
     if (currentWeek.length > 0) {
-        weeks.push(currentWeek);
+        weeks.push(currentWeek.filter(date => date !== null) as Date[]);
     }
 
     return (
         <ThemedView style={styles.adminCalendarContainer}>
             <ThemedView style={styles.monthSelector}>
                 <TouchableOpacity onPress={() => {
-                    const newDate = new Date(selectedMonth);
-                    newDate.setMonth(newDate.getMonth() - 1);
+                    const newDate = new Date(selectedYear, selectedMonth - 1, 1);
                     onMonthChange(newDate);
                 }}>
                     <MaterialIcons name="chevron-left" size={24} color="#333" />
@@ -59,8 +58,7 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                     {new Date(selectedYear, selectedMonth, 1).toLocaleString('it-IT', { month: 'long', year: 'numeric' })}
                 </ThemedText>
                 <TouchableOpacity onPress={() => {
-                    const newDate = new Date(selectedMonth);
-                    newDate.setMonth(newDate.getMonth() + 1);
+                    const newDate = new Date(selectedYear, selectedMonth + 1, 1);
                     onMonthChange(newDate);
                 }}>
                     <MaterialIcons name="chevron-right" size={24} color="#333" />
@@ -77,26 +75,23 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                             if (!date) return <ThemedView key={`empty-${dateIndex}`} style={styles.calendarCell} />;
 
                             const dateString = date.toISOString().split('T')[0];
-
-
+                            console.log('Date string', attendance, dateString, date);
+                            const attendanceCount = attendance?.filter(a => a.date === dateString).length || 0;
+                            console.log('Attendance count', attendanceCount);
                             return (
                                 <TouchableOpacity
                                     key={dateIndex}
                                     style={styles.calendarCell}
                                     onPress={() => {
-                                        if (attendance) {
-                                            // setSelectedDayAttendance({
-                                            //   count: attendance.count,
-                                            //   people: attendance.people
-                                            // });
-                                            // setShowAttendanceModal(true);
+                                        if (attendanceCount > 0) {
+                                            console.log('Attendance for', dateString);
                                         }
                                     }}
                                 >
                                     <ThemedText style={styles.calendarDate}>{date.getDate()}</ThemedText>
-                                    {attendance && (
+                                    {attendanceCount > 0 && (
                                         <ThemedView style={styles.attendanceCount}>
-                                            <ThemedText style={styles.attendanceCountText}>{attendance.length}</ThemedText>
+                                            <ThemedText style={styles.attendanceCountText}>{attendanceCount}</ThemedText>
                                         </ThemedView>
                                     )}
                                 </TouchableOpacity>

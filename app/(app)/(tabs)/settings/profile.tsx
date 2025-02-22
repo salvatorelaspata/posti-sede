@@ -1,4 +1,3 @@
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
