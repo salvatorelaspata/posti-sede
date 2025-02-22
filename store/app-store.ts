@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AppState = {
     employee: Employee | null;
+    isAdmin: boolean;
     tenant: Tenant | null;
     location: Location | null;
     room: Room | null;
@@ -20,11 +21,13 @@ export const useAppStore = create<AppState>()(
     persist(
         (set, get) => ({
             employee: null,
+            isAdmin: false,
             tenant: null,
             location: null,
             room: null,
             booking: null,
             setEmployee: (employee: Employee) => set({ employee }),
+            setIsAdmin: (isAdmin: boolean) => set({ isAdmin }),
             setTenant: (tenant: Tenant) => set({ tenant }),
             setLocation: (location: Location) => set({ location }),
             setRoom: (room: Room) => set({ room }),

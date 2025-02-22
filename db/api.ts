@@ -22,6 +22,11 @@ export const checkTenant = async (email: string) => {
     return tenantId.length > 0;
 }
 
+export const getUserRole = async (clerkId: string) => {
+    const user = await getEmployeeByClerkId(clerkId);
+    return user.role;
+}
+
 // deprecated
 // export const getUserByEmailAndPassword = async (email: string, password: string) => {
 //     const user = await db.select()
@@ -256,7 +261,11 @@ export const bookRoom = async (roomId: string, tenantId: string, employeeId: str
     return newBooking[0];
 }
 
-export const getBookingUserByDate = async (employeeId: string, date: Date) => {
+export const getBookingUserByDate: (employeeId: string, date: Date) => Promise<{
+    date: Date;
+    roomId: string | null;
+    roomName: string | null;
+}[]> = async (employeeId: string, date: Date) => {
     const firstDate = new Date(date);
     firstDate.setHours(0, 0, 0, 0);
     const lastDate = new Date(date);
@@ -268,9 +277,10 @@ export const getBookingUserByDate = async (employeeId: string, date: Date) => {
     //         // lt(bookings.date, lastDate)
     //     ));
     const booking = await db.select().from(bookings)
+        .leftJoin(rooms, eq(bookings.roomId, rooms.id))
         .where(and(eq(bookings.employeeId, employeeId),
             gte(bookings.date, firstDate),
             lt(bookings.date, lastDate)
         ));
-    return booking.map(b => ({ date: b.date, roomId: b.roomId }));
+    return booking.map(b => ({ date: b.bookings.date, roomId: b.bookings.roomId, roomName: b.rooms?.name || null }));
 }

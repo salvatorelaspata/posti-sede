@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Tabs as ExpoTabs } from 'expo-router';
 import { HapticTab } from '@/components/HapticTab';
@@ -7,11 +7,13 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppStore } from '@/store/app-store';
 import { useUser } from '@clerk/clerk-expo';
+// import { getUserRole } from '@/db/api';
 
 export default function Tabs() {
   const colorScheme = useColorScheme();
   const { location } = useAppStore();
   const { user } = useUser();
+
   return (
     <ExpoTabs
       screenOptions={{
@@ -38,7 +40,7 @@ export default function Tabs() {
       <ExpoTabs.Screen
         name="admin"
         options={{
-          href: user?.publicMetadata.role === 'admin' ? '/admin' : null,
+          // href: user?.publicMetadata.role === 'admin' ? '/admin' : null,
           title: `Admin Section - Sede ${location?.name}`,
           tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}

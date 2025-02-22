@@ -4,7 +4,7 @@ import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import SettingItem from '@/components/SettingsItem';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, gradientHeader } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 const SettingsScreen = () => {
@@ -47,7 +47,7 @@ const SettingsScreen = () => {
         <ThemedView style={styles.container}>
             {/* Header Profile Section */}
             <LinearGradient
-                colors={Colors.light.gradientHeader}
+                colors={gradientHeader as [string, string]}
                 style={styles.profileHeader}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

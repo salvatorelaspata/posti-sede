@@ -17,7 +17,16 @@ const tintColorLightHeader2 = '#4CAF50';
 const tintColorDarkHeader = '#2196F8';
 const tintColorDarkHeader2 = '#4CAF50';
 
-export const Colors = {
+export const gradient = [tintColorLight, tintColorLight2, tintColorLight3]
+export const gradientHeader = [tintColorLightHeader, tintColorLightHeader2]
+export const Colors: {
+  light: {
+    [key: string]: string;
+  };
+  dark: {
+    [key: string]: string;
+  };
+} = {
   light: {
     text: '#11181C',
     whiteText: '#fff',
@@ -26,8 +35,6 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    gradient: [tintColorLight, tintColorLight2, tintColorLight3] as const,
-    gradientHeader: [tintColorLightHeader, tintColorLightHeader2] as const,
   },
   dark: {
     text: '#ECEDEE',
@@ -37,10 +44,10 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-    gradient: [tintColorDark, tintColorDark2, tintColorDark3] as const,
-    gradientHeader: [tintColorDarkHeader, tintColorDarkHeader2] as const,
+    // gradient: [tintColorDark, tintColorDark2, tintColorDark3] as const,
+    // gradientHeader: [tintColorDarkHeader, tintColorDarkHeader2] as const,
   },
-  primary: '#6200ee',
-  gray: '#a9a9a9',
+  // primary: '#6200ee',
+  // gray: '#a9a9a9',
 };
 

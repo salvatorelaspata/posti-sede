@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
-import { Colors } from '@/constants/Colors';
+import { Colors, gradient } from '@/constants/Colors';
 import { useSignIn, useUser } from '@clerk/clerk-expo';
 import { checkTenant } from '@/db/api';
 // import seed from '@/db/seed';
@@ -95,7 +95,7 @@ export default function Login() {
       style={styles.container}
     >
       <LinearGradient
-        colors={Colors.light.gradient as [string, string, string]}
+        colors={gradient as [string, string, string]}
         style={styles.gradient}
       >
         <View style={styles.headerContainer}>

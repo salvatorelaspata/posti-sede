@@ -26,7 +26,11 @@ const HomeScreen = () => {
   const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
 
   const [availability, setAvailability] = useState<any[]>([]);
-  const [booked, setBooked] = useState<Booking | null>(null);
+  const [booked, setBooked] = useState<{
+    date: Date;
+    roomId: string | null;
+    roomName: string | null;
+  } | null>(null);
 
   const fetchAvailability = async () => {
     if (location) {
@@ -62,7 +66,7 @@ const HomeScreen = () => {
 
   const switchSelectedRoom = (room: Room) => {
     if (booked) {
-      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno');
+      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
       return;
     } else if (room.capacity <= availability.length) {
       Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
@@ -7,11 +7,17 @@ import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
 import { useUser } from '@clerk/clerk-expo';
-import seed from '@/db/seed';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { HeaderImage } from '@/components/HeaderImage';
+import { useThemeColor } from '@/hooks/useThemeColor';
+// import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
+    const color = useThemeColor({}, 'text');
     const { user } = useUser();
     if (user) return <Redirect href="/(app)/rooms" />
 
@@ -39,62 +45,69 @@ export default function LandingPage() {
         }
     };
     return (
-        <ScrollView style={styles.container} bounces={false}>
-            <ImageBackground
-                source={{ uri: 'https://api.a0.dev/assets/image?text=modern%20office%20space%20with%20minimalist%20design%20and%20clean%20workspace&aspect=16:9' }}
-                style={styles.headerImage}
-            >
-                <LinearGradient
-                    colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.8)']}
-                    style={styles.gradient}
-                >
-                    <View style={styles.headerContent}>
-                        <Text style={styles.title}>posti sede</Text>
-                        <Text style={styles.subtitle}>Gestisci gli spazi di lavoro in modo intelligente</Text>
-                    </View>
-                </LinearGradient>
-            </ImageBackground>
-            <View style={styles.content}>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+        <ParallaxScrollView
+            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+            headerTitle='posti sede'
+            haederSubtitle='Gestisci gli spazi di lavoro in modo intelligente'
+            headerImage={
+                <HeaderImage>
+                    <ImageBackground
+                        source={{ uri: 'https://api.a0.dev/assets/image?text=modern%20office%20space%20with%20minimalist%20design%20and%20clean%20workspace&aspect=16:9' }}
+                        style={styles.headerImage}
+                    >
+                        <LinearGradient
+                            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.8)']}
+                            style={styles.gradient}
+                        >
+                            {/* <ThemedView style={styles.headerContent}>
+                                <ThemedText style={styles.title}>posti sede</ThemedText>
+                                <ThemedText style={styles.subtitle}>Gestisci gli spazi di lavoro in modo intelligente</ThemedText>
+                            </ThemedView> */}
+                        </LinearGradient>
+                    </ImageBackground>
+                </HeaderImage>
+            }>
+            <ThemedView style={styles.content}>
+                <ThemedView style={styles.buttonContainer}>
+                    {/* <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                         <MaterialIcons name="person-add" size={24} color={Colors.light.whiteText} />
-                        <Text style={styles.buttonText}>Registrati</Text>
-                    </TouchableOpacity>
+                        <ThemedText style={styles.buttonText}>Registrati</ThemedText>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                         <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
-                        <Text style={styles.buttonText}>Accedi</Text>
+                        <ThemedText type='defaultSemiBold' style={styles.buttonText}>Accedi a posti sede</ThemedText>
                     </TouchableOpacity>
-                </View>
+                </ThemedView>
 
-                <View style={styles.featuresContainer}>
-                    <Button title="Seed" onPress={seed} />
-                    <View style={styles.featureCard}>
+                <ThemedView style={styles.featuresContainer}>
+                    {/* <Button title="Seed" onPress={seed} /> */}
+                    <ThemedView style={styles.featureCard}>
                         <MaterialIcons name="location-city" size={32} color={Colors.light.tint} />
-                        <Text style={styles.featureTitle}>Multi-sede</Text>
-                        <Text style={styles.featureText}>Gestisci più sedi aziendali da un'unica piattaforma</Text>
-                    </View>
+                        <ThemedText style={styles.featureTitle}>Multi-sede</ThemedText>
+                        <ThemedText style={styles.featureText}>Gestisci più sedi aziendali da un'unica piattaforma</ThemedText>
+                    </ThemedView>
 
-                    <View style={styles.featureCard}>
+                    <ThemedView style={styles.featureCard}>
                         <MaterialIcons name="event-seat" size={32} color={Colors.light.tint} />
-                        <Text style={styles.featureTitle}>Prenotazione Smart</Text>
-                        <Text style={styles.featureText}>Prenota la tua postazione in pochi click</Text>
-                    </View>
+                        <ThemedText style={styles.featureTitle}>Prenotazione Smart</ThemedText>
+                        <ThemedText style={styles.featureText}>Prenota la tua postazione in pochi click</ThemedText>
+                    </ThemedView>
 
-                    <View style={styles.featureCard}>
+                    <ThemedView style={styles.featureCard}>
                         <MaterialIcons name="meeting-room" size={32} color={Colors.light.tint} />
-                        <Text style={styles.featureTitle}>Gestione Spazi</Text>
-                        <Text style={styles.featureText}>Organizza e monitora l'utilizzo degli spazi</Text>
-                    </View>
-                </View>
+                        <ThemedText style={styles.featureTitle}>Gestione Spazi</ThemedText>
+                        <ThemedText style={styles.featureText}>Organizza e monitora l'utilizzo degli spazi</ThemedText>
+                    </ThemedView>
+                </ThemedView>
 
                 <TouchableOpacity style={styles.salesButton} onPress={handleContactSales}>
                     <MaterialIcons name="business" size={24} color={Colors.light.tint} />
-                    <Text style={styles.salesButtonText}>Contattaci</Text>
-                    <Text style={styles.salesSubtext}>Per registrare la tua azienda</Text>
+                    <ThemedText style={styles.salesButtonText}>Contattaci</ThemedText>
+                    <ThemedText style={styles.salesSubtext}>Per registrare la tua azienda</ThemedText>
                 </TouchableOpacity>
-            </View>
-        </ScrollView>
+            </ThemedView>
+        </ParallaxScrollView>
     );
 }
 
@@ -131,46 +144,44 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     content: {
-        padding: 20,
+
     },
     buttonContainer: {
+        zIndex: 999,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: -50,
-        marginBottom: 30,
+        marginBottom: 8,
     },
     loginButton: {
-        backgroundColor: Colors.light.tint,
         flexDirection: 'row',
+        backgroundColor: Colors.light.tint,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 15,
         borderRadius: 12,
-        width: '48%',
+        width: '100%',
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
     },
-    registerButton: {
-        backgroundColor: Colors.light.text,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 15,
-        borderRadius: 12,
-        width: '48%',
-        elevation: 3,
-        shadowColor: Colors.light.text,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
+    // registerButton: {
+    //     backgroundColor: Colors.light.text,
+    //     flexDirection: 'row',
+    //     alignItems: 'center',
+    //     justifyContent: 'center',
+    //     padding: 15,
+    //     borderRadius: 12,
+    //     width: '48%',
+    //     elevation: 3,
+    //     shadowColor: Colors.light.text,
+    //     shadowOffset: { width: 0, height: 2 },
+    //     shadowOpacity: 0.25,
+    //     shadowRadius: 3.84,
+    // },
     buttonText: {
         color: Colors.light.whiteText,
-        fontSize: 16,
-        fontWeight: 'bold',
         marginLeft: 8,
     },
     featuresContainer: {

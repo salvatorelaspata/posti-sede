@@ -39,7 +39,6 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
     };
 
     const scrollToDay = (day: number | string) => {
-        console.log(day);
         // check if day is a number or a string 
         let index
         if (typeof day === 'string') {
@@ -127,7 +126,8 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
                     //     dayOfWeekIndex: 5,
                     //     dayOfWeek: 'prev'
                     // },
-                    ...daysInCalendar, {
+                    ...daysInCalendar,
+                    {
                         day: '>',
                         dayOfWeekIndex: 5,
                         dayOfWeek: 'next'
