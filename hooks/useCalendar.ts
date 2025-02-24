@@ -1,50 +1,3 @@
-import { useEffect, useState } from "react";
-
-export function useCalendar() {
-    const [currentDate, setCurrentDate] = useState<Date>(new Date());
-    const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
-    const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
-    const [currentDay, setCurrentDay] = useState<number>(new Date().getDate());
-
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-    const daysInCalendar = Array.from({ length: daysInMonth }, (_, i) => ({
-        day: i + 1,
-        dayOfWeekIndex: new Date(currentYear, currentMonth, i + 1).getDay(),
-        dayOfWeek: new Date(currentYear, currentMonth, i + 1).toLocaleDateString('it-IT', { weekday: 'short' })
-    }));
-
-    const goToPreviousMonth = () => {
-        setCurrentMonth(currentMonth - 1);
-        setCurrentYear(currentYear);
-    }
-
-    const goToNextMonth = () => {
-        setCurrentMonth(currentMonth + 1);
-        setCurrentYear(currentYear);
-    }
-
-    useEffect(() => {
-        const currentDate = new Date();
-        currentDate.setHours(6, 0, 0, 0);
-        setCurrentDate(currentDate);
-        setCurrentMonth(currentDate.getMonth());
-        setCurrentYear(currentDate.getFullYear());
-        setCurrentDay(currentDate.getDate());
-    }, []);
-
-    return {
-        currentDate,
-        currentMonth,
-        currentYear,
-        currentDay,
-        daysInMonth,
-        daysInCalendar,
-        goToPreviousMonth,
-        goToNextMonth
-    }
-}
-
 export const isPast = (date: Date): boolean => {
     const today = new Date();
     today.setHours(6, 0, 0, 0);
@@ -85,4 +38,14 @@ export function getMonthStatus(targetDate: Date) {
     } else {
         return 2
     }
+}
+export const daysInCalendar = (month: number) => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = month;
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => ({
+        day: i + 1,
+        dayOfWeekIndex: new Date(currentYear, currentMonth, i + 1).getDay(),
+        dayOfWeek: new Date(currentYear, currentMonth, i + 1).toLocaleDateString('it-IT', { weekday: 'short' })
+    }));
 }

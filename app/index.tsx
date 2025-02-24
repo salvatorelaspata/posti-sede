@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Button, Alert, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
@@ -9,15 +9,16 @@ import { canOpenURL } from 'expo-linking';
 import { useUser } from '@clerk/clerk-expo';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 // import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const color = useThemeColor({}, 'text');
+    // const textColor = useThemeColor({}, 'text');
+    // const bgColor = useThemeColor({}, 'background');
     const { user } = useUser();
     if (user) return <Redirect href="/(app)/rooms" />
 
@@ -26,9 +27,9 @@ export default function LandingPage() {
         router.push('/login');
     };
 
-    const handleRegister = () => {
-        router.push('/signup');
-    };
+    // const handleRegister = () => {
+    //     router.push('/signup');
+    // };
 
     const handleContactSales = async () => {
         if (await canOpenURL('mailto:sales@postisede.it')) {

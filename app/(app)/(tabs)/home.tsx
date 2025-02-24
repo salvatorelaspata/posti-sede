@@ -1,93 +1,69 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Booking, Room } from '@/types';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { Room } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerRootView';
 import { ThemedScrollView } from '@/components/ThemedScrollView';
 import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
 import HorizontalCalendar from '@/components/HorizontalCalendar';
-import { useCalendar } from '@/hooks/useCalendar';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { useRouter } from 'expo-router';
-import { getAvailabilityForLocation, bookRoom, getBookingUserByDate, getEmployeeByClerkId } from '@/db/api';
+import { bookRoom, getEmployeeByClerkId } from '@/db/api';
 import { RoomComponent } from '@/components/Room';
 import { useUser } from '@clerk/clerk-expo';
-const HomeScreen = () => {
-  const { user } = useUser();
-  const router = useRouter();
-  const { location } = useAppStore();
-  const { rooms, fetchRooms } = useTenantStore();
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const scrollViewRef = useRef<ScrollView>(null);
-  const { daysInCalendar, currentDay: currentDayFromHook, currentMonth, currentYear } = useCalendar();
-  const [currentDay, setCurrentDay] = useState<number>(currentDayFromHook);
+import { useThemeColor } from '@/hooks/useThemeColor';
 
-  const [availability, setAvailability] = useState<any[]>([]);
+const HomeScreen = () => {
+  const router = useRouter();
+  const { user } = useUser();
+  const { rooms, fetchRooms } = useTenantStore();
+  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear } = useAppStore();
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
   const [booked, setBooked] = useState<{
     date: Date;
     roomId: string | null;
     roomName: string | null;
   } | null>(null);
 
-  const fetchAvailability = async () => {
-    if (location) {
-      const availability = await getAvailabilityForLocation(location.id, new Date(currentYear, currentMonth, currentDay));
-      setAvailability(availability);
-    }
-  }
-
-  const fetchPersonalBooking = async () => {
-    if (location) {
-      const clerkId = user?.id || '';
-      try {
-        const employee = await getEmployeeByClerkId(clerkId);
-        const booking = await getBookingUserByDate(employee?.id || '', new Date(currentYear, currentMonth, currentDay));
-        setBooked(booking[0]);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (location) fetchAvailability();
-  }, [location]);
+  const primaryButtonColor = useThemeColor({}, 'primaryButton');
 
   useEffect(() => {
     if (location) fetchPersonalBooking();
   }, [location, currentDay]);
 
   useEffect(() => {
-    if (location) fetchRooms(location.id);
-  }, [location]);
+    if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
+  }, [location, currentDay]);
 
   const switchSelectedRoom = (room: Room) => {
     if (booked) {
       Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
       return;
-    } else if (room.capacity <= availability.length) {
+    } else if (room.available === 0) {
       Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
       return;
-    } else if (selectedRoom?.id === room.id) {
-      setSelectedRoom(null);
+    } else if (room?.id === room.id) {
+      setRoom(null);
     } else {
-      setSelectedRoom(room);
+      setRoom(room);
     }
   }
 
   const handleBooking = async () => {
-    if (selectedRoom && location) {
+    if (room && location) {
       try {
         const employee = await getEmployeeByClerkId(user?.id || '');
-        await bookRoom(selectedRoom.id, location.tenantId || '', employee?.id || '', new Date(currentYear, currentMonth, currentDay, 6, 0, 0, 0));
-        setSelectedRoom(null);
+        await bookRoom(room.id, location.tenantId || '', employee?.id || '', new Date(currentYear, currentMonth, currentDay, 6, 0, 0, 0));
+        setRoom(null);
       } catch (error) {
         console.log(error);
       } finally {
-        fetchAvailability();
+        fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
         fetchPersonalBooking();
       }
     }
@@ -96,32 +72,27 @@ const HomeScreen = () => {
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili ({currentMonth + 1}/{currentYear})</ThemedText>
-      <HorizontalCalendar
-        daysInCalendar={daysInCalendar}
-        currentDay={currentDay}
-        currentDayFromHook={currentDayFromHook}
-        setCurrentDay={setCurrentDay} />
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Stanze disponibili
+      <HorizontalCalendar />
+      <ThemedView style={styles.sectionTitle}>
+        <ThemedText type="subtitle">Stanze disponibili</ThemedText>
         <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
-          <Ionicons name="information-circle" size={24} color="black" />
+          <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
         </TouchableOpacity>
-      </ThemedText>
-      {/* <ThemedText>{JSON.stringify(availability, null, 2)}</ThemedText> */}
+      </ThemedView>
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
-        {/* button to show svg */}
         {rooms.length > 0 ? rooms.map((room) => (
           <RoomComponent
             key={room.id}
             room={room}
-            selectedRoom={selectedRoom}
+            selectedRoom={room}
             switchSelectedRoom={switchSelectedRoom}
             selectedDate={new Date(currentYear, currentMonth, currentDay)}
             booked={booked?.roomId === room.id ? true : false} />
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
-      {selectedRoom && (
-        <ReserveBottomSheet selectedRoom={selectedRoom} onClose={() => setSelectedRoom(null)}
+      {room && (
+        <ReserveBottomSheet selectedRoom={room} onClose={() => setRoom(null)}
           selectedDate={new Date(currentYear, currentMonth, currentDay)} handleBooking={handleBooking}
         />
       )}
@@ -155,6 +126,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     margin: 16,
+
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bottomSheet: {
     flex: 1,

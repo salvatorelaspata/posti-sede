@@ -8,20 +8,18 @@ import {
     FlatList,
     TouchableOpacity,
 } from 'react-native-gesture-handler';
+import { useAppStore } from "@/store/app-store";
+import { daysInCalendar } from "@/hooks/useCalendar";
 
 const ITEM_WIDTH = 65;
 const ITEM_MARGIN = 5;
 const TOTAL_ITEM_WIDTH = ITEM_WIDTH + (ITEM_MARGIN * 2);
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface HorizontalCalendarProps {
-    daysInCalendar: any[];
-    currentDay: number;
-    currentDayFromHook: number;
-    setCurrentDay: (day: number) => void;
-}
+interface HorizontalCalendarProps { }
 
-export default function HorizontalCalendar({ daysInCalendar, currentDay, currentDayFromHook, setCurrentDay }: HorizontalCalendarProps) {
+export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
+    const { currentDay: currentDayFromHook, currentMonth, currentDay, setCurrentDay } = useAppStore();
     const flatListRef = useRef<FlatList<any>>(null);
 
     const isDayDisabled = (workDay: number, day: number) => {
@@ -32,7 +30,7 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
     };
 
     const findFirstAvailableDay = () => {
-        const availableDay = daysInCalendar.find(item =>
+        const availableDay = daysInCalendar(currentMonth).find(item =>
             !isDayDisabled(item.dayOfWeekIndex, item.day)
         );
         return availableDay?.day || currentDayFromHook;
@@ -68,7 +66,7 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
     useEffect(() => {
         // Se il giorno corrente è disabilitato, trova il primo giorno disponibile
         if (isDayDisabled(
-            daysInCalendar[currentDayFromHook - 1]?.dayOfWeekIndex,
+            daysInCalendar(currentMonth)[currentDay - 1]?.dayOfWeekIndex,
             currentDayFromHook
         )) {
             const firstAvailableDay = findFirstAvailableDay();
@@ -126,7 +124,7 @@ export default function HorizontalCalendar({ daysInCalendar, currentDay, current
                     //     dayOfWeekIndex: 5,
                     //     dayOfWeek: 'prev'
                     // },
-                    ...daysInCalendar,
+                    ...daysInCalendar(currentMonth),
                     {
                         day: '>',
                         dayOfWeekIndex: 5,

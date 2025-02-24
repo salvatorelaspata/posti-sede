@@ -1,24 +1,6 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+export const gradient = ['#0a7ea4', '#2094c7', '#50b9e9']
+export const gradientHeader = ['#2196F8', '#4CAF50']
 
-const tintColorDark = '#fff';
-const tintColorDark2 = '#fff';
-const tintColorDark3 = '#fff';
-
-const tintColorLight = '#0a7ea4';
-const tintColorLight2 = '#2094c7';
-const tintColorLight3 = '#50b9e9';
-
-const tintColorLightHeader = '#2196F8';
-const tintColorLightHeader2 = '#4CAF50';
-
-const tintColorDarkHeader = '#2196F8';
-const tintColorDarkHeader2 = '#4CAF50';
-
-export const gradient = [tintColorLight, tintColorLight2, tintColorLight3]
-export const gradientHeader = [tintColorLightHeader, tintColorLightHeader2]
 export const Colors: {
   light: {
     [key: string]: string;
@@ -28,26 +10,48 @@ export const Colors: {
   };
 } = {
   light: {
+    tint: '#0a7ea4',
     text: '#11181C',
+    inactiveText: '#687076',
     whiteText: '#fff',
     background: '#fff',
-    tint: tintColorLight,
+    border: '#ECEDEE',
     icon: '#687076',
     tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    tabIconSelected: '#0a7ea4',
+    success: '#4CAF50',
+    error: '#F44336',
+    primaryButton: '#0a7ea4',
+    secondaryButton: '#687076',
+    cardBackground: '#fff',
+    cardText: '#11181C',
+    cardShadow: '#000',
+    statBackground: '#f8f9fa',
+    statPrimaryText: '#0a7ea4',
+    statText: '#11181C',
+    statShadow: '#000',
   },
   dark: {
+    tint: '#fff',
     text: '#ECEDEE',
+    inactiveText: '#9BA1A6',
     whiteText: '#fff',
     background: '#151718',
-    tint: tintColorDark,
+    border: '#2B2B2B',
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-    // gradient: [tintColorDark, tintColorDark2, tintColorDark3] as const,
-    // gradientHeader: [tintColorDarkHeader, tintColorDarkHeader2] as const,
+    tabIconSelected: '#fff',
+    success: '#4CAF50',
+    error: '#F44336',
+    primaryButton: '#0a7ea4',
+    secondaryButton: '#687076',
+    cardBackground: '#151718',
+    cardText: '#ECEDEE',
+    cardShadow: '#000',
+    statBackground: '#2B2B2B',
+    statPrimaryText: '#0a7ea4',
+    statText: '#ECEDEE',
+    statShadow: '#000',
   },
-  // primary: '#6200ee',
-  // gray: '#a9a9a9',
 };
 

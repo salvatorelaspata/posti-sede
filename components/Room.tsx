@@ -6,6 +6,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useEffect, useState } from "react";
 import { getBookingsForRoom } from "@/db/api";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface RoomComponentProps {
     room: Room;
@@ -16,7 +17,10 @@ interface RoomComponentProps {
 }
 
 export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selectedDate, booked }: RoomComponentProps) => {
+    const bgColor = useThemeColor({}, 'background');
+    const borderColor = useThemeColor({}, 'border');
     const { available, capacity } = room;
+
     const [availability, setAvailability] = useState<number>(0);
     const [isFull, setIsFull] = useState<boolean>(false);
     useEffect(() => {
@@ -32,6 +36,7 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
             key={room.id}
             style={[
                 styles.roomCard,
+                { backgroundColor: bgColor, borderColor },
                 selectedRoom?.id === room.id && styles.selectedRoom,
                 booked && styles.booked
             ]}
@@ -76,14 +81,13 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
 
 const styles = StyleSheet.create({
     roomCard: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         padding: 16,
         marginHorizontal: 16,
         marginVertical: 4,
         marginBottom: 12,
         elevation: 2,
-        shadowColor: '#000',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,

@@ -7,31 +7,12 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppStore } from '@/store/app-store';
 import { useUser } from '@clerk/clerk-expo';
-import { getUserRole } from '@/db/api';
-// import { getUserRole } from '@/db/api';
 
 export default function Tabs() {
+
   const colorScheme = useColorScheme();
-  const { location } = useAppStore();
-  const { user, isLoaded } = useUser();
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-
-  useEffect(() => {
-    const checkUserRole = async () => {
-      if (user) {
-        try {
-          const role = await getUserRole(user.id);
-          console.log('User role:', role);
-          setIsAdmin(role === 'admin');
-        } catch (error) {
-          console.error('Error fetching user role:', error);
-          setIsAdmin(false);
-        }
-      }
-    };
-
-    checkUserRole();
-  }, [user]);
+  const { location, isAdmin, } = useAppStore();
+  const { isLoaded } = useUser();
 
   // Gestione del caricamento
   if (!isLoaded) {
@@ -42,9 +23,14 @@ export default function Tabs() {
     <ExpoTabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].inactiveText,
         headerShown: true,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
+        headerBackground: TabBarBackground,
+        headerTitleStyle: {
+          color: Colors[colorScheme ?? 'light'].text,
+        },
       }}>
       <ExpoTabs.Screen
         name="home"

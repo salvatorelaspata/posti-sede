@@ -8,6 +8,7 @@ import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useUser } from "@clerk/clerk-expo";
+import { ThemedTextInput } from "@/components/ThemedTextInput";
 
 export default function SettingsProfile() {
     const router = useRouter();
@@ -43,15 +44,15 @@ export default function SettingsProfile() {
             }>
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.header}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.light.tint} onPress={() => router.back()} />
+                    <Ionicons name="arrow-back" size={24} onPress={() => router.back()} />
                     <ThemedText type="title" style={styles.title}>Profilo</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
                     {/* first name */}
                     <ThemedView style={styles.selector}>
                         <ThemedText type="default" >Nome</ThemedText>
-                        <TextInput
-                            style={styles.selectorInput}
+                        <ThemedTextInput
+                            // style={styles.selectorInput}
                             value={firstName}
                             onChangeText={setFirstName}
                         />
@@ -59,8 +60,8 @@ export default function SettingsProfile() {
                     {/* last name */}
                     <ThemedView style={styles.selector}>
                         <ThemedText type="default" >Cognome</ThemedText>
-                        <TextInput
-                            style={styles.selectorInput}
+                        <ThemedTextInput
+                            // style={styles.selectorInput}
                             value={lastName}
                             onChangeText={setLastName}
                         />
@@ -68,14 +69,14 @@ export default function SettingsProfile() {
                 </ThemedView>
                 <ThemedView style={styles.spacer} />
                 <ThemedView style={styles.footer}>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]} onPress={() => router.back()}>
-                        <ThemedText type="default" style={{ color: Colors.light.background }}>Annulla</ThemedText>
+                    <TouchableOpacity style={[styles.button]} onPress={() => router.back()}>
+                        <ThemedText type="default">Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]} onPress={handleSave}>
-                        <ThemedText type="defaultSemiBold" style={{ color: Colors.light.background }}>Salva</ThemedText>
+                    <TouchableOpacity style={[styles.button]} onPress={handleSave}>
+                        <ThemedText type="defaultSemiBold">Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
-            </ThemedView>
+            </ThemedView >
         </ParallaxScrollView >
     );
 }
@@ -98,12 +99,12 @@ const styles = StyleSheet.create({
     selector: {
         flexDirection: 'column',
     },
-    selectorInput: {
-        width: '100%',
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 8,
-    },
+    // selectorInput: {
+    //     width: '100%',
+    //     borderWidth: 1,
+    //     borderRadius: 8,
+    //     padding: 8,
+    // },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',

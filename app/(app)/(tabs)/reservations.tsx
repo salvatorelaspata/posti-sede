@@ -13,6 +13,7 @@ import { getMonthEmployeeBookings, deleteBooking, getEmployeeByClerkId } from "@
 import { getMonthStatus, isPast, isPastWithToday } from "@/hooks/useCalendar";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface GenericObject {
     [key: string]: any;
@@ -26,7 +27,7 @@ export default function Reservations() {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [bookings, setBookings] = useState<BookingWithAny[]>([]);
-
+    const errorColor = useThemeColor({}, 'error');
     useEffect(() => {
         const fetchBookings = async () => {
             // Start of Selection
@@ -124,7 +125,7 @@ export default function Reservations() {
             </ThemedView>
             {/* crea i box inerenti alle prenotazioni del mese selezionato */}
             <ThemedView style={styles.reservationsContainer}>
-                <StatBox number={getDaysInMonth(selectedMonth, selectedYear)} label="totali" />
+                <StatBox number={getDaysInMonth(selectedMonth, selectedYear)} label="lavorativi/" />
                 <StatBox number={getTotalWorkingDaysInMonth(selectedMonth, selectedYear)} label="lavorativi" />
                 <StatBox number={bookings.length} label="Prenotazioni" />
             </ThemedView>
@@ -146,7 +147,7 @@ export default function Reservations() {
                             <ThemedText style={styles.reservationRoomName}>{item.room.name}</ThemedText>
                             {!isPastWithToday(item.date) && (
                                 <ThemedView style={styles.deleteButton}>
-                                    <Ionicons name="trash-outline" size={24} color="red" />
+                                    <Ionicons name="trash-outline" size={24} color={errorColor} />
                                 </ThemedView>
                             )}
                         </ThemedView>

@@ -15,18 +15,17 @@ export default function App() {
   const router = useRouter()
   const { user } = useUser();
   const { locations, fetchLocations } = useTenantStore();
-  const { setLocation, setTenant } = useAppStore();
+  const { setClerkUser, setLocation, tenant } = useAppStore();
 
   useEffect(() => {
-    const getLocations = async () => {
-      if (user) {
-        const tenant = await getTenantFromEmail(user.emailAddresses[0].emailAddress);
-        setTenant(tenant);
-        fetchLocations(tenant.id)
-      }
-    }
-    getLocations();
+    (async () => {
+      if (user) setClerkUser(user);
+    })();
   }, [user]);
+
+  useEffect(() => {
+    if (tenant) fetchLocations(tenant.id);
+  }, [tenant]);
 
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>

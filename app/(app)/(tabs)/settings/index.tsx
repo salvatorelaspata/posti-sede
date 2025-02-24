@@ -54,9 +54,10 @@ const SettingsScreen = () => {
             {
                 text: "Logout", style: "destructive",
                 onPress: () => {
-                    const toggleNotificationType = (type: keyof NotificationTypes) => {
-                        router.replace('/');
-                    }
+                    // logout from clerk
+                    signOut();
+                    // navigate to login screen
+                    router.replace('/');
                 }
             }
         ]);

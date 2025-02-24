@@ -1,10 +1,10 @@
-import { employees, tenants, locations, bookings, rooms } from '@/db/schema';
+import { tenants, locations, rooms, bookings, employees } from '@/db/schema';
 
-export type Employee = typeof employees.$inferSelect;
 export type Tenant = typeof tenants.$inferSelect;
 export type Location = typeof locations.$inferSelect;
 export type Room = typeof rooms.$inferSelect;
 export type Booking = typeof bookings.$inferInsert;
+export type Employee = typeof employees.$inferSelect;
 
 
 export type ClerkError = {
