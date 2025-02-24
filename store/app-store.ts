@@ -12,7 +12,7 @@ type AppState = {
     tenant: Tenant | null;
     location: Location | null;
     room: Room | null;
-    booking: Booking | null;
+    booking: any | null;
     currentYear: number;
     currentMonth: number;
     currentDay: number;

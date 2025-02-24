@@ -102,19 +102,6 @@ export const getAvailabilityForLocation = async (locationId: string, date: Date)
     });
 };
 
-export const getBookingsForRoom = async (roomId: string, date: Date) => {
-    const firstDate = new Date(date);
-    firstDate.setHours(0, 0, 0, 0);
-    const lastDate = new Date(date);
-    lastDate.setHours(23, 59, 59, 999);
-    const _bookings = await db.select().from(bookings)
-        .where(and(eq(bookings.roomId, roomId),
-            gte(bookings.date, firstDate),
-            lt(bookings.date, lastDate)
-        ));
-    return _bookings;
-}
-
 export const getMonthEmployeeBookings = async (employeeId: string, month: number, year: number) => {
     const firstDate = new Date(year, month, 1);
     firstDate.setHours(0, 0, 0, 0);

@@ -4,41 +4,29 @@ import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useEffect, useState } from "react";
-import { getBookingsForRoom } from "@/db/api";
+import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface RoomComponentProps {
-    room: Room;
-    selectedRoom: Room | null;
+    room: Room & { available: number; capacity: number };
     switchSelectedRoom: (room: Room) => void;
-    selectedDate: Date;
     booked: boolean;
 }
 
-export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selectedDate, booked }: RoomComponentProps) => {
-    const bgColor = useThemeColor({}, 'background');
+export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponentProps) => {
+    const bgColor = useThemeColor({}, 'cardBackground');
+    const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
-    const { available, capacity } = room;
+    const successColor = useThemeColor({}, 'success');
+    const errorColor = useThemeColor({}, 'error');
 
-    const [availability, setAvailability] = useState<number>(0);
-    const [isFull, setIsFull] = useState<boolean>(false);
-    useEffect(() => {
-        const fetchAvailability = async () => {
-            const bookings = await getBookingsForRoom(room.id, selectedDate);
-            setAvailability(bookings.length);
-            setIsFull(bookings.length >= capacity);
-        }
-        fetchAvailability();
-    }, [room, selectedDate]);
     return (
         <TouchableOpacity
             key={room.id}
             style={[
                 styles.roomCard,
                 { backgroundColor: bgColor, borderColor },
-                selectedRoom?.id === room.id && styles.selectedRoom,
-                booked && styles.booked
+                booked && { ...styles.booked, borderColor: successColor, shadowColor: successColor },
             ]}
             onPress={() => switchSelectedRoom(room)}
             disabled={booked}
@@ -47,14 +35,14 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
                 <ThemedText style={styles.roomName}>{room.name}</ThemedText>
                 <ThemedView style={styles.capacityBadge}>
                     <ThemedText type="defaultSemiBold" style={styles.capacityText}>
-                        {availability}/{available}
+                        {room.available}/{room.capacity}
                     </ThemedText>
                 </ThemedView>
             </ThemedView>
             <ThemedView style={styles.roomInfo}>
                 <FontAwesome5 name="users" size={20} color="#666" />
                 <ThemedText style={styles.availabilityText}>
-                    {available - availability} posti disponibili
+                    {room.capacity - room.available} posti disponibili
                 </ThemedText>
             </ThemedView>
             <ThemedView style={styles.progressContainer}>
@@ -65,16 +53,15 @@ export const RoomComponent = ({ room, selectedRoom, switchSelectedRoom, selected
                     ]}
                 />
             </ThemedView>
-            {booked && (
-                <ThemedText style={styles.bookedText}>
+            {booked ? (
+                <ThemedText style={[styles.statusText, { color: successColor }]}>
                     Prenotato
                 </ThemedText>
-            )}
-            {isFull && (
-                <ThemedText style={styles.fullText}>
-                    Pieno
+            ) : (room.available === 0) ? (
+                <ThemedText style={[styles.statusText, { color: errorColor }]}>
+                    Pieno 🔴
                 </ThemedText>
-            )}
+            ) : <ThemedText />}
         </TouchableOpacity>
     );
 };
@@ -93,16 +80,6 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         borderWidth: 2,
         borderColor: 'transparent',
-    },
-    selectedRoom: {
-        borderColor: Colors.light.tint,
-        borderWidth: 2,
-        // shadow
-        shadowColor: Colors.light.tint,
-        shadowOffset: { width: 1, height: 5 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
     roomHeader: {
         flexDirection: 'row',
@@ -152,18 +129,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     booked: {},
-    bookedText: {
-        color: 'green',
-        fontSize: 16,
+    statusText: {
         textAlign: 'right',
         textDecorationLine: 'underline',
-        fontWeight: '600',
     },
-    fullText: {
-        color: 'red',
-        fontSize: 16,
-        textAlign: 'right',
-        textDecorationLine: 'underline',
-        fontWeight: '600',
-    }
 });

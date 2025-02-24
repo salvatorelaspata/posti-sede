@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Room } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,16 +20,9 @@ const HomeScreen = () => {
   const router = useRouter();
   const { user } = useUser();
   const { rooms, fetchRooms } = useTenantStore();
-  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear } = useAppStore();
+  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking } = useAppStore();
 
   const scrollViewRef = useRef<ScrollView>(null);
-
-  const [booked, setBooked] = useState<{
-    date: Date;
-    roomId: string | null;
-    roomName: string | null;
-  } | null>(null);
-
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
 
   useEffect(() => {
@@ -41,8 +34,9 @@ const HomeScreen = () => {
   }, [location, currentDay]);
 
   const switchSelectedRoom = (room: Room) => {
-    if (booked) {
-      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
+    console.log(booking);
+    if (booking) {
+      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booking.roomName);
       return;
     } else if (room.available === 0) {
       Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
@@ -84,10 +78,8 @@ const HomeScreen = () => {
           <RoomComponent
             key={room.id}
             room={room}
-            selectedRoom={room}
             switchSelectedRoom={switchSelectedRoom}
-            selectedDate={new Date(currentYear, currentMonth, currentDay)}
-            booked={booked?.roomId === room.id ? true : false} />
+            booked={booking?.roomId === room.id ? true : false} />
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
