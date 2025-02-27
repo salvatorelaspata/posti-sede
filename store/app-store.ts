@@ -17,6 +17,7 @@ type AppState = {
     currentMonth: number;
     currentDay: number;
     setCurrentDay: (currentDay: number) => void;
+    setCurrentDate: (date: Date) => void;
     setClerkUser: (clerkUser: UserResource) => Promise<void>;
     fetchPersonalBooking: () => Promise<void>;
     setLocation: (location: Location) => void;
@@ -39,6 +40,12 @@ export const useAppStore = create<AppState>()(
             currentMonth: new Date().getMonth(),
             currentDay: new Date().getDate(),
             setCurrentDay: (currentDay: number) => set({ currentDay }),
+            setCurrentDate: (date) => {
+                const currentYear = date.getFullYear();
+                const currentMonth = date.getMonth();
+                const currentDay = date.getDate();
+                set({ currentYear, currentMonth, currentDay })
+            },
             // methods
             setClerkUser: async (clerkUser) => {
                 // insert the user into the store

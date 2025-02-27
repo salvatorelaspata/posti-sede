@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Colors } from "@/constants/Colors";
 import {
     GestureHandlerRootView,
@@ -9,52 +9,37 @@ import {
     TouchableOpacity,
 } from 'react-native-gesture-handler';
 import { useAppStore } from "@/store/app-store";
-import { daysInCalendar } from "@/hooks/useCalendar";
+import { Day, daysInCalendar, isDayDisabled } from "@/hooks/useCalendar";
 
 const ITEM_WIDTH = 65;
 const ITEM_MARGIN = 5;
 const TOTAL_ITEM_WIDTH = ITEM_WIDTH + (ITEM_MARGIN * 2);
-// const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface HorizontalCalendarProps { }
 
 export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
-    const { currentDay: currentDayFromHook, currentMonth, currentDay, setCurrentDay } = useAppStore();
+    const { currentYear, currentMonth, currentDay, setCurrentDate } = useAppStore();
     const flatListRef = useRef<FlatList<any>>(null);
 
-    const isDayDisabled = (workDay: number, day: number) => {
-        if (workDay === 0 || workDay === 6) return true;
-        const today = new Date();
-        if (day < today.getDate()) return true;
-        return false;
-    };
+    // const findFirstAvailableDay = () => {
+    //     const availableDay = daysInCalendar(currentMonth).find(item =>
+    //         !isDayDisabled(item.dayOfWeekIndex, item.day)
+    //     );
+    //     return availableDay?.day || currentDayFromHook;
+    // };
 
-    const findFirstAvailableDay = () => {
-        const availableDay = daysInCalendar(currentMonth).find(item =>
-            !isDayDisabled(item.dayOfWeekIndex, item.day)
-        );
-        return availableDay?.day || currentDayFromHook;
-    };
-
-    const scrollToDay = (day: number | string) => {
-        // check if day is a number or a string 
-        let index
-        if (typeof day === 'string') {
-            index = day === '<' ? daysInCalendar.length - 2 : 0;
-        } else {
-            index = day - 1;
-        }
-
+    const scrollToDay = (day: number) => {
         flatListRef.current?.scrollToIndex({
-            index: index,
+            index: day,
             animated: true,
             viewPosition: 0.5
         });
     };
 
-    const handleDayPress = (day: number) => {
-        setCurrentDay(day);
-        scrollToDay(day);
+    const handleDayPress = (date: Date) => {
+        setCurrentDate(date);
+        const day = date.getDay() + 1;
+        scrollToDay(15);
     };
 
     const getItemLayout = (_: any, index: number) => ({
@@ -64,49 +49,31 @@ export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
     });
 
     useEffect(() => {
-        // Se il giorno corrente è disabilitato, trova il primo giorno disponibile
-        if (isDayDisabled(
-            daysInCalendar(currentMonth)[currentDay - 1]?.dayOfWeekIndex,
-            currentDayFromHook
-        )) {
-            const firstAvailableDay = findFirstAvailableDay();
-            setCurrentDay(firstAvailableDay);
-            setTimeout(() => scrollToDay(firstAvailableDay), 100);
-        } else {
-            setTimeout(() => scrollToDay(currentDayFromHook), 100);
-        }
+        // if (isDayDisabled(new Date(currentYear, currentMonth, currentDay))) {
+        //     setCurrentDate(new Date());
+        //     setTimeout(() => scrollToDay(15), 100);
+        // } else {
+        setTimeout(() => scrollToDay(15), 100);
+        // }
     }, []);
 
-    const renderItem = ({ item }: { item: any }) => (
+    const renderItem = ({ item }: { item: Day }) => (
         <TouchableOpacity
-            onPress={() => handleDayPress(item.day)}
-            disabled={isDayDisabled(item.dayOfWeekIndex, item.day)}
-            style={[
-                styles.dayButtonContainer,
-                isDayDisabled(item.dayOfWeekIndex, item.day) && styles.dayButtonDisabled
-            ]}
+            onPress={() => handleDayPress(item.d)}
+            disabled={isDayDisabled(item.d)}
+            style={[styles.dayButtonContainer, isDayDisabled(item.d) && styles.dayButtonDisabled]}
         >
-            <ThemedView
-                style={[
-                    styles.dayButton,
-                    item.day === currentDay && styles.selectedDay
-                ]}
-            >
+            <ThemedView style={[styles.dayButton, item.day === currentDay && styles.selectedDay]}>
                 <ThemedText
                     type="subtitle"
-                    style={[
-                        styles.dayText,
-                        item.day === currentDay && styles.selectedDayText
-                    ]}
+                    style={[styles.dayText, item.day === currentDay && styles.selectedDayText]}
                 >
                     {item.day}
+                    {/* {item.d.toISOString()} */}
                 </ThemedText>
                 <ThemedText
                     type="default"
-                    style={[
-                        styles.dayTextDayOfWeek,
-                        item.day === currentDay && styles.selectedDayTextDayOfWeek
-                    ]}
+                    style={[styles.dayTextDayOfWeek, item.day === currentDay && styles.selectedDayTextDayOfWeek]}
                 >
                     {item.dayOfWeek}
                 </ThemedText>
@@ -118,28 +85,15 @@ export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
         <GestureHandlerRootView style={styles.calendar}>
             <FlatList
                 ref={flatListRef}
-                data={[
-                    // {
-                    //     day: '<',
-                    //     dayOfWeekIndex: 5,
-                    //     dayOfWeek: 'prev'
-                    // },
-                    ...daysInCalendar(currentMonth),
-                    {
-                        day: '>',
-                        dayOfWeekIndex: 5,
-                        dayOfWeek: 'next'
-                    }]}
+                data={daysInCalendar(new Date(currentYear, currentMonth, currentDay))}
                 renderItem={renderItem}
-                keyExtractor={item => item.day.toString()}
+                keyExtractor={item => item.id.toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 getItemLayout={getItemLayout}
                 snapToInterval={TOTAL_ITEM_WIDTH}
                 snapToAlignment="center"
                 decelerationRate="fast"
-                // contentContainerStyle={styles.scrollContent}
-                // initialNumToRender={31}
                 maxToRenderPerBatch={31}
                 windowSize={31}
             />
@@ -158,9 +112,6 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
         marginBottom: 10,
     },
-    // scrollContent: {
-    //     paddingHorizontal: (SCREEN_WIDTH - TOTAL_ITEM_WIDTH) / 2,
-    // },
     dayButtonContainer: {
         width: ITEM_WIDTH,
         marginHorizontal: ITEM_MARGIN,

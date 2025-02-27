@@ -44,8 +44,9 @@ export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponen
                 </ThemedView>
             </ThemedView>
             <ThemedView style={styles.roomInfo}>
+                {/* color={room.available === 0 ? errorColor : tintColor} */}
                 <FontAwesome5 name="users" size={20} color={tintColor} />
-                <ThemedText style={styles.availabilityText}>
+                <ThemedText style={[styles.availabilityText, (room.available === 0) && { color: errorColor }]}>
                     {room.available} posti disponibili
                 </ThemedText>
             </ThemedView>
@@ -57,15 +58,18 @@ export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponen
                     ]}
                 />
             </ThemedView>
-            {booked ? (
-                <ThemedText style={[styles.statusText, { color: successColor }]}>
-                    Prenotato
-                </ThemedText>
-            ) : (room.available === 0) ? (
-                <ThemedText style={[styles.statusText, { color: errorColor }]}>
-                    Pieno 🔴
-                </ThemedText>
-            ) : <ThemedText />}
+            <ThemedView style={styles.infoContainer}>
+                {/* {(room.available === 0) && (
+                    <ThemedText style={[{ color: errorColor }]}>
+                        Pieno 🔴
+                    </ThemedText>
+                )} */}
+                {booked && (
+                    <ThemedText style={[{ color: successColor }]}>
+                        ✅ Prenotato
+                    </ThemedText>
+                )}
+            </ThemedView>
         </TouchableOpacity>
     );
 };
@@ -77,10 +81,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginVertical: 4,
         marginBottom: 12,
-        elevation: 2,
-        shadowColor: '#fff',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 0.6,
         shadowRadius: 2,
         borderWidth: 2,
         borderColor: 'transparent',
@@ -133,8 +137,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     booked: {},
-    statusText: {
-        textAlign: 'right',
-        textDecorationLine: 'underline',
+    infoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginTop: 12,
     },
 });

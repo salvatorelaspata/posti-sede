@@ -24,28 +24,60 @@ export function getMonthStatus(targetDate: Date) {
     const targetYear = targetDate.getFullYear();
     const targetMonth = targetDate.getMonth();
 
-    // Calcola la differenza in mesi considerando gli anni
     if (targetYear < currentYear) {
         return 0
     } else if (targetYear === currentYear) {
-        if (targetMonth < currentMonth) {
-            return 0
-        } else if (targetMonth === currentMonth) {
-            return 1
-        } else {
-            return 2
-        }
+        if (targetMonth < currentMonth) return 0
+        else if (targetMonth === currentMonth) return 1
+        else return 2
     } else {
         return 2
     }
 }
-export const daysInCalendar = (month: number) => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = month;
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => ({
-        day: i + 1,
-        dayOfWeekIndex: new Date(currentYear, currentMonth, i + 1).getDay(),
-        dayOfWeek: new Date(currentYear, currentMonth, i + 1).toLocaleDateString('it-IT', { weekday: 'short' })
-    }));
+export type Day = {
+    id: number;
+    d: Date;
+    day: number;
+    dayOfWeekIndex: number;
+    dayOfWeek: string;
 }
+
+const _factoryDay = (date: Date): Day => {
+    const id = parseInt(date.toISOString().split('T')[0].replace(/-/g, ''));
+    return {
+        id, day: date.getDate(), d: date, dayOfWeekIndex: date.getDay(), dayOfWeek: date.toLocaleDateString('it-IT', { weekday: 'short' })
+    }
+}
+
+export const daysInCalendar: (date: Date) => Day[] = (date) => {
+    const days = [];
+    const current = new Date(date.toISOString().split('T')[0]);
+    current.setHours(6, 0, 0, 0);
+    let _month = current.getMonth();
+    for (let i = 15; i > 0; i--) {
+        const _d = new Date(current.toISOString().split('T')[0]);
+        if (_d.getDate() < 1) { _month--; }
+        _d.setMonth(_month);
+        _d.setDate(_d.getDate() - i);
+        days.push(_factoryDay(_d))
+    }
+    for (let i = 1; i <= 15; i++) {
+        const lastDay = new Date(current.getFullYear(), _month + 1, 0).getDate();
+        const _d = new Date(current.toISOString().split('T')[0]);
+        if (_d.getDate() > lastDay) { _month++; }
+        _d.setMonth(_month);
+        _d.setDate(_d.getDate() + i);
+        days.push(_factoryDay(_d))
+    }
+    return days;
+}
+
+export const isDayDisabled = (date: Date) => {
+    const workDay = date.getDay();
+    if (workDay === 0 || workDay === 6) return true;
+    const today = new Date();
+    today.setHours(6, 0, 0, 0);
+    const dateToCompare = new Date(date.toISOString().split('T')[0]);
+    dateToCompare.setHours(6, 0, 0, 0);
+    return today > dateToCompare;
+};
