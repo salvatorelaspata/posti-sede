@@ -15,6 +15,7 @@ import { bookRoom, getEmployeeByClerkId } from '@/db/api';
 import { RoomComponent } from '@/components/Room';
 import { useUser } from '@clerk/clerk-expo';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -25,6 +26,8 @@ const HomeScreen = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
 
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
   useEffect(() => {
     if (location) fetchPersonalBooking();
   }, [location, currentDay]);
@@ -33,18 +36,17 @@ const HomeScreen = () => {
     if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
   }, [location, currentDay]);
 
-  const switchSelectedRoom = (room: Room) => {
-    console.log(booking);
+  const switchSelectedRoom = (_room: Room) => {
     if (booking) {
       Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booking.roomName);
       return;
-    } else if (room.available === 0) {
+    } else if (_room.available === 0) {
       Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
       return;
-    } else if (room?.id === room.id) {
+    } else if (room?.id === _room.id) {
       setRoom(null);
     } else {
-      setRoom(room);
+      setRoom(_room);
     }
   }
 
@@ -83,11 +85,10 @@ const HomeScreen = () => {
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
-      {room && (
-        <ReserveBottomSheet selectedRoom={room} onClose={() => setRoom(null)}
-          selectedDate={new Date(currentYear, currentMonth, currentDay)} handleBooking={handleBooking}
-        />
-      )}
+      {room &&
+        <ReserveBottomSheet bottomSheetRef={bottomSheetRef} handleBooking={handleBooking} />
+      }
+
     </ThemedGestureHandlerRootView >
   );
 };

@@ -6,6 +6,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useAppStore } from "@/store/app-store";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
@@ -20,12 +21,15 @@ export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponen
     const successColor = useThemeColor({}, 'success');
     const errorColor = useThemeColor({}, 'error');
 
+    const { room: _room } = useAppStore();
+
     return (
         <TouchableOpacity
             key={room.id}
             style={[
                 styles.roomCard,
                 { backgroundColor: bgColor, borderColor },
+                room.id === _room?.id && { borderColor: Colors.light.tint },
                 booked && { ...styles.booked, borderColor: successColor, shadowColor: successColor },
             ]}
             onPress={() => switchSelectedRoom(room)}
@@ -35,14 +39,14 @@ export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponen
                 <ThemedText style={styles.roomName}>{room.name}</ThemedText>
                 <ThemedView style={styles.capacityBadge}>
                     <ThemedText type="defaultSemiBold" style={styles.capacityText}>
-                        {room.available}/{room.capacity}
+                        {room.capacity - room.available}/{room.capacity}
                     </ThemedText>
                 </ThemedView>
             </ThemedView>
             <ThemedView style={styles.roomInfo}>
-                <FontAwesome5 name="users" size={20} color="#666" />
+                <FontAwesome5 name="users" size={20} color={tintColor} />
                 <ThemedText style={styles.availabilityText}>
-                    {room.capacity - room.available} posti disponibili
+                    {room.available} posti disponibili
                 </ThemedText>
             </ThemedView>
             <ThemedView style={styles.progressContainer}>

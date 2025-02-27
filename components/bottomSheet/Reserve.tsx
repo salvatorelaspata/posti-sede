@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useMemo } from 'react';
+import React, { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Room } from '@/types';
@@ -9,22 +9,23 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { formatDate } from '@/constants/Calendar';
 import { useAppStore } from '@/store/app-store';
+import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 
 interface ReserveBottomSheetProps {
-    selectedRoom: Room;
-    onClose: () => void;
-    selectedDate: Date;
     handleBooking: () => Promise<void>;
+    bottomSheetRef: React.RefObject<BottomSheetMethods>
+
 }
 
-export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate, handleBooking }: ReserveBottomSheetProps) {
+export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: ReserveBottomSheetProps) {
 
-    const { location } = useAppStore();
-    const bottomSheetRef = useRef<BottomSheet>(null);
+    const { location, room, currentYear, currentMonth, currentDay, setRoom } = useAppStore();
+
+    // const bottomSheetRef = useRef<BottomSheet>(null);
     const [isChecked, setChecked] = useState<boolean>(true);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-    const snapPoints = useMemo(() => ['30%', '40%', '60%'], []);
+    const snapPoints = useMemo(() => ['40%', '60%'], []);
     // callbacks
     const handleSheetChanges = useCallback((index: number) => {
         console.log('handleSheetChanges', index);
@@ -44,18 +45,18 @@ export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate
         await handleBooking();
         Alert.alert('Successo', 'Prenotazione effettuata con successo');
         bottomSheetRef.current?.close();
-        onClose();
+        setRoom(null);
     }
 
     const handleChiudi = () => {
         bottomSheetRef.current?.close();
-        onClose();
+        setRoom(null);
     }
 
     return (
         <BottomSheet
             onChange={handleSheetChanges}
-            onClose={onClose}
+            onClose={() => setRoom(null)}
             ref={bottomSheetRef}
             snapPoints={snapPoints}
             style={styles.bottomSheet}
@@ -65,7 +66,8 @@ export default function ReserveBottomSheet({ selectedRoom, onClose, selectedDate
             )}
         >
             <BottomSheetView style={styles.contentContainer}>
-                <ThemedText type="defaultSemiBold" style={styles.title}>{location?.name} - {selectedRoom.name} - {formatDate(selectedDate, 'short')}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.title}>{location?.name} - {room?.name} - {formatDate(new Date(currentYear, currentMonth, currentDay)
+                    , 'short')}</ThemedText>
                 <ThemedView style={styles.formContainer}>
                     {/* <ThemedText type="defaultSemiBold" style={styles.title}>Data: {selectedDate.toLocaleDateString()}</ThemedText> */}
                     <ThemedView style={styles.formRow}>
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         alignItems: 'center',
+        margin: 8
     },
     button: {
         padding: 10,
