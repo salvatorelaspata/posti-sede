@@ -14,7 +14,6 @@ import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 interface ReserveBottomSheetProps {
     handleBooking: () => Promise<void>;
     bottomSheetRef: React.RefObject<BottomSheetMethods>
-
 }
 
 export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: ReserveBottomSheetProps) {

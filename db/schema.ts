@@ -17,22 +17,6 @@ export const tenants = pgTable('tenants', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Tabella utenti con autenticazione
-// export const users = pgTable('users', {
-//     id: uuid('id').primaryKey().defaultRandom(),
-//     tenantId: uuid('tenant_id').references(() => tenants.id),
-//     emoji: varchar('emoji', { length: 256 }),
-//     fullname: varchar('fullname', { length: 256 }),
-//     email: varchar('email', { length: 256 }).notNull(),
-//     password: varchar('password', { length: 256 }),
-//     googleId: varchar('google_id', { length: 256 }),
-//     role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
-//     createdAt: timestamp('created_at').defaultNow(),
-// });
-
-// Definizione separata dell'indice unico per email
-// export const usersEmailUnique = uniqueIndex('email_unique').on(users.email);
-
 // Tabella dipendenti (legata al tenant)
 export const employees = pgTable('employees', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -80,15 +64,7 @@ export const bookings = pgTable('bookings', {
     cancelledAt: timestamp('cancelled_at'),
 });
 
-// Tabella presenze giornaliere
-// export const dailyAttendances = pgTable('daily_attendances', {
-//     id: uuid('id').primaryKey().defaultRandom(),
-//     tenantId: uuid('tenant_id').references(() => tenants.id),
-//     date: timestamp('date').notNull(),
-//     count: integer('count').notNull().default(0),
-//     people: jsonb('people').$type<string[]>().notNull(),
-// });
-
+// Relazioni
 export const locationsRelations = relations(locations, ({ one, many }) => ({
     tenant: one(tenants, {
         fields: [locations.tenantId],
@@ -104,6 +80,7 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
     employees: many(employees),
 }));
 
+// Relazioni
 export const roomsRelations = relations(rooms, ({ one, many }) => ({
     location: one(locations, {
         fields: [rooms.locationId],
@@ -112,23 +89,12 @@ export const roomsRelations = relations(rooms, ({ one, many }) => ({
     bookings: many(bookings),
 }));
 
-// export const usersRelations = relations(users, ({ one }) => ({
-//     tenant: one(tenants, {
-//         fields: [users.tenantId],
-//         references: [tenants.id]
-//     }),
-//     employee: one(employees)
-// }));
-
+// Relazioni
 export const employeesRelations = relations(employees, ({ one, many }) => ({
     tenant: one(tenants, {
         fields: [employees.tenantId],
         references: [tenants.id],
     }),
-    // user: one(users, {
-    //     fields: [employees.userId],
-    //     references: [users.id],
-    // }),
     employee: one(employees, {
         fields: [employees.id],
         references: [employees.id],
@@ -136,7 +102,7 @@ export const employeesRelations = relations(employees, ({ one, many }) => ({
     bookings: many(bookings),
 }));
 
-
+// Relazioni
 export const bookingsRelations = relations(bookings, ({ one }) => ({
     tenant: one(tenants, {
         fields: [bookings.tenantId],

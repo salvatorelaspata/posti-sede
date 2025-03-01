@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
@@ -6,35 +6,34 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useEffect, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useAppStore } from "@/store/app-store";
+import { Book, useAppStore } from "@/store/app-store";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
-    switchSelectedRoom: (room: Room) => void;
 }
 
-export const RoomComponent = ({ room, switchSelectedRoom }: RoomComponentProps) => {
+export const RoomComponent = ({ room }: RoomComponentProps) => {
     const bgColor = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
     const successColor = useThemeColor({}, 'success');
     const errorColor = useThemeColor({}, 'error');
 
-    const [booked, setBooked] = useState<boolean>();
-    const { room: _room, booking, currentYear, currentMonth, currentDay } = useAppStore();
+    const { room: _room, setRoom, booked } = useAppStore();
 
-    useEffect(() => {
-        console.log(booking)
-        if (!booking) return;
-        const current = new Date(currentYear, currentMonth, currentDay)
-        current.setHours(6, 0, 0, 0)
-        const f = booking?.find((b) =>
-            b.date.toISOString() === current.toISOString() &&
-            b.roomId === room.id
-        )
-        if (f) setBooked(true)
-        else setBooked(false)
-    }, [currentDay, currentMonth, currentYear])
+    const switchSelectedRoom = (_room: Room) => {
+        if (booked) {
+            Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
+            return;
+        } else if (_room.available === 0) {
+            Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
+            return;
+        } else if (room?.id === _room.id) {
+            setRoom(null);
+        } else {
+            setRoom(_room);
+        }
+    }
 
     return (
         <TouchableOpacity
@@ -46,7 +45,7 @@ export const RoomComponent = ({ room, switchSelectedRoom }: RoomComponentProps) 
                 booked && { ...styles.booked, borderColor: successColor, shadowColor: successColor },
             ]}
             onPress={() => switchSelectedRoom(room)}
-            disabled={booked}
+            disabled={!!booked}
         >
             <ThemedView style={styles.roomHeader}>
                 <ThemedText style={styles.roomName}>{room.name}</ThemedText>

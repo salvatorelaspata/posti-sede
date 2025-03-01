@@ -1,4 +1,4 @@
-import { isDayDisabled } from '@/hooks/useCalendar';
+import { DayItem, generateDays, isDayDisabled, isSameDate } from '@/hooks/useCalendar';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAppStore } from '@/store/app-store';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,14 +19,7 @@ const ITEM_WIDTH = width / 7; // 7 giorni visibili alla volta
 const CENTER_INDEX = 15; // Il centro della lista (15 giorni prima e 15 dopo)
 const TOTAL_DAYS = 31; // 15 + 1 + 15
 
-type DayItem = {
-  id: string;
-  date: Date;
-  dayName: string;
-  dayNumber: string;
-  month: string;
-  isToday: boolean;
-};
+
 
 const CalendarStrip: React.FC = () => {
   // Il centro corrente diventa la data di riferimento
@@ -35,39 +28,14 @@ const CalendarStrip: React.FC = () => {
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const { setCurrentDate, booking } = useAppStore();
+
   const successColor = useThemeColor({}, 'success')
   const tintColor = useThemeColor({}, 'tint')
-
-  // Funzione per ricreare la lista dei giorni in base ad una data centrale
-  const generateDays = (center: Date) => {
-    const daysArray: DayItem[] = [];
-    for (let i = -15; i <= 15; i++) {
-      const date = new Date(center);
-      date.setDate(center.getDate() + i);
-      const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-      const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
-      daysArray.push({
-        id: i.toString(),
-        date,
-        dayName: dayNames[date.getDay()],
-        dayNumber: date.getDate().toString(),
-        month: monthNames[date.getMonth()],
-        isToday: isSameDate(date, new Date()),
-      });
-    }
-    return daysArray;
-  };
-
-  // Funzione utilitaria per comparare date senza tempo
-  const isSameDate = (date1: Date, date2: Date) => {
-    return date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate();
-  };
 
   useEffect(() => {
     const initialDays = generateDays(centerDate);
     setDays(initialDays);
+    setCurrentDate(centerDate);
     // Scroll automatico al centro
     setTimeout(() => {
       flatListRef.current?.scrollToIndex({
@@ -75,7 +43,9 @@ const CalendarStrip: React.FC = () => {
         animated: true,
       });
     }, 500);
-  }, [centerDate]);  // Quando l'utente tocca un giorno, impostiamo quella data come centro e scrolliamo al centro della nuova lista
+  }, [centerDate]);
+
+  // Quando l'utente tocca un giorno, impostiamo quella data come centro e scrolliamo al centro della nuova lista
   const handleDayPress = (index: number) => {
     const selectedDay = days[index].date;
     setCenterDate(selectedDay);
@@ -85,16 +55,13 @@ const CalendarStrip: React.FC = () => {
       animated: true,
     });
   };
+
   const renderDay = ({ item, index }: { item: DayItem; index: number }) => {
     // L'item selezionato è sempre l'indice centrale poiché la lista viene rigenerata
     const isSelected = index === CENTER_INDEX;
     const isDisabled = isDayDisabled(item.date);
+    const isBooked = booking?.find(b => isSameDate(b.date, item.date));
 
-    const current = item.date
-    current.setHours(6, 0, 0, 0)
-    const f = booking?.find((b) =>
-      b.date.toISOString() === current.toISOString()
-    )
     return (
       <TouchableOpacity
         style={[styles.dayItem, isSelected && styles.selectedDayItem, isDisabled && { opacity: 0.5 }]}
@@ -113,7 +80,7 @@ const CalendarStrip: React.FC = () => {
           {item.month}
         </Text>
         {isSameDate(item.date, new Date()) && !isSelected && <View style={[styles.todayDot, { backgroundColor: tintColor }]} />}
-        {f && <View style={[styles.bookedDot, { backgroundColor: successColor }]} />}
+        {isBooked && <View style={[styles.bookedDot, { backgroundColor: successColor }]} />}
       </TouchableOpacity>
     );
   }; const getItemLayout = (_: any, index: number) => {

@@ -34,6 +34,42 @@ export function getMonthStatus(targetDate: Date) {
         return 2
     }
 }
+
+// Funzione utilitaria per comparare date senza tempo
+export const isSameDate = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
+};
+
+export type DayItem = {
+    id: string;
+    date: Date;
+    dayName: string;
+    dayNumber: string;
+    month: string;
+    isToday: boolean;
+};
+
+// Funzione per ricreare la lista dei giorni in base ad una data centrale
+export const generateDays = (center: Date) => {
+    const daysArray: DayItem[] = [];
+    for (let i = -15; i <= 15; i++) {
+        const date = new Date(center);
+        date.setDate(center.getDate() + i);
+        daysArray.push({
+            id: i.toString(),
+            date,
+            dayName: date.toLocaleDateString('it-IT', { weekday: 'short' }),
+            dayNumber: date.getDate().toString(),
+            month: date.toLocaleDateString('it-IT', { month: 'short' }),
+            isToday: isSameDate(date, new Date()),
+        });
+    }
+    return daysArray;
+};
+
+// deprecated
 export type Day = {
     id: number;
     d: Date;

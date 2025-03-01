@@ -7,69 +7,39 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedGestureHandlerRootView } from '@/components/ThemedGestureHandlerRootView';
 import { ThemedScrollView } from '@/components/ThemedScrollView';
 import ReserveBottomSheet from '@/components/bottomSheet/Reserve';
-import HorizontalCalendar from '@/components/HorizontalCalendar';
+// import HorizontalCalendar from '@/components/HorizontalCalendar';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { useRouter } from 'expo-router';
-import { bookRoom, getEmployeeByClerkId } from '@/db/api';
 import { RoomComponent } from '@/components/Room';
-import { useUser } from '@clerk/clerk-expo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import BottomSheet from '@gorhom/bottom-sheet';
 import CalendarStrip from '@/components/CalendarStrip';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const { user } = useUser();
   const { rooms, fetchRooms } = useTenantStore();
-  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking } = useAppStore();
+  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking, addBooking } = useAppStore();
 
   const scrollViewRef = useRef<ScrollView>(null);
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const [booked, setBooked] = useState<{
-    date: Date;
-    roomId: string | null;
-    roomName: string | null;
-  } | undefined>();
-
   useEffect(() => {
-    const current = new Date(currentYear, currentMonth, currentDay)
-    current.setHours(6, 0, 0, 0)
-    const f = booking?.find((b) => b.date.toISOString() === current.toISOString())
-    if (f) setBooked(f)
-    else setBooked(undefined)
-  }, [location, currentDay])
+    if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
+  }, [location]);
 
   useEffect(() => {
     if (location) fetchPersonalBooking();
   }, [location, currentMonth]);
 
-  useEffect(() => {
-    if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
-  }, [location]);
 
-  const switchSelectedRoom = (_room: Room) => {
-    if (booked) {
-      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
-      return;
-    } else if (_room.available === 0) {
-      Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
-      return;
-    } else if (room?.id === _room.id) {
-      setRoom(null);
-    } else {
-      setRoom(_room);
-    }
-  }
 
   const handleBooking = async () => {
     if (room && location) {
       try {
-        const employee = await getEmployeeByClerkId(user?.id || '');
-        await bookRoom(room.id, location.tenantId || '', employee?.id || '', new Date(currentYear, currentMonth, currentDay, 6, 0, 0, 0));
+        await addBooking();
         setRoom(null);
       } catch (error) {
         console.log(error);
@@ -96,14 +66,17 @@ const HomeScreen = () => {
           <RoomComponent
             key={room.id}
             room={room}
-            switchSelectedRoom={switchSelectedRoom}
-          // booked={booking?.roomId === room.id ? true : false} />
           />
-        )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
+        )) :
+          <ThemedText style={styles.noRoomsText}>
+            Nessuna stanza disponibile
+          </ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
       {room &&
-        <ReserveBottomSheet bottomSheetRef={bottomSheetRef} handleBooking={handleBooking} />
+        <ReserveBottomSheet
+          bottomSheetRef={bottomSheetRef}
+          handleBooking={handleBooking} />
       }
 
     </ThemedGestureHandlerRootView >

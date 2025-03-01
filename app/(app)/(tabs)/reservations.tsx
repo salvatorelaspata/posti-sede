@@ -1,52 +1,23 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
-
-import { useEffect } from "react";
-import { Booking } from "@/types";
-import { getMonthEmployeeBookings, deleteBooking, getEmployeeByClerkId } from "@/db/api";
 import { getMonthStatus, isPast, isPastWithToday } from "@/hooks/useCalendar";
-import { Ionicons } from "@expo/vector-icons";
-import { useUser } from "@clerk/clerk-expo";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAppStore } from "@/store/app-store";
 
-interface GenericObject {
-    [key: string]: any;
-}
-
-type BookingWithAny = Booking & GenericObject;
-
 export default function Reservations() {
-    const { user } = useUser()
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    // const [bookings, setBookings] = useState<BookingWithAny[]>([]);
     const errorColor = useThemeColor({}, 'error');
-    const { booking } = useAppStore()
-    // useEffect(() => {
-    //     const fetchBookings = async () => {
-    //         // Start of Selection
-    //         if (user) {
-    //             const employee = await getEmployeeByClerkId(user.id ?? '');
-    //             const bookingsData = await getMonthEmployeeBookings(employee?.id ?? '', selectedMonth, selectedYear);
-
-    //             const formattedBookings: BookingWithAny[] = bookingsData.map((item) => ({
-    //                 ...item.bookings,
-    //                 room: item.rooms,
-    //                 date: new Date(item?.bookings?.date ?? ''),
-    //             }));
-    //             setBookings(formattedBookings);
-    //         }
-    //     }
-    //     fetchBookings();
-    // }, [user, selectedMonth, selectedYear]);
+    const shadowColor = useThemeColor({}, 'cardShadow');
+    const { booking, removeBooking } = useAppStore()
 
     const handleSegmentedControlChange = (value: number) => {
         setSelectedIndex(value);
@@ -93,15 +64,30 @@ export default function Reservations() {
         setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
     }
 
-    const handleDeleteBooking = async (bookingId: string) => {
-        try {
-            await deleteBooking(bookingId);
-            // Aggiorna la lista delle prenotazioni dopo la cancellazione
-            // setBookings(bookings.filter(booking => booking.id !== bookingId));
-        } catch (error) {
-            console.error("Errore durante la cancellazione della prenotazione:", error);
+    const renderItem = ({ item }: {
+        item: {
+            id: string;
+            date: Date;
+            roomName: string;
+            time: string;
         }
-    };
+    }) => (
+        <ThemedView style={[styles.reservationItem, { shadowColor: shadowColor }, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
+            <ThemedView style={styles.reservationInfo}>
+                <ThemedText style={styles.dateText}>{formatDate(item.date, 'full')}</ThemedText>
+                <ThemedView style={styles.roomInfoContainer}>
+                    <ThemedText style={styles.roomText}>{item.roomName}</ThemedText>
+                    <ThemedText style={styles.timeText}>{item.time}</ThemedText>
+                </ThemedView>
+            </ThemedView>
+            {!isPastWithToday(item.date) && (<TouchableOpacity
+                onPress={() => removeBooking(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+                <MaterialIcons name="delete-outline" size={22} color={errorColor} />
+            </TouchableOpacity>)}
+        </ThemedView>
+    );
 
     return (
         <ThemedView style={styles.container}>
@@ -133,28 +119,19 @@ export default function Reservations() {
             </ThemedView>
             {/* crea la lista delle prenotazioni */}
             <ThemedView style={styles.reservationsList}>
-                <FlatList
-                    style={styles.flatList}
-                    data={booking}
-                    keyExtractor={(item) => item.roomId?.toString() ?? ''}
+                {booking && <FlatList
+                    data={booking as any}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listContainer}
                     ListEmptyComponent={
                         <ThemedView style={styles.emptyListContainer}>
                             <ThemedText style={[styles.emptyListText, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} type="default">Nessuna prenotazione trovata</ThemedText>
                             {/* <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} /> */}
                         </ThemedView>
                     }
-                    renderItem={({ item }) => (
-                        <ThemedView key={item.roomId} style={[styles.reservationItem, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
-                            <ThemedText type="defaultSemiBold" style={styles.reservationDate}>{formatDate(item.date, 'full')}</ThemedText>
-                            <ThemedText style={styles.reservationRoomName}>{item.roomName}</ThemedText>
-                            {!isPastWithToday(item.date) && (
-                                <ThemedView style={styles.deleteButton}>
-                                    <Ionicons name="trash-outline" size={24} color={errorColor} />
-                                </ThemedView>
-                            )}
-                        </ThemedView>
-                    )}
-                />
+                />}
             </ThemedView>
         </ThemedView>
     );
@@ -195,18 +172,43 @@ const styles = StyleSheet.create({
         width: '100%',
 
     },
-    flatList: {
-        width: '100%',
+    listContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 90,
     },
     reservationItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderRadius: 12,
         padding: 16,
+        marginBottom: 12,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
-    reservationDate: {},
-    reservationRoomName: {},
+    reservationInfo: {},
+    dateText: {
+        fontSize: 14,
+        marginBottom: 4,
+    },
+    roomInfoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    roomText: {
+        fontSize: 13,
+        color: '#6c757d',
+        marginRight: 6,
+    },
+    timeText: {
+        fontSize: 13,
+        color: '#6c757d',
+        fontWeight: '500',
+    },
     emptyListContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -222,9 +224,5 @@ const styles = StyleSheet.create({
     },
     reservationItemPast: {
         opacity: 0.7,
-    },
-    deleteButton: {
-        color: 'red',
-        marginLeft: 10,
-    },
+    }
 }); 

@@ -2,7 +2,8 @@ import { db } from '@/db';
 import { eq, sql, and, gte, lt, inArray } from 'drizzle-orm';
 import { employees, rooms, tenants, bookings, locations } from './schema';
 import { formatDate } from '@/constants/Calendar';
-import { Employee } from '@/types';
+import { Booking, Employee } from '@/types';
+import { Book } from '@/store/app-store';
 
 
 export const getTenantFromEmail = async (email: string) => {
@@ -126,20 +127,13 @@ export const deleteBooking = async (bookingId: string): Promise<void> => {
     }
 };
 
-export const insertBooking = async (tenantId: string, employeeId: string, roomId: string, date: Date, period: string, status: string) => {
-    // const newBooking = await db.insert(bookings).values({
-    //     tenantId,
-    //     roomId,
-    //     employeeId,
-    //     date,
-    //     period,
-    //     status,
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //     confirmedAt: null,
-    //     cancelledAt: null
-    // }).returning();
-    // return newBooking[0];
+export const insertBooking = async (booking: Booking): Promise<string> => {
+    try {
+        return (await db.insert(bookings).values(booking).returning())[0].id;
+    } catch (error) {
+        console.error("Errore nell'API insertBooking:", error);
+        throw error;
+    }
 }
 
 export const getAttendance = async (locationId: string, month: number, year: number) => {
@@ -218,50 +212,27 @@ export const getAdminStats = async (locationId: string, month: number, year: num
     return { occupancy, bookings: stats.length, rooms: _rooms.length };
 }
 
-export const bookRoom = async (roomId: string, tenantId: string, employeeId: string, date: Date) => {
-    const newBooking = await db.insert(bookings).values({
-        roomId,
-        tenantId,
-        employeeId,
-        date,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        confirmedAt: null,
-        cancelledAt: null
-    }).returning();
-    return newBooking[0];
-}
-
-export const getBookingUserByDate: (employeeId: string, date: Date) => Promise<{
-    date: Date;
-    roomId: string | null;
-    roomName: string | null;
-}[]> = async (employeeId: string, date: Date) => {
+export const getBookingUserByDate: (employeeId: string, date: Date) => Promise<Book[]> = async (employeeId: string, date: Date) => {
     const firstDate = new Date(date);
     firstDate.setHours(0, 0, 0, 0);
     const lastDate = new Date(date);
     lastDate.setHours(23, 59, 59, 999);
-    // const booking = await db.select().from(employees)
-    //     .leftJoin(bookings, eq(employees.id, bookings.employeeId))
-    //     .where(and(eq(employees.clerkId, clerkId),
-    //         // gte(bookings.date, firstDate),
-    //         // lt(bookings.date, lastDate)
-    //     ));
     const booking = await db.select().from(bookings)
         .leftJoin(rooms, eq(bookings.roomId, rooms.id))
         .where(and(eq(bookings.employeeId, employeeId),
             gte(bookings.date, firstDate),
             lt(bookings.date, lastDate)
         ));
-    return booking.map(b => ({ date: b.bookings.date, roomId: b.bookings.roomId, roomName: b.rooms?.name || null }));
+    return booking.map(b => ({
+        id: b.bookings.id,
+        date: b.bookings.date,
+        roomId: b.bookings.roomId || '',
+        roomName: b.rooms?.name || ''
+    }));
 }
 
 export const getBookingUserByMonth:
-    (employeeId: string, year: number, month: number) => Promise<{
-        date: Date;
-        roomId: string | null;
-        roomName: string | null;
-    }[]> =
+    (employeeId: string, year: number, month: number) => Promise<Book[]> =
     async (employeeId, year, month) => {
         const firstDate = new Date(year, month, 1)
         firstDate.setHours(6, 0, 0, 0)
@@ -274,5 +245,10 @@ export const getBookingUserByMonth:
                 gte(bookings.date, firstDate),
                 lt(bookings.date, lastDate)
             ));
-        return booking.map(b => ({ date: b.bookings.date, roomId: b.bookings.roomId, roomName: b.rooms?.name || null }));
+        return booking.map(b => ({
+            id: b.bookings.id,
+            date: b.bookings.date,
+            roomId: b.bookings.roomId || '',
+            roomName: b.rooms?.name || ''
+        }));
     }
