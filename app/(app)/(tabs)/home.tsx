@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Room } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,7 @@ import { RoomComponent } from '@/components/Room';
 import { useUser } from '@clerk/clerk-expo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import BottomSheet from '@gorhom/bottom-sheet';
+import CalendarStrip from '@/components/CalendarStrip';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -28,17 +29,31 @@ const HomeScreen = () => {
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
+  const [booked, setBooked] = useState<{
+    date: Date;
+    roomId: string | null;
+    roomName: string | null;
+  } | undefined>();
+
+  useEffect(() => {
+    const current = new Date(currentYear, currentMonth, currentDay)
+    current.setHours(6, 0, 0, 0)
+    const f = booking?.find((b) => b.date.toISOString() === current.toISOString())
+    if (f) setBooked(f)
+    else setBooked(undefined)
+  }, [location, currentDay])
+
   useEffect(() => {
     if (location) fetchPersonalBooking();
-  }, [location, currentDay]);
+  }, [location, currentMonth]);
 
   useEffect(() => {
     if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
-  }, [location, currentDay]);
+  }, [location]);
 
   const switchSelectedRoom = (_room: Room) => {
-    if (booking) {
-      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booking.roomName);
+    if (booked) {
+      Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
       return;
     } else if (_room.available === 0) {
       Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
@@ -67,8 +82,9 @@ const HomeScreen = () => {
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili ({currentMonth + 1}/{currentYear})</ThemedText>
-      <HorizontalCalendar />
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili {/*({currentMonth + 1}/{currentYear})*/}</ThemedText>
+      {/* <HorizontalCalendar /> */}
+      <CalendarStrip />
       <ThemedView style={styles.sectionTitle}>
         <ThemedText type="subtitle">Stanze disponibili</ThemedText>
         <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
@@ -81,7 +97,8 @@ const HomeScreen = () => {
             key={room.id}
             room={room}
             switchSelectedRoom={switchSelectedRoom}
-            booked={booking?.roomId === room.id ? true : false} />
+          // booked={booking?.roomId === room.id ? true : false} />
+          />
         )) : <ThemedText style={styles.noRoomsText}>Nessuna stanza disponibile</ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>

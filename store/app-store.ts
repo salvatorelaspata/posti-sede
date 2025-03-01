@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Location, Room, Booking, Tenant, Employee } from '@/types';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByDate } from '@/db/api';
+import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByDate, getBookingUserByMonth } from '@/db/api';
 import { UserResource } from '@clerk/types';
 
 type AppState = {
@@ -12,7 +12,11 @@ type AppState = {
     tenant: Tenant | null;
     location: Location | null;
     room: Room | null;
-    booking: any | null;
+    booking: {
+        date: Date;
+        roomId: string | null;
+        roomName: string | null;
+    }[] | null;
     currentYear: number;
     currentMonth: number;
     currentDay: number;
@@ -22,7 +26,7 @@ type AppState = {
     fetchPersonalBooking: () => Promise<void>;
     setLocation: (location: Location) => void;
     setRoom: (room: Room | null) => void;
-    setBooking: (booking: Booking) => void;
+    // setBooking: (booking: Booking) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -34,7 +38,7 @@ export const useAppStore = create<AppState>()(
             tenant: null,
             location: null,
             room: null,
-            booking: null,
+            booking: [],
             // home
             currentYear: new Date().getFullYear(),
             currentMonth: new Date().getMonth(),
@@ -68,14 +72,14 @@ export const useAppStore = create<AppState>()(
             },
             fetchPersonalBooking: async () => {
                 if (get().location) {
-                    const clerkId = get().clerkUser?.id || '';
                     try {
-                        const employee = await getEmployeeByClerkId(clerkId);
-                        const booking = await getBookingUserByDate(
+                        const employee = get().employee;
+                        const booking = await getBookingUserByMonth(
                             employee?.id || '',
-                            new Date(get().currentYear, get().currentMonth, get().currentDay)
+                            get().currentYear,
+                            get().currentMonth
                         );
-                        set({ booking: booking[0] });
+                        set({ booking: booking })
                     }
                     catch (error) {
                         console.error('Error fetching personal booking:', error);
@@ -84,7 +88,7 @@ export const useAppStore = create<AppState>()(
             },
             setLocation: (location) => set({ location }),
             setRoom: (room) => set({ room }),
-            setBooking: (booking) => set({ booking })
+            // setBooking: (booking) => set({ booking })
         }),
         {
             name: 'app-storage',

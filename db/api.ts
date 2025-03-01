@@ -255,3 +255,24 @@ export const getBookingUserByDate: (employeeId: string, date: Date) => Promise<{
         ));
     return booking.map(b => ({ date: b.bookings.date, roomId: b.bookings.roomId, roomName: b.rooms?.name || null }));
 }
+
+export const getBookingUserByMonth:
+    (employeeId: string, year: number, month: number) => Promise<{
+        date: Date;
+        roomId: string | null;
+        roomName: string | null;
+    }[]> =
+    async (employeeId, year, month) => {
+        const firstDate = new Date(year, month, 1)
+        firstDate.setHours(6, 0, 0, 0)
+        const lastDate = new Date(year, firstDate.getMonth() + 1, 0)
+        lastDate.setHours(23, 59, 59, 0)
+
+        const booking = await db.select().from(bookings)
+            .leftJoin(rooms, eq(bookings.roomId, rooms.id))
+            .where(and(eq(bookings.employeeId, employeeId),
+                gte(bookings.date, firstDate),
+                lt(bookings.date, lastDate)
+            ));
+        return booking.map(b => ({ date: b.bookings.date, roomId: b.bookings.roomId, roomName: b.rooms?.name || null }));
+    }

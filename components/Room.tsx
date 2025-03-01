@@ -4,24 +4,37 @@ import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAppStore } from "@/store/app-store";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
     switchSelectedRoom: (room: Room) => void;
-    booked: boolean;
 }
 
-export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponentProps) => {
+export const RoomComponent = ({ room, switchSelectedRoom }: RoomComponentProps) => {
     const bgColor = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
     const successColor = useThemeColor({}, 'success');
     const errorColor = useThemeColor({}, 'error');
 
-    const { room: _room } = useAppStore();
+    const [booked, setBooked] = useState<boolean>();
+    const { room: _room, booking, currentYear, currentMonth, currentDay } = useAppStore();
+
+    useEffect(() => {
+        console.log(booking)
+        if (!booking) return;
+        const current = new Date(currentYear, currentMonth, currentDay)
+        current.setHours(6, 0, 0, 0)
+        const f = booking?.find((b) =>
+            b.date.toISOString() === current.toISOString() &&
+            b.roomId === room.id
+        )
+        if (f) setBooked(true)
+        else setBooked(false)
+    }, [currentDay, currentMonth, currentYear])
 
     return (
         <TouchableOpacity
@@ -44,7 +57,6 @@ export const RoomComponent = ({ room, switchSelectedRoom, booked }: RoomComponen
                 </ThemedView>
             </ThemedView>
             <ThemedView style={styles.roomInfo}>
-                {/* color={room.available === 0 ? errorColor : tintColor} */}
                 <FontAwesome5 name="users" size={20} color={tintColor} />
                 <ThemedText style={[styles.availabilityText, (room.available === 0) && { color: errorColor }]}>
                     {room.available} posti disponibili

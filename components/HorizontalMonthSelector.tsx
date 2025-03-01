@@ -17,7 +17,7 @@ interface HorizontalMonthSelectorProps {
 }
 
 export default function HorizontalMonthSelector({ selectedMonth, selectedYear, onMonthChange, onYearChange, handleNextMonth, handlePreviousMonth }: HorizontalMonthSelectorProps) {
-
+    // deprecated
     const handleMonthChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev') {
             handlePreviousMonth();
