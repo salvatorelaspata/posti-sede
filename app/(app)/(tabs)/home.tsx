@@ -34,8 +34,6 @@ const HomeScreen = () => {
     if (location) fetchPersonalBooking();
   }, [location, currentMonth]);
 
-
-
   const handleBooking = async () => {
     if (room && location) {
       try {
@@ -73,12 +71,12 @@ const HomeScreen = () => {
           </ThemedText>}
         <ThemedView style={styles.bottomMargin} />
       </ThemedScrollView>
+
       {room &&
         <ReserveBottomSheet
           bottomSheetRef={bottomSheetRef}
           handleBooking={handleBooking} />
       }
-
     </ThemedGestureHandlerRootView >
   );
 };

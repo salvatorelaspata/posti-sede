@@ -37,6 +37,8 @@ export function getMonthStatus(targetDate: Date) {
 
 // Funzione utilitaria per comparare date senza tempo
 export const isSameDate = (date1: Date, date2: Date) => {
+    if (typeof date1 === 'string') date1 = new Date(date1);
+    if (typeof date2 === 'string') date2 = new Date(date2);
     return date1.getFullYear() === date2.getFullYear() &&
         date1.getMonth() === date2.getMonth() &&
         date1.getDate() === date2.getDate();
@@ -49,6 +51,8 @@ export type DayItem = {
     dayNumber: string;
     month: string;
     isToday: boolean;
+    isDisabled?: boolean;
+    isBooked?: boolean;
 };
 
 // Funzione per ricreare la lista dei giorni in base ad una data centrale
@@ -64,6 +68,8 @@ export const generateDays = (center: Date) => {
             dayNumber: date.getDate().toString(),
             month: date.toLocaleDateString('it-IT', { month: 'short' }),
             isToday: isSameDate(date, new Date()),
+            isDisabled: isDayDisabled(date) || false,
+            isBooked: false
         });
     }
     return daysArray;

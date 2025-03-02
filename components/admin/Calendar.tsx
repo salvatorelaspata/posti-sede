@@ -73,11 +73,8 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                     <ThemedView key={weekIndex} style={styles.calendarRow}>
                         {week.map((date, dateIndex) => {
                             if (!date) return <ThemedView key={`empty-${dateIndex}`} style={styles.calendarCell} />;
-
                             const dateString = date.toISOString().split('T')[0];
-                            console.log('Date string', attendance, dateString, date);
                             const attendanceCount = attendance?.filter(a => a.date === dateString).length || 0;
-                            console.log('Attendance count', attendanceCount);
                             return (
                                 <TouchableOpacity
                                     key={dateIndex}

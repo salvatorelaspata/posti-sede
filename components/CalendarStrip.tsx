@@ -13,29 +13,29 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
 } from 'react-native';
+import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 7; // 7 giorni visibili alla volta
 const CENTER_INDEX = 15; // Il centro della lista (15 giorni prima e 15 dopo)
-const TOTAL_DAYS = 31; // 15 + 1 + 15
-
-
+// const TOTAL_DAYS = 31; // 15 + 1 + 15
 
 const CalendarStrip: React.FC = () => {
   // Il centro corrente diventa la data di riferimento
-  const [centerDate, setCenterDate] = useState<Date>(new Date());
-  const [days, setDays] = useState<DayItem[]>([]);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const { setCurrentDate, booking } = useAppStore();
+  const { setCurrentDate, booking, days, setDays, currentYear, currentMonth, currentDay } = useAppStore();
 
   const successColor = useThemeColor({}, 'success')
   const tintColor = useThemeColor({}, 'tint')
+  const whiteText = useThemeColor({}, 'whiteText')
+  const inactiveText = useThemeColor({}, 'inactiveText')
 
   useEffect(() => {
-    const initialDays = generateDays(centerDate);
+    const initialDays = generateDays(new Date(currentYear, currentMonth, currentDay));
     setDays(initialDays);
-    setCurrentDate(centerDate);
+    // setCurrentDate(centerDate);
     // Scroll automatico al centro
     setTimeout(() => {
       flatListRef.current?.scrollToIndex({
@@ -43,12 +43,11 @@ const CalendarStrip: React.FC = () => {
         animated: true,
       });
     }, 500);
-  }, [centerDate]);
+  }, [currentYear, currentMonth, currentDay]);
 
   // Quando l'utente tocca un giorno, impostiamo quella data come centro e scrolliamo al centro della nuova lista
   const handleDayPress = (index: number) => {
     const selectedDay = days[index].date;
-    setCenterDate(selectedDay);
     setCurrentDate(selectedDay);
     flatListRef.current?.scrollToIndex({
       index: CENTER_INDEX,
@@ -59,44 +58,48 @@ const CalendarStrip: React.FC = () => {
   const renderDay = ({ item, index }: { item: DayItem; index: number }) => {
     // L'item selezionato è sempre l'indice centrale poiché la lista viene rigenerata
     const isSelected = index === CENTER_INDEX;
-    const isDisabled = isDayDisabled(item.date);
-    const isBooked = booking?.find(b => isSameDate(b.date, item.date));
-
+    const isDisabled = item.isDisabled;
+    const isToday = item.isToday && !isSelected;
+    const isBooked = item.isBooked;
     return (
       <TouchableOpacity
         style={[styles.dayItem, isSelected && styles.selectedDayItem, isDisabled && { opacity: 0.5 }]}
         onPress={() => handleDayPress(index)}
         activeOpacity={0.7}
       >
-        <Text style={[styles.dayName, isSelected && [styles.selectedText, { color: tintColor }]]}>
+        <ThemedText type="smallSemiBold" style={[styles.dayName, isSelected && [{ color: tintColor, }]]}>
           {item.dayName}
-        </Text>
-        <View style={[styles.dateCircle, isSelected && { backgroundColor: tintColor }]}>
-          <Text style={[styles.dayNumber, isSelected && styles.selectedDayNumber]}>
+        </ThemedText>
+        <ThemedView style={[styles.dateCircle, isSelected && { backgroundColor: tintColor }]}>
+          <ThemedText type='defaultSemiBold' style={[isDisabled && { color: inactiveText }, isSelected && { color: whiteText }]}>
             {item.dayNumber}
-          </Text>
-        </View>
-        <Text style={[styles.month, isSelected && [styles.selectedText, { color: tintColor }]]}>
+          </ThemedText>
+        </ThemedView>
+        <ThemedText type="small" style={[isSelected && [{ color: tintColor }]]}>
           {item.month}
-        </Text>
-        {isSameDate(item.date, new Date()) && !isSelected && <View style={[styles.todayDot, { backgroundColor: tintColor }]} />}
+        </ThemedText>
+        {isToday && <View style={[styles.todayDot, { backgroundColor: tintColor }]} />}
         {isBooked && <View style={[styles.bookedDot, { backgroundColor: successColor }]} />}
       </TouchableOpacity>
     );
-  }; const getItemLayout = (_: any, index: number) => {
+  };
+
+  const getItemLayout = (_: any, index: number) => {
     return {
       length: ITEM_WIDTH,
       offset: ITEM_WIDTH * index,
       index,
     };
-  };  // Quando l'utente finisce lo scroll manuale, determiniamo l'item centrale e rigeneriamo la lista
+  };
+  // Quando l'utente finisce lo scroll manuale, determiniamo l'item centrale e rigeneriamo la lista
   const onMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / ITEM_WIDTH);
-    const newCenterDate = days[index]?.date || centerDate;
+    const currentDate = new Date(currentYear, currentMonth, currentDay);
+    const newCurrentDate = days[index]?.date || currentDate;
     // Aggiorna il centro solo se il giorno selezionato è diverso
-    if (!isSameDate(newCenterDate, centerDate)) {
-      setCenterDate(newCenterDate);
+    if (!isSameDate(newCurrentDate, currentDate)) {
+      setCurrentDate(newCurrentDate);
       // Dopo aver rigenerato la lista, scrolliamo al centro
       setTimeout(() => {
         flatListRef.current?.scrollToIndex({
@@ -155,8 +158,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   dayName: {
-    fontSize: 13,
-    color: '#555',
     marginBottom: 6,
   },
   dateCircle: {
@@ -167,31 +168,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 4,
   },
-  selectedDateCircle: {
-    backgroundColor: '#007AFF',
-  },
-  dayNumber: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  selectedDayNumber: {
-    color: 'white',
-  },
-  month: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 4,
-  },
-  selectedText: {
-    color: '#007AFF',
-    fontWeight: '500',
-  },
   todayDot: {
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    // backgroundColor: '#FF3B30',
     position: 'absolute',
     bottom: 2,
   },
@@ -199,7 +179,6 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    // backgroundColor: '#FF3B30',
     position: 'absolute',
     bottom: 2,
   },

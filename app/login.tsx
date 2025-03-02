@@ -81,11 +81,11 @@ export default function Login() {
         console.error(JSON.stringify(signInAttempt, null, 2))
       }
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
-      setError('Email o password errati')
+      if (err.status === 422) setError('Account non trovato. Registrati!')
+      else setError('Email o password errati')
       setIsLoading(false);
     }
   }, [isLoaded, email, password])

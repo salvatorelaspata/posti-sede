@@ -11,14 +11,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { HeaderImage } from '@/components/HeaderImage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { useThemeColor } from '@/hooks/useThemeColor';
-// import seed from '@/db/seed';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    // const textColor = useThemeColor({}, 'text');
-    // const bgColor = useThemeColor({}, 'background');
     const { user } = useUser();
     if (user) return <Redirect href="/(app)/rooms" />
 
@@ -26,10 +22,6 @@ export default function LandingPage() {
     const handleLogin = () => {
         router.push('/login');
     };
-
-    // const handleRegister = () => {
-    //     router.push('/signup');
-    // };
 
     const handleContactSales = async () => {
         if (await canOpenURL('mailto:sales@postisede.it')) {
@@ -50,7 +42,7 @@ export default function LandingPage() {
             headerImage={
                 <HeaderImage>
                     <ImageBackground
-                        source={{ uri: 'https://api.a0.dev/assets/image?text=modern%20office%20space%20with%20minimalist%20design%20and%20clean%20workspace&aspect=16:9' }}
+                        source={{ uri: 'https://posti-sede.5b2e4ee1915b41377002b62a6a6606c1.r2.cloudflarestorage.com/image-background.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=35c6431c6b5ec358564f5cde2612bef0%2F20250302%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250302T020029Z&X-Amz-Expires=3600&X-Amz-Signature=50f79cc12871b5ed12d83a69ffb7756b34adca95dd37c7fa35a735e7cdf6c5d7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject' }}
                         style={styles.headerImage}
                     >
                         <LinearGradient
@@ -63,11 +55,6 @@ export default function LandingPage() {
             }>
             <ThemedView style={styles.content}>
                 <ThemedView style={styles.buttonContainer}>
-                    {/* <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-                        <MaterialIcons name="person-add" size={24} color={Colors.light.whiteText} />
-                        <ThemedText style={styles.buttonText}>Registrati</ThemedText>
-                    </TouchableOpacity> */}
-
                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                         <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
                         <ThemedText type='defaultSemiBold' style={styles.buttonText}>Accedi a posti sede</ThemedText>
@@ -75,7 +62,6 @@ export default function LandingPage() {
                 </ThemedView>
 
                 <ThemedView style={styles.featuresContainer}>
-                    {/* <Button title="Seed" onPress={seed} /> */}
                     <ThemedView style={styles.featureCard}>
                         <MaterialIcons name="location-city" size={32} color={Colors.light.tint} />
                         <ThemedText style={styles.featureTitle}>Multi-sede</ThemedText>

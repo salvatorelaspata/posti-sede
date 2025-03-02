@@ -241,10 +241,11 @@ export const getBookingUserByMonth:
 
         const booking = await db.select().from(bookings)
             .leftJoin(rooms, eq(bookings.roomId, rooms.id))
+            .orderBy(bookings.date)
             .where(and(eq(bookings.employeeId, employeeId),
                 gte(bookings.date, firstDate),
                 lt(bookings.date, lastDate)
-            ));
+            ))
         return booking.map(b => ({
             id: b.bookings.id,
             date: b.bookings.date,

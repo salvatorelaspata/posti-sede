@@ -1,6 +1,7 @@
 import {
     pgTable,
     varchar,
+    boolean,
     integer,
     jsonb,
     uuid,
@@ -37,6 +38,7 @@ export const locations = pgTable('locations', {
     tenantId: uuid('tenant_id').references(() => tenants.id),
     name: varchar('name', { length: 256 }).notNull(),
     image: varchar('image', { length: 512 }),
+    image_floorplan: varchar('image_floorplan', { length: 512 }),
 });
 
 // Tabella stanze con capacità
@@ -45,7 +47,8 @@ export const rooms = pgTable('rooms', {
     locationId: uuid('location_id').references(() => locations.id),
     name: varchar('name', { length: 256 }).notNull(),
     capacity: integer('capacity').notNull(),
-    available: integer('available').notNull().default(0),
+    image: varchar('image', { length: 512 }),
+    reserved: boolean('reserved').default(false),
 });
 
 
@@ -75,9 +78,8 @@ export const locationsRelations = relations(locations, ({ one, many }) => ({
 
 // Relazioni
 export const tenantsRelations = relations(tenants, ({ many }) => ({
-    locations: many(locations),
-    // users: many(users),
     employees: many(employees),
+    locations: many(locations),
 }));
 
 // Relazioni

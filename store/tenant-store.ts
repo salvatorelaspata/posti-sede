@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
 import { Location, Room, Booking } from '@/types';
-import { locations, rooms } from '@/db/schema';
+import { locations } from '@/db/schema';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAvailabilityForLocation } from '@/db/api';

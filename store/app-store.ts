@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByDate, getBookingUserByMonth, insertBooking, deleteBooking } from '@/db/api';
 import { UserResource } from '@clerk/types';
+import { DayItem, isSameDate } from '@/hooks/useCalendar';
 
 export type Book = {
     id: string;
@@ -32,6 +33,9 @@ type AppState = {
     setRoom: (room: Room | null) => void;
     addBooking: () => Promise<void>;
     removeBooking: (bookingId: string) => Promise<void>;
+    // calendarStrip
+    days: DayItem[];
+    setDays: (days: DayItem[]) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -54,8 +58,12 @@ export const useAppStore = create<AppState>()(
                 const currentMonth = date.getMonth();
                 const currentDay = date.getDate();
                 const booking = get().booking;
-                const booked = booking?.find(b => b.date.getDate() === currentDay);
-                set({ currentYear, currentMonth, currentDay, booked })
+                if (booking) {
+                    const booked = booking?.find(b => isSameDate(b.date, date));
+                    set({ currentYear, currentMonth, currentDay, booked });
+                }
+                else
+                    set({ currentYear, currentMonth, currentDay })
             },
             setClerkUser: async (clerkUser) => {
                 // insert the user into the store
@@ -140,6 +148,22 @@ export const useAppStore = create<AppState>()(
                         console.error('Error fetching personal booking:', error);
                     }
                 }
+            },
+            days: [],
+            setDays: (days) => {
+                const _days = days.map(d => {
+                    const booking = get().booking;
+                    if (booking) {
+                        const _booking = booking?.find(b => isSameDate(b.date, d.date));
+                        return {
+                            ...d,
+                            isBooked: !!_booking
+                        }
+                    } else {
+                        return d
+                    }
+                });
+                set({ days: _days });
             }
         }),
         {

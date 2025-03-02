@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
@@ -9,6 +9,10 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-expo";
+import { ThemedTextInput } from "@/components/ThemedTextInput";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { HeaderImage } from "@/components/HeaderImage";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function ChangePassword() {
     const router = useRouter();
@@ -17,6 +21,8 @@ export default function ChangePassword() {
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+    const tint = useThemeColor({}, 'tint');
+    const whiteText = useThemeColor({}, 'whiteText');
 
     const handleResetPassword = async () => {
         if (!user?.emailAddresses[0].emailAddress) return;
@@ -39,14 +45,18 @@ export default function ChangePassword() {
 
     return (
         <ParallaxScrollView
-            headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+            headerBackgroundColor={{ light: tint, dark: tint }}
             headerImage={
-                <IconSymbol
-                    size={310}
-                    color={Colors.light.text}
-                    name="person.circle"
-                    style={styles.headerImage}
-                />
+                <HeaderImage>
+                    <>
+                        <FontAwesome5 name="key" size={100} color={whiteText} />
+                        <LinearGradient
+                            colors={['rgba(0,0,0,0.1)', tint]}
+                            style={styles.gradient}
+                        >
+                        </LinearGradient>
+                    </>
+                </HeaderImage>
             }>
 
             <ThemedView style={[styles.container]}>
@@ -55,18 +65,16 @@ export default function ChangePassword() {
                     <ThemedText type="title" style={styles.title}>Cambia password</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
-                    <ThemedText type="default" >Password corrente</ThemedText>
-                    <TextInput
-                        style={styles.input}
+                    <ThemedText type="default" style={{ color: tint }} >Password corrente</ThemedText>
+                    <ThemedTextInput
                         placeholder="Password corrente"
                         secureTextEntry={true}
                         value={oldPassword}
                         onChangeText={setOldPassword}
                     />
 
-                    <ThemedText type="default" >Nuova password</ThemedText>
-                    <TextInput
-                        style={styles.input}
+                    <ThemedText type="default" style={{ color: tint }}>Nuova password</ThemedText>
+                    <ThemedTextInput
                         placeholder="Nuova password"
                         secureTextEntry={true}
                         value={newPassword}
@@ -75,9 +83,8 @@ export default function ChangePassword() {
 
                     {/* repeat new password
                  */}
-                    <ThemedText type="default" >Ripeti nuova password</ThemedText>
-                    <TextInput
-                        style={styles.input}
+                    <ThemedText type="default" style={{ color: tint }}>Ripeti nuova password</ThemedText>
+                    <ThemedTextInput
                         placeholder="Ripeti nuova password"
                         secureTextEntry={true}
                         value={confirmNewPassword}
@@ -114,12 +121,6 @@ const styles = StyleSheet.create({
     form: {
         flexDirection: 'column',
     },
-    input: {
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 8,
-        marginVertical: 8
-    },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -141,5 +142,14 @@ const styles = StyleSheet.create({
         bottom: -90,
         left: -35,
         position: 'absolute',
-    }
+    },
+
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
 });

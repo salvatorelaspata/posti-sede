@@ -57,7 +57,7 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
             onChange={handleSheetChanges}
             onClose={() => setRoom(null)}
             ref={bottomSheetRef}
-            snapPoints={snapPoints}
+            snapPoints={['60%']}
             style={styles.bottomSheet}
             enablePanDownToClose={true}
             backdropComponent={(props) => (
@@ -70,7 +70,7 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
                 <ThemedView style={styles.formContainer}>
                     {/* <ThemedText type="defaultSemiBold" style={styles.title}>Data: {selectedDate.toLocaleDateString()}</ThemedText> */}
                     <ThemedView style={styles.formRow}>
-                        <ThemedText onPress={handleInteraGiornata}>Prenota intera giornata</ThemedText>
+                        <ThemedText disabled onPress={handleInteraGiornata}>Prenota intera giornata</ThemedText>
                         <Checkbox style={styles.checkbox} value={isChecked} onValueChange={handleInteraGiornata} />
                     </ThemedView>
                     <ThemedView style={styles.formRow}>
@@ -103,7 +103,6 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
 
 const styles = StyleSheet.create({
     bottomSheet: {
-        zIndex: 1000,
         borderTopWidth: 0.5,
         borderTopColor: Colors.light.tint,
     },

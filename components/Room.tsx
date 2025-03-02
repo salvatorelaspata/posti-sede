@@ -4,9 +4,8 @@ import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useEffect, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Book, useAppStore } from "@/store/app-store";
+import { useAppStore } from "@/store/app-store";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
@@ -18,20 +17,14 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
     const borderColor = useThemeColor({}, 'border');
     const successColor = useThemeColor({}, 'success');
     const errorColor = useThemeColor({}, 'error');
+    const textWhite = useThemeColor({}, 'whiteText');
 
     const { room: _room, setRoom, booked } = useAppStore();
 
-    const switchSelectedRoom = (_room: Room) => {
+    const handleRoomPress = (_room: Room) => {
+        setRoom(_room);
         if (booked) {
-            Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
-            return;
-        } else if (_room.available === 0) {
-            Alert.alert('Attenzione', 'Questa stanza è piena. Prenota un altra stanza.');
-            return;
-        } else if (room?.id === _room.id) {
-            setRoom(null);
-        } else {
-            setRoom(_room);
+            return Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
         }
     }
 
@@ -42,44 +35,32 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                 styles.roomCard,
                 { backgroundColor: bgColor, borderColor },
                 room.id === _room?.id && { borderColor: Colors.light.tint },
-                booked && { ...styles.booked, borderColor: successColor, shadowColor: successColor },
+                booked?.roomId === room.id && { borderColor: successColor, shadowColor: successColor },
             ]}
-            onPress={() => switchSelectedRoom(room)}
+            onPress={() => handleRoomPress(room)}
             disabled={!!booked}
         >
             <ThemedView style={styles.roomHeader}>
-                <ThemedText style={styles.roomName}>{room.name}</ThemedText>
+                <ThemedText type="defaultSemiBold">{room.name}</ThemedText>
                 <ThemedView style={styles.capacityBadge}>
-                    <ThemedText type="defaultSemiBold" style={styles.capacityText}>
+                    <ThemedText type="smallSemiBold" style={{ color: textWhite }}>
                         {room.capacity - room.available}/{room.capacity}
                     </ThemedText>
                 </ThemedView>
             </ThemedView>
             <ThemedView style={styles.roomInfo}>
-                <FontAwesome5 name="users" size={20} color={tintColor} />
-                <ThemedText style={[styles.availabilityText, (room.available === 0) && { color: errorColor }]}>
-                    {room.available} posti disponibili
+                <FontAwesome5 name="users" size={15} color={tintColor} />
+                <ThemedText type="small" style={[(room.available === 0) && { color: errorColor }]}>
+                    {room.available} posti disponibili {booked?.roomId === room.id && ' - ✅ Prenotata'}
                 </ThemedText>
             </ThemedView>
             <ThemedView style={styles.progressContainer}>
                 <ThemedView
                     style={[
                         styles.progressBar,
-                        { width: `${(room.available / room.capacity) * 100}%` }
+                        { width: `${(room.available / room.capacity) * 100}%`, backgroundColor: tintColor },
                     ]}
                 />
-            </ThemedView>
-            <ThemedView style={styles.infoContainer}>
-                {/* {(room.available === 0) && (
-                    <ThemedText style={[{ color: errorColor }]}>
-                        Pieno 🔴
-                    </ThemedText>
-                )} */}
-                {booked && (
-                    <ThemedText style={[{ color: successColor }]}>
-                        ✅ Prenotato
-                    </ThemedText>
-                )}
             </ThemedView>
         </TouchableOpacity>
     );
@@ -88,69 +69,43 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
 const styles = StyleSheet.create({
     roomCard: {
         borderRadius: 12,
-        padding: 16,
+        padding: 8,
         marginHorizontal: 16,
         marginVertical: 4,
-        marginBottom: 12,
         elevation: 5,
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.6,
         shadowRadius: 2,
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderColor: 'transparent',
     },
     roomHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
-    },
-    roomName: {
-        fontSize: 18,
-        fontWeight: '600',
+        marginVertical: 4,
     },
     capacityBadge: {
         backgroundColor: Colors.light.tint,
-        paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 12,
-    },
-    capacityText: {
-        color: Colors.light.whiteText,
+        paddingHorizontal: 8,
+        borderRadius: 8,
     },
     roomInfo: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
     },
-    availabilityText: {
-        color: Colors.light.text,
-        fontSize: 16,
-    },
     progressContainer: {
         height: 4,
         backgroundColor: '#eee',
         borderRadius: 2,
-        marginTop: 12,
+        marginVertical: 8,
         overflow: 'hidden',
     },
     progressBar: {
         height: '100%',
-        backgroundColor: Colors.light.tint,
         borderRadius: 2,
-    },
-    contentContainer: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    modalContainer: {
-        flex: 1,
-    },
-    booked: {},
-    infoContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        marginTop: 12,
-    },
+    }
 });

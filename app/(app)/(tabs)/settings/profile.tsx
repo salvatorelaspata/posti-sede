@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useLayoutEffect } from "react";
@@ -9,12 +9,17 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useUser } from "@clerk/clerk-expo";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { HeaderImage } from "@/components/HeaderImage";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function SettingsProfile() {
     const router = useRouter();
     const { user } = useUser();
     const [firstName, setFirstName] = useState<string>(user?.firstName || '');
     const [lastName, setLastName] = useState<string>(user?.lastName || '');
+    const tint = useThemeColor({}, 'tint');
+    const whiteText = useThemeColor({}, 'whiteText');
 
     const handleSave = async () => {
         if (!firstName || !lastName) {
@@ -33,24 +38,33 @@ export default function SettingsProfile() {
 
     return (
         <ParallaxScrollView
-            headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+            headerBackgroundColor={{ light: tint, dark: tint }}
             headerImage={
-                <IconSymbol
-                    size={310}
-                    color={Colors.light.text}
-                    name="person.circle"
+                <HeaderImage>
+                    {/* <ImageBackground
+                    source={{ uri: 'https://posti-sede.5b2e4ee1915b41377002b62a6a6606c1.r2.cloudflarestorage.com/image-background.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=35c6431c6b5ec358564f5cde2612bef0%2F20250302%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250302T020029Z&X-Amz-Expires=3600&X-Amz-Signature=50f79cc12871b5ed12d83a69ffb7756b34adca95dd37c7fa35a735e7cdf6c5d7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject' }}
                     style={styles.headerImage}
-                />
+                > */}
+                    <>
+                        <FontAwesome5 name="user" size={100} color={whiteText} />
+                        <LinearGradient
+                            colors={['rgba(0,0,0,0.1)', tint]}
+                            style={styles.gradient}
+                        >
+                        </LinearGradient>
+                    </>
+                    {/* </ImageBackground> */}
+                </HeaderImage>
             }>
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.header}>
                     <Ionicons name="arrow-back" size={24} onPress={() => router.back()} />
-                    <ThemedText type="title" style={styles.title}>Profilo</ThemedText>
+                    <ThemedText type="title" style={[styles.title, { color: tint }]}>Profilo</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
                     {/* first name */}
                     <ThemedView style={styles.selector}>
-                        <ThemedText type="default" >Nome</ThemedText>
+                        <ThemedText type="default" style={{ color: tint }}>Nome</ThemedText>
                         <ThemedTextInput
                             // style={styles.selectorInput}
                             value={firstName}
@@ -59,7 +73,7 @@ export default function SettingsProfile() {
                     </ThemedView>
                     {/* last name */}
                     <ThemedView style={styles.selector}>
-                        <ThemedText type="default" >Cognome</ThemedText>
+                        <ThemedText type="default" style={{ color: tint }}>Cognome</ThemedText>
                         <ThemedTextInput
                             // style={styles.selectorInput}
                             value={lastName}
@@ -72,8 +86,8 @@ export default function SettingsProfile() {
                     <TouchableOpacity style={[styles.button]} onPress={() => router.back()}>
                         <ThemedText type="default">Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button]} onPress={handleSave}>
-                        <ThemedText type="defaultSemiBold">Salva</ThemedText>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: tint }]} onPress={handleSave}>
+                        <ThemedText type="defaultSemiBold" style={{ color: whiteText }}>Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
             </ThemedView >
@@ -122,8 +136,16 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 8
     },
+
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
     headerImage: {
-        color: '#808080',
         bottom: -90,
         left: -35,
         position: 'absolute',
