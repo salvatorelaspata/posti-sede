@@ -36,9 +36,10 @@ export default function HorizontalMonthSelector({ selectedMonth, selectedYear, o
             <TouchableOpacity onPress={() => handleMonthChange('prev')}>
                 <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
+            {/* <ThemedView style={{ flexDirection: 'column', alignItems: 'center' }}> */}
             <ThemedText type="default">{getYearStringFromDate(new Date(selectedYear, selectedMonth))}</ThemedText>
             <ThemedText type="defaultSemiBold">{getMonthStringFromDate(new Date(selectedYear, selectedMonth))}</ThemedText>
-
+            {/* </ThemedView> */}
             <TouchableOpacity onPress={() => handleMonthChange('next')}>
                 <Ionicons name="arrow-forward" size={24} color="black" />
             </TouchableOpacity>

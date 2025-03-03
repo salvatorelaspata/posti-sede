@@ -14,7 +14,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 
 const SettingsScreen = () => {
     const router = useRouter();
-    const [notifications, setNotifications] = useState(true);
+    const [notifications, setNotifications] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
     const [biometric, setBiometric] = useState(true);
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
@@ -99,9 +99,9 @@ const SettingsScreen = () => {
             headerImage={
                 <HeaderImage>
                     <>
-                        {/* <View style={styles.profileImagePlaceholder}>
+                        {/* <ThemedView style={styles.profileImagePlaceholder}>
                             <Text style={styles.profileInitials}>{user?.imageUrl}</Text>
-                        </View> */}
+                        </ThemedView> */}
                         <Text style={styles.profileName}>{user?.fullName}</Text>
                         <Text style={styles.profileEmail}>{user?.emailAddresses[0].emailAddress}</Text>
                         <LinearGradient
@@ -115,16 +115,16 @@ const SettingsScreen = () => {
                 <ScrollView style={styles.container}>
 
                     {/* Location Settings */}
-                    <View style={styles.section}>
+                    <ThemedView style={styles.section}>
                         <Text style={styles.sectionTitle}>Sede</Text>
                         <SettingItem
                             icon={<Ionicons name="location-outline" size={24} color="#333" />}
                             title="Cambia Sede"
                             onPress={() => router.replace('/(app)/rooms')}
                         />
-                    </View>
+                    </ThemedView>
                     {/* Profile Settings */}
-                    <View style={styles.section}>
+                    <ThemedView style={styles.section}>
                         <Text style={styles.sectionTitle}>Profilo</Text>
                         <SettingItem
                             icon={<Ionicons name="person-outline" size={24} color="#333" />}
@@ -136,10 +136,10 @@ const SettingsScreen = () => {
                             title="Cambia Password"
                             onPress={() => router.push('/settings/change-password')}
                         />
-                    </View>
+                    </ThemedView>
 
                     {/* General Settings */}
-                    <View style={styles.section}>
+                    <ThemedView style={styles.section}>
                         <Text style={styles.sectionTitle}>Impostazioni Generali</Text>
                         <SettingItem
                             icon={<Ionicons name="notifications-outline" size={24} color="#333" />}
@@ -151,35 +151,35 @@ const SettingsScreen = () => {
                         {notificationTypesVisible && (
                             <Animated.View style={{ opacity: notificationTypesOpacity, margin: 16 }}>
 
-                                <View style={styles.checkboxContainer}>
+                                <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.dayBefore}
                                         onValueChange={() => toggleNotificationType('dayBefore')}
 
                                     />
                                     <Text style={styles.checkboxLabel}>Ricordami il giorno prima</Text>
-                                </View>
-                                <View style={styles.checkboxContainer}>
+                                </ThemedView>
+                                <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.currentDay}
                                         onValueChange={() => toggleNotificationType('currentDay')}
                                     />
                                     <Text style={styles.checkboxLabel}>Ricordami il giorno corrente</Text>
-                                </View>
-                                <View style={styles.checkboxContainer}>
+                                </ThemedView>
+                                <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.weeklySummary}
                                         onValueChange={() => toggleNotificationType('weeklySummary')}
                                     />
                                     <Text style={styles.checkboxLabel}>Resoconto settimanale</Text>
-                                </View>
-                                <View style={styles.checkboxContainer}>
+                                </ThemedView>
+                                <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.monthlySummary}
                                         onValueChange={() => toggleNotificationType('monthlySummary')}
                                     />
                                     <Text style={styles.checkboxLabel}>Resoconto mensile</Text>
-                                </View>
+                                </ThemedView>
                             </Animated.View>
                         )}
                         <SettingItem
@@ -196,10 +196,10 @@ const SettingsScreen = () => {
                         onPress={() => setBiometric(!biometric)}
                         isSwitch
                     /> */}
-                    </View>
+                    </ThemedView>
 
                     {/* Danger Zone */}
-                    <View style={styles.section}>
+                    <ThemedView style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: '#DC3545' }]}>Danger Zone</Text>
                         <SettingItem
                             icon={<Feather name="log-out" size={24} color="#DC3545" />}
@@ -213,13 +213,14 @@ const SettingsScreen = () => {
                             color="#DC3545"
                             onPress={handleDeleteAccount}
                         />
-                    </View>
+                    </ThemedView>
 
-                    <View style={styles.footer}>
+                    <ThemedView style={styles.footer}>
                         <Text style={styles.version}>Versione 1.0.0</Text>
-                    </View>
+                    </ThemedView>
                 </ScrollView>
-            </ThemedView></ParallaxScrollView>
+            </ThemedView>
+        </ParallaxScrollView>
     );
 };
 
@@ -295,9 +296,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 12,
-        paddingHorizontal: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        paddingHorizontal: 8
     },
     settingItemLeft: {
         flexDirection: 'row',

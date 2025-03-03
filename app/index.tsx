@@ -42,7 +42,7 @@ export default function LandingPage() {
             headerImage={
                 <HeaderImage>
                     <ImageBackground
-                        source={{ uri: 'https://posti-sede.5b2e4ee1915b41377002b62a6a6606c1.r2.cloudflarestorage.com/image-background.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=35c6431c6b5ec358564f5cde2612bef0%2F20250302%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250302T020029Z&X-Amz-Expires=3600&X-Amz-Signature=50f79cc12871b5ed12d83a69ffb7756b34adca95dd37c7fa35a735e7cdf6c5d7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject' }}
+                        source={{ uri: 'https://pub-4fc4901ce07d4a338511e46a34800ee0.r2.dev/image-background.webp' }}
                         style={styles.headerImage}
                     >
                         <LinearGradient

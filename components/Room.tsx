@@ -22,10 +22,12 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
     const { room: _room, setRoom, booked } = useAppStore();
 
     const handleRoomPress = (_room: Room) => {
-        setRoom(_room);
         if (booked) {
             return Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
+        } else if (room.reserved) {
+            return Alert.alert('Attenzione', 'La stanza è riservata');
         }
+        setRoom(_room);
     }
 
     return (
@@ -51,7 +53,9 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
             <ThemedView style={styles.roomInfo}>
                 <FontAwesome5 name="users" size={15} color={tintColor} />
                 <ThemedText type="small" style={[(room.available === 0) && { color: errorColor }]}>
-                    {room.available} posti disponibili {booked?.roomId === room.id && ' - ✅ Prenotata'}
+                    {room.available} posti disponibili
+                    {booked?.roomId === room.id && ' - ✅ Prenotata'}
+                    {room.reserved && ' - 🛑 Riservata'}
                 </ThemedText>
             </ThemedView>
             <ThemedView style={styles.progressContainer}>

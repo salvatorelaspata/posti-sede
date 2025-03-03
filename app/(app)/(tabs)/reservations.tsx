@@ -1,91 +1,135 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { Alert, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
 import StatBox from "@/components/StatBox";
 import { getMonthStatus, isPast, isPastWithToday } from "@/hooks/useCalendar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useAppStore } from "@/store/app-store";
+import { Book, useAppStore } from "@/store/app-store";
 
 export default function Reservations() {
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
-    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    // const [currentMonthReservation, setCurrentMonthReservation] = useState<number>(new Date().getMonth());
+    // const [currentYearReservation, setCurrentYearReservation] = useState<number>(new Date().getFullYear());
     const errorColor = useThemeColor({}, 'error');
     const shadowColor = useThemeColor({}, 'cardShadow');
-    const { booking, removeBooking } = useAppStore()
+    const { montlyBooking, getMontlyBooking, currentMonthReservation, currentYearReservation, setCurrentMonthReservation, setCurrentYearReservation, removeBooking } = useAppStore()
+
+    const handleRemoveBooking = async (bookingId: string) => {
+        // confirm delete
+        Alert.alert('Attenzione', 'Sei sicuro di voler eliminare questa prenotazione?', [
+            {
+                text: 'Annulla',
+                style: 'cancel',
+            },
+            {
+                text: 'Elimina',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await removeBooking(bookingId);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                },
+            },
+        ]);
+    };
+
+    useEffect(() => {
+        getMontlyBooking(currentYearReservation, currentMonthReservation)
+    }, [currentMonthReservation])
 
     const handleSegmentedControlChange = (value: number) => {
         setSelectedIndex(value);
-        const currentMonth = new Date().getMonth()
-
         if (value === 0) {
-            if (currentMonth === 0) {
-                setSelectedMonth(11)
-                setSelectedYear(selectedYear - 1)
-            } else {
-                setSelectedMonth(currentMonth - 1)
-            }
+            setCurrentMonthReservation(new Date().getMonth() - 1)
+            setCurrentYearReservation(new Date().getFullYear())
         } else if (value === 1) {
-            setSelectedMonth(new Date().getMonth())
-            setSelectedYear(new Date().getFullYear())
+            setCurrentMonthReservation(new Date().getMonth())
+            setCurrentYearReservation(new Date().getFullYear())
+        }
+        else {
+            setCurrentMonthReservation(new Date().getMonth() + 1)
+            setCurrentYearReservation(new Date().getFullYear())
+        }
+
+    }
+
+    const setIndex = () => {
+        console.log('currentMonthReservation', currentMonthReservation)
+        console.log('new Date().getMonth()', new Date().getMonth())
+        const currentDate = new Date(currentYearReservation, currentMonthReservation, 1)
+        currentDate.setHours(6, 0, 0, 0)
+        const today = new Date()
+        today.setHours(6, 0, 0, 0)
+        // se l'anno è differente so già che è passato o futuro
+        if (currentDate.getFullYear() < today.getFullYear()) {
+            setSelectedIndex(0)
+        } else if (currentDate.getFullYear() > today.getFullYear()) {
+            setSelectedIndex(2)
         } else {
-            if (currentMonth === 11) {
-                setSelectedMonth(0)
-                setSelectedYear(selectedYear + 1)
+            // se l'anno è lo stesso controllo il mese
+            if (currentDate.getMonth() < today.getMonth()) {
+                setSelectedIndex(0)
+            } else if (currentDate.getMonth() > today.getMonth()) {
+                setSelectedIndex(2)
             } else {
-                setSelectedMonth(currentMonth + 1)
+                setSelectedIndex(1)
             }
         }
     }
 
     const handleNextMonth = () => {
-        if (selectedMonth === 11) {
-            setSelectedMonth(0)
-            setSelectedYear(selectedYear + 1)
+        if (currentMonthReservation === 11) {
+            setCurrentMonthReservation(0)
+            setCurrentYearReservation(currentYearReservation + 1)
         } else {
-            setSelectedMonth(selectedMonth + 1)
+            setCurrentMonthReservation(currentMonthReservation + 1)
         }
-        setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
-
+        setIndex()
     }
 
     const handlePreviousMonth = () => {
-        if (selectedMonth === 0) {
-            setSelectedMonth(11)
-            setSelectedYear(selectedYear - 1)
+        if (currentMonthReservation === 0) {
+            setCurrentMonthReservation(11)
+            setCurrentYearReservation(currentYearReservation - 1)
         } else {
-            setSelectedMonth(selectedMonth - 1)
+            setCurrentMonthReservation(currentMonthReservation - 1)
         }
-        setSelectedIndex(getMonthStatus(new Date(selectedYear, selectedMonth, 1)))
+        setIndex()
     }
 
     const renderItem = ({ item }: {
-        item: {
-            id: string;
-            date: Date;
-            roomName: string;
-            time: string;
-        }
+        item: Book
     }) => (
-        <ThemedView style={[styles.reservationItem, { shadowColor: shadowColor }, ...(isPast(item.date) ? [styles.reservationItemPast] : [])]}>
+        <ThemedView style={[
+            styles.reservationItem, { shadowColor: shadowColor },
+            // ...(isPast(item.date) ? [styles.reservationItemPast] : [])
+        ]}>
             <ThemedView style={styles.reservationInfo}>
                 <ThemedText style={styles.dateText}>{formatDate(item.date, 'full')}</ThemedText>
                 <ThemedView style={styles.roomInfoContainer}>
                     <ThemedText style={styles.roomText}>{item.roomName}</ThemedText>
-                    <ThemedText style={styles.timeText}>{item.time}</ThemedText>
+                    {/* <ThemedText style={styles.timeText}>{item.time}</ThemedText> */}
                 </ThemedView>
             </ThemedView>
-            {!isPastWithToday(item.date) && (<TouchableOpacity
-                onPress={() => removeBooking(item.id)}
+            {/* {!isPastWithToday(item.date) && (<TouchableOpacity
+                onPress={() => handleRemoveBooking(item.id)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
                 <MaterialIcons name="delete-outline" size={22} color={errorColor} />
-            </TouchableOpacity>)}
+            </TouchableOpacity>)} */}
+            <TouchableOpacity
+                onPress={() => handleRemoveBooking(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+                <MaterialIcons name="delete-outline" size={22} color={errorColor} />
+            </TouchableOpacity>
         </ThemedView>
     );
 
@@ -105,29 +149,34 @@ export default function Reservations() {
                 <HorizontalMonthSelector
                     handleNextMonth={handleNextMonth}
                     handlePreviousMonth={handlePreviousMonth}
-                    selectedMonth={selectedMonth}
-                    selectedYear={selectedYear}
-                    onMonthChange={setSelectedMonth}
-                    onYearChange={setSelectedYear}
+                    selectedMonth={currentMonthReservation}
+                    selectedYear={currentYearReservation}
+                    onMonthChange={setCurrentMonthReservation}
+                    onYearChange={setCurrentYearReservation}
                 />
             </ThemedView>
             {/* crea i box inerenti alle prenotazioni del mese selezionato */}
             <ThemedView style={styles.reservationsContainer}>
-                <StatBox number={getDaysInMonth(selectedMonth, selectedYear)} label="lavorativi/" />
-                <StatBox number={getTotalWorkingDaysInMonth(selectedMonth, selectedYear)} label="lavorativi" />
-                <StatBox number={booking?.length || 0} label="Prenotazioni" />
+                <StatBox number={getDaysInMonth(currentMonthReservation, currentYearReservation)} label="Tot" />
+                <StatBox number={getTotalWorkingDaysInMonth(currentMonthReservation, currentYearReservation)} label="Lavorati" />
+                <StatBox number={montlyBooking?.length || 0} label="Prenotati" />
             </ThemedView>
             {/* crea la lista delle prenotazioni */}
             <ThemedView style={styles.reservationsList}>
-                {booking && <FlatList
-                    data={booking as any}
+                {montlyBooking && <FlatList
+                    data={montlyBooking as Book[]}
                     renderItem={renderItem}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.listContainer}
                     ListEmptyComponent={
                         <ThemedView style={styles.emptyListContainer}>
-                            <ThemedText style={[styles.emptyListText, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} type="default">Nessuna prenotazione trovata</ThemedText>
+                            <ThemedText style={[
+                                styles.emptyListText,
+                                // ...(isPast(new Date()) ? [styles.reservationItemPast] : [])
+                            ]} type="default">
+                                Nessuna prenotazione trovata
+                            </ThemedText>
                             {/* <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} /> */}
                         </ThemedView>
                     }

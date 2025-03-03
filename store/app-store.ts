@@ -36,6 +36,14 @@ type AppState = {
     // calendarStrip
     days: DayItem[];
     setDays: (days: DayItem[]) => void;
+    // reservation
+    currentYearReservation: number;
+    currentMonthReservation: number;
+    setCurrentMonthReservation: (currentMonthReservation: number) => void;
+    setCurrentYearReservation: (currentYearReservation: number) => void;
+    montlyBooking: Book[];
+    getMontlyBooking: (year: number, month: number) => Promise<void>;
+    setMontlyBooking: (booking: Book[]) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -74,7 +82,8 @@ export const useAppStore = create<AppState>()(
                     const employee = await getEmployeeByClerkId(clerkId);
                     set({ employee });
                     // set the user role
-                    set({ isAdmin: employee.role === 'admin' });
+                    if (employee)
+                        set({ isAdmin: employee.role === 'admin' });
                     // get tanant from email
                     const tenant = await getTenantFromEmail(get().clerkUser?.emailAddresses[0].emailAddress || '');
                     // set the tenant in the store
@@ -141,8 +150,11 @@ export const useAppStore = create<AppState>()(
                 if (get().location) {
                     try {
                         await deleteBooking(bookingId);
-                        const newBooking = get().booking?.filter(b => b.date.getDate() !== get().currentDay);
+                        const newBooking = get().booking?.filter(b => b.id !== bookingId);
                         set({ booking: newBooking });
+                        // update montly booking
+                        const montly = get().montlyBooking.filter(b => b.id !== bookingId);
+                        set({ montlyBooking: montly });
                     }
                     catch (error) {
                         console.error('Error fetching personal booking:', error);
@@ -164,7 +176,36 @@ export const useAppStore = create<AppState>()(
                     }
                 });
                 set({ days: _days });
-            }
+            },
+            currentMonthReservation: new Date().getMonth(),
+            currentYearReservation: new Date().getFullYear(),
+            setCurrentMonthReservation: (currentMonthReservation) => set({ currentMonthReservation }),
+            setCurrentYearReservation: (currentYearReservation) => set({ currentYearReservation }),
+            montlyBooking: [],
+            getMontlyBooking: async (year, month) => {
+                if (get().location) {
+                    try {
+                        const employee = get().employee;
+                        const booking = await getBookingUserByMonth(
+                            employee?.id || '',
+                            year,
+                            month
+                        );
+                        set({
+                            montlyBooking: booking.map(b => ({
+                                id: b.id,
+                                date: b.date,
+                                roomId: b.roomId || '',
+                                roomName: b.roomName || ''
+                            }))
+                        });
+                    }
+                    catch (error) {
+                        console.error('Error fetching personal booking:', error);
+                    }
+                }
+            },
+            setMontlyBooking: (booking) => set({ montlyBooking: booking }),
         }),
         {
             name: 'app-storage',

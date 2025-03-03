@@ -18,7 +18,12 @@ export default function ModalDetailLocation() {
                 {locationFromStore?.name}
             </ThemedText>
             <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-                <Image style={{ width: "100%", height: 450, }} source={require('@/assets/Sede - Gotonext.svg')} />
+                {locationFromStore?.image_floorplan &&
+                    <ThemedView style={{ flex: 1, width: "100%", padding: 16 }}>
+                        <ThemedText>Mappa della sede</ThemedText>
+                        <Image style={{ width: "100%", height: 450, }} source={{ uri: locationFromStore?.image_floorplan }} />
+                    </ThemedView>
+                }
             </ThemedView>
             {/* close button */}
             <Pressable onPress={() => router.back()}>

@@ -47,6 +47,7 @@ export default function App() {
                 <Image
                   source={{ uri: item.image }}
                   style={styles.locationImage}
+                  alt={item.name}
                 />
                 <LinearGradient
                   colors={['transparent', 'rgba(0,0,0,0.8)']}
