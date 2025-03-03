@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
-      <ThemedText type="title" style={styles.title}>Seleziona la sede</ThemedText>
+      <ThemedText type="title" style={styles.title}>Seleziona la tua sede</ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
           data={locations}

@@ -28,7 +28,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
-  }, [location]);
+  }, [location, currentDay]);
 
   useEffect(() => {
     if (location) fetchPersonalBooking();

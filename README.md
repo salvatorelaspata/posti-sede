@@ -66,6 +66,8 @@ Push environment variables to EAS.
 
 ```bash
 eas env:push --profile <profile>
+# or
+eas env:push --environment=<profile>
 ```
 
 > [!NOTE]

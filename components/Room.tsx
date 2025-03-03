@@ -73,8 +73,10 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                 </ThemedView>
                 <Image source={{ uri: room.image }} style={{
                     width: 100, height: 100,
-                    borderTopRightRadius: 12,
-                    borderBottomRightRadius: 12,
+                    // borderTopRightRadius: 12,
+                    // borderBottomRightRadius: 12,
+                    borderRadius: 12,
+                    margin: 8,
                     backgroundColor: tintColor
                 }} />
                 {/* <ImageBackground
