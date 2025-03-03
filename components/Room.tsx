@@ -6,6 +6,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAppStore } from "@/store/app-store";
+import { Image, ImageBackground } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
@@ -42,29 +44,55 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
             onPress={() => handleRoomPress(room)}
             disabled={!!booked}
         >
-            <ThemedView style={styles.roomHeader}>
-                <ThemedText type="defaultSemiBold">{room.name}</ThemedText>
-                <ThemedView style={styles.capacityBadge}>
-                    <ThemedText type="smallSemiBold" style={{ color: textWhite }}>
-                        {room.capacity - room.available}/{room.capacity}
-                    </ThemedText>
+            <ThemedView style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', borderRadius: 12 }}>
+                <ThemedView style={{ flex: 1, padding: 8, borderRadius: 12 }}>
+                    <ThemedView style={styles.roomHeader}>
+                        <ThemedText type="defaultSemiBold">{room.name}</ThemedText>
+                        <ThemedView style={styles.capacityBadge}>
+                            <ThemedText type="smallSemiBold" style={{ color: textWhite }}>
+                                {room.capacity - room.available}/{room.capacity}
+                            </ThemedText>
+                        </ThemedView>
+                    </ThemedView>
+                    <ThemedView style={styles.roomInfo}>
+                        <FontAwesome5 name="users" size={15} color={tintColor} />
+                        <ThemedText type="small" style={[(room.available === 0) && { color: errorColor }]}>
+                            {room.available} posti disponibili
+                            {booked?.roomId === room.id && ' - ✅ Prenotata'}
+                            {room.reserved && ' - 🛑 Riservata'}
+                        </ThemedText>
+                    </ThemedView>
+                    <ThemedView style={styles.progressContainer}>
+                        <ThemedView
+                            style={[
+                                styles.progressBar,
+                                { width: `${(room.available / room.capacity) * 100}%`, backgroundColor: tintColor },
+                            ]}
+                        />
+                    </ThemedView>
                 </ThemedView>
-            </ThemedView>
-            <ThemedView style={styles.roomInfo}>
-                <FontAwesome5 name="users" size={15} color={tintColor} />
-                <ThemedText type="small" style={[(room.available === 0) && { color: errorColor }]}>
-                    {room.available} posti disponibili
-                    {booked?.roomId === room.id && ' - ✅ Prenotata'}
-                    {room.reserved && ' - 🛑 Riservata'}
-                </ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.progressContainer}>
-                <ThemedView
-                    style={[
-                        styles.progressBar,
-                        { width: `${(room.available / room.capacity) * 100}%`, backgroundColor: tintColor },
-                    ]}
-                />
+                <Image source={{ uri: room.image }} style={{
+                    width: 100, height: 100,
+                    borderTopRightRadius: 12,
+                    borderBottomRightRadius: 12,
+                    backgroundColor: tintColor
+                }} />
+                {/* <ImageBackground
+                    source={{ uri: room.image }}
+                    style={{
+                        width: 100, height: 100,
+                        borderTopRightRadius: 12,
+                        borderBottomRightRadius: 12,
+                        backgroundColor: tintColor
+                    }}
+                >
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.1)', Colors.light.tint]}
+                        style={styles.gradient}
+                    >
+                    </LinearGradient>
+                </ImageBackground> */}
+
             </ThemedView>
         </TouchableOpacity>
     );
@@ -73,7 +101,6 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
 const styles = StyleSheet.create({
     roomCard: {
         borderRadius: 12,
-        padding: 8,
         marginHorizontal: 16,
         marginVertical: 4,
         elevation: 5,
@@ -81,8 +108,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.6,
         shadowRadius: 2,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
     },
     roomHeader: {
         flexDirection: 'row',
@@ -101,11 +126,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
     progressContainer: {
         height: 4,
         backgroundColor: '#eee',
         borderRadius: 2,
-        marginVertical: 8,
+        marginTop: 16,
         overflow: 'hidden',
     },
     progressBar: {
