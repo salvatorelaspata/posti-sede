@@ -11,16 +11,29 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { Colors, gradient } from '@/constants/Colors';
 import { useSignUp, useUser } from '@clerk/clerk-expo';
 import { checkTenant, createEmployeeFromEmailAndPassword } from '@/db/api';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
 
 export default function SignUp() {
   const { user } = useUser();
   if (user) return <Redirect href="/(app)/rooms" />
+
+  const colorScheme = useColorScheme();
+  const tintColor = useThemeColor({}, 'tint');
+  const whiteTextColor = useThemeColor({}, 'whiteText');
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardBackground = useThemeColor({}, 'cardBackground');
+  const inactiveTextColor = useThemeColor({}, 'inactiveText');
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
@@ -94,34 +107,39 @@ export default function SignUp() {
         style={styles.container}
       >
         <LinearGradient
-          colors={gradient as [string, string, string]}
+          colors={colorScheme === 'dark'
+            ? ['#1a1a1a', '#2a2a2a', '#3a3a3a']
+            : gradient as [string, string, string]
+          }
           style={styles.gradient}
         >
-          <View style={styles.headerContainer}>
+          <ThemedView style={styles.headerContainer}>
             <MaterialIcons name="email" size={60} color="white" />
-            <Text style={styles.headerText}>
-              Verify your email
-            </Text>
-          </View>
+            <ThemedText type="title" style={styles.headerText} lightColor="white" darkColor="white">
+              Verifica la tua email
+            </ThemedText>
+          </ThemedView>
 
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <MaterialIcons name="email" size={24} color="#666" />
+          <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
+            <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+              <MaterialIcons name="vpn-key" size={24} color={inactiveTextColor} />
               <TextInput
                 value={code}
-                style={styles.input}
-                placeholder="Enter your verification code"
+                style={[styles.input, { color: textColor }]}
+                placeholder="Inserisci il codice di verifica"
                 onChangeText={(code) => setCode(code)}
+                placeholderTextColor={inactiveTextColor}
               />
-            </View>
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            <Button title="Verify" onPress={onVerifyPress} />
+            </ThemedView>
+            {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>}
 
-          </View>
-
+            <TouchableOpacity style={[styles.button, { backgroundColor: tintColor }]} onPress={onVerifyPress}>
+              <Ionicons name="checkmark-circle-outline" size={24} color={whiteTextColor} />
+              <ThemedText style={[styles.buttonText, { color: whiteTextColor, marginLeft: 8 }]}>Verifica</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
         </LinearGradient>
       </KeyboardAvoidingView>
-
     )
   }
 
@@ -132,77 +150,87 @@ export default function SignUp() {
       style={styles.container}
     >
       <LinearGradient
-        colors={gradient as [string, string, string]}
+        colors={colorScheme === 'dark'
+          ? ['#1a1a1a', '#2a2a2a', '#3a3a3a']
+          : gradient as [string, string, string]
+        }
         style={styles.gradient}
       >
-        <View style={styles.headerContainer}>
-          <FontAwesome5 name="user-circle" size={60} color="white" />
-          <Text style={styles.headerText}>
+        <ThemedView style={styles.headerContainer}>
+          <FontAwesome5 name="user-plus" size={60} color="white" />
+          <ThemedText type="title" style={styles.headerText} lightColor="white" darkColor="white">
             Crea Account
-          </Text>
-        </View>
+          </ThemedText>
+        </ThemedView>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="person" size={24} color="#666" />
+        <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <MaterialIcons name="person" size={24} color={inactiveTextColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Nome"
               value={firstName}
               onChangeText={setFirstName}
-              placeholderTextColor="#666"
+              placeholderTextColor={inactiveTextColor}
             />
-          </View>
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="person" size={24} color="#666" />
+          </ThemedView>
+
+          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <MaterialIcons name="person-outline" size={24} color={inactiveTextColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Cognome"
               value={lastName}
               onChangeText={setLastName}
-              placeholderTextColor="#666"
+              placeholderTextColor={inactiveTextColor}
             />
-          </View>
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="email" size={24} color="#666" />
+          </ThemedView>
+
+          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <MaterialIcons name="email" size={24} color={inactiveTextColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor="#666"
+              placeholderTextColor={inactiveTextColor}
             />
-          </View>
+          </ThemedView>
 
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="lock" size={24} color="#666" />
+          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <MaterialIcons name="lock" size={24} color={inactiveTextColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              placeholderTextColor="#666"
+              placeholderTextColor={inactiveTextColor}
             />
-          </View>
-          {error && <Text style={styles.errorText}>{error}</Text>}
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.buttonText}>
+          </ThemedView>
+
+          {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>}
+
+          <TouchableOpacity style={[styles.button, { backgroundColor: tintColor }]} onPress={handleSignUp}>
+            <Ionicons name="person-add-outline" size={24} color={whiteTextColor} />
+            <ThemedText style={[styles.buttonText, { color: whiteTextColor, marginLeft: 8 }]}>
               Registrati
-            </Text>
+            </ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/login')}>
-            <Text style={styles.toggleText}>
+            <ThemedText style={[styles.toggleText, { color: tintColor }]}>
               Hai già un account? Accedi
-            </Text>
+            </ThemedText>
           </TouchableOpacity>
-        </View>
-
+          <ThemedText type="small" >
+            N.B. E' necessario che la mail aziendale sia configurata per poter accedere a posti sede.
+          </ThemedText>
+        </ThemedView>
       </LinearGradient>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingView >
   );
 }
 
@@ -219,16 +247,14 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
+    backgroundColor: 'transparent',
   },
   headerText: {
-    fontSize: 28,
-    color: 'white',
     marginTop: 20,
     fontWeight: 'bold',
   },
   form: {
     width: "100%",
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
@@ -243,7 +269,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
     borderRadius: 10,
     marginBottom: 15,
     paddingHorizontal: 15,
@@ -252,18 +277,22 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 10,
-    color: '#333',
     fontSize: 16,
   },
   button: {
-    backgroundColor: Colors.light.tint,
-    padding: 15,
-    borderRadius: 10,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 12,
     marginTop: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   buttonText: {
-    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -272,11 +301,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleText: {
-    color: '#4c669f',
     fontSize: 16,
+    marginBottom: 16
   },
   errorText: {
-    color: 'red',
     marginBottom: 10,
+    fontSize: 14,
   },
 });

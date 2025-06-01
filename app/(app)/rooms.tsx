@@ -8,8 +8,9 @@ import { useRouter } from 'expo-router';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
-import { getTenantFromEmail } from '@/db/api';
+// import { getTenantFromEmail } from '@/db/api';
 import { useUser } from '@clerk/clerk-expo';
+import { Colors } from '@/constants/Colors';
 
 export default function App() {
   const router = useRouter()
@@ -50,8 +51,9 @@ export default function App() {
                   alt={item.name}
                 />
                 <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.8)']}
+                  colors={['transparent', Colors.light.tint]}
                   style={styles.locationGradient}
+
                 />
                 <ThemedText style={styles.locationName}>{item.name}</ThemedText>
               </ThemedView>
@@ -91,7 +93,6 @@ const styles = StyleSheet.create({
   locationImageContainer: {
     height: 200,
     position: 'relative',
-
   },
   locationImage: {
     width: '100%',
@@ -108,7 +109,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     left: 16,
-    color: '#fff',
+    color: Colors.light.whiteText,
+    textShadowColor: Colors.light.tint,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
     fontSize: 24,
     fontWeight: 'bold',
   },

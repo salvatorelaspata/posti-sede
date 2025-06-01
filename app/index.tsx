@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
+import { Colors, gradient } from '@/constants/Colors';
 import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
@@ -11,12 +11,21 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { HeaderImage } from '@/components/HeaderImage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
     const { user } = useUser();
     if (user) return <Redirect href="/(app)/rooms" />
+
+    const colorScheme = useColorScheme();
+    const tintColor = useThemeColor({}, 'tint');
+    const whiteTextColor = useThemeColor({}, 'whiteText');
+    const textColor = useThemeColor({}, 'text');
+    const backgroundColor = useThemeColor({}, 'background');
+    const cardBackground = useThemeColor({}, 'cardBackground');
 
     const router = useRouter();
     const handleLogin = () => {
@@ -46,7 +55,10 @@ export default function LandingPage() {
                         style={styles.headerImage}
                     >
                         <LinearGradient
-                            colors={['rgba(0,0,0,0.1)', Colors.light.tint]}
+                            colors={colorScheme === 'dark'
+                                ? ['rgba(0,0,0,0.3)', 'rgba(21,23,24,0.7)']
+                                : ['rgba(0,0,0,0.1)', tintColor]
+                            }
                             style={styles.gradient}
                         >
                         </LinearGradient>
@@ -54,47 +66,52 @@ export default function LandingPage() {
                 </HeaderImage>
             }>
             <ThemedView style={styles.content}>
-                <ThemedView style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                        <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
-                        <ThemedText type='defaultSemiBold' style={styles.buttonText}>Accedi a posti sede</ThemedText>
-                    </TouchableOpacity>
-                </ThemedView>
+
 
                 <ThemedView style={styles.featuresContainer}>
-                    <ThemedView style={styles.featureCard}>
-                        <MaterialIcons name="location-city" size={32} color={Colors.light.tint} />
-                        <ThemedText style={styles.featureTitle}>Multi-sede</ThemedText>
-                        <ThemedText style={styles.featureText}>Gestisci più sedi aziendali da un'unica piattaforma</ThemedText>
+                    <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>
+                        <MaterialIcons style={{ position: 'absolute', right: 16, top: 16 }} name="location-city" size={24} color={tintColor} />
+                        <ThemedText type="defaultSemiBold">Multi-sede</ThemedText>
+                        <ThemedText>Gestisci più sedi aziendali da un'unica piattaforma</ThemedText>
                     </ThemedView>
 
-                    <ThemedView style={styles.featureCard}>
-                        <MaterialIcons name="event-seat" size={32} color={Colors.light.tint} />
-                        <ThemedText style={styles.featureTitle}>Prenotazione Smart</ThemedText>
-                        <ThemedText style={styles.featureText}>Prenota la tua postazione in pochi click</ThemedText>
+                    <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>
+                        <MaterialIcons style={{ position: 'absolute', right: 16, top: 16 }} name="event-seat" size={24} color={tintColor} />
+                        <ThemedText type="defaultSemiBold">Prenotazione Smart</ThemedText>
+                        <ThemedText>Prenota la tua postazione in pochi click</ThemedText>
                     </ThemedView>
 
-                    <ThemedView style={styles.featureCard}>
-                        <MaterialIcons name="meeting-room" size={32} color={Colors.light.tint} />
-                        <ThemedText style={styles.featureTitle}>Gestione Spazi</ThemedText>
-                        <ThemedText style={styles.featureText}>Organizza e monitora l'utilizzo degli spazi</ThemedText>
+                    <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>
+                        <MaterialIcons style={{ position: 'absolute', right: 16, top: 16 }} name="meeting-room" size={24} color={tintColor} />
+                        <ThemedText type="defaultSemiBold">Gestione Spazi</ThemedText>
+                        <ThemedText>Organizza e monitora l'utilizzo degli spazi</ThemedText>
                     </ThemedView>
                 </ThemedView>
 
-                <TouchableOpacity style={styles.salesButton} onPress={handleContactSales}>
-                    <MaterialIcons name="business" size={24} color={Colors.light.tint} />
-                    <ThemedText style={styles.salesButtonText}>Contattaci</ThemedText>
-                    <ThemedText style={styles.salesSubtext}>Per registrare la tua azienda</ThemedText>
+                <TouchableOpacity style={[styles.loginButton, { backgroundColor: tintColor, borderColor: tintColor }]} onPress={handleLogin}>
+                    <Ionicons name="log-in-outline" size={24} color={whiteTextColor} />
+                    <ThemedText type="defaultSemiBold" style={[{ color: whiteTextColor, marginLeft: 8 }]}>Accedi</ThemedText>
+                </TouchableOpacity>
+
+                {/* oppure */}
+                <ThemedText type='small' style={styles.or}>
+                    Oppure
+                </ThemedText>
+
+                <TouchableOpacity style={[styles.salesButton, { backgroundColor: cardBackground, borderColor: tintColor }]} onPress={handleContactSales}>
+                    <MaterialIcons name="business" size={24} color={tintColor} />
+                    <ThemedText type="defaultSemiBold" style={[{ color: tintColor, marginTop: 8 }]}>Contattaci</ThemedText>
+                    <ThemedText style={[{ color: textColor, marginTop: 4 }]}>Per registrare la tua azienda</ThemedText>
                 </TouchableOpacity>
             </ThemedView>
-        </ParallaxScrollView>
+        </ParallaxScrollView >
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.light.background,
+        padding: 16
     },
     headerImage: {
         width: width,
@@ -109,105 +126,62 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     headerContent: {
-        padding: 20,
+        padding: 16,
         paddingBottom: 40,
     },
     title: {
         fontSize: 36,
         fontWeight: 'bold',
-        color: '#ffffff',
+
         marginBottom: 10,
     },
-    subtitle: {
-        fontSize: 18,
-        color: '#ffffff',
-        opacity: 0.9,
+    or: {
+        textAlign: 'center',
+        marginVertical: 16,
+        textDecorationLine: 'underline',
     },
     content: {
-
+        flex: 1,
+        padding: 16,
     },
     buttonContainer: {
         zIndex: 999,
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 8,
+        marginTop: 16,
     },
     loginButton: {
-        flexDirection: 'row',
-        backgroundColor: Colors.light.tint,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 15,
+        padding: 16,
         borderRadius: 12,
-        width: '100%',
-        elevation: 3,
-        shadowColor: '#000',
+        alignItems: 'center',
+        borderWidth: 2,
+
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
+        elevation: 3,
     },
-    // registerButton: {
-    //     backgroundColor: Colors.light.text,
-    //     flexDirection: 'row',
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    //     padding: 15,
-    //     borderRadius: 12,
-    //     width: '48%',
-    //     elevation: 3,
-    //     shadowColor: Colors.light.text,
-    //     shadowOffset: { width: 0, height: 2 },
-    //     shadowOpacity: 0.25,
-    //     shadowRadius: 3.84,
-    // },
     buttonText: {
-        color: Colors.light.whiteText,
         marginLeft: 8,
     },
     featuresContainer: {
         marginBottom: 8,
     },
     featureCard: {
-        backgroundColor: Colors.light.whiteText,
-        padding: 20,
+        padding: 16,
         borderRadius: 12,
-        marginBottom: 15,
+        marginBottom: 16,
         elevation: 2,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
     },
-    featureTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: Colors.light.text,
-        marginTop: 10,
-        marginBottom: 5,
-    },
-    featureText: {
-        fontSize: 14,
-        color: Colors.light.text,
-        lineHeight: 20,
-    },
     salesButton: {
-        backgroundColor: Colors.light.whiteText,
-        padding: 20,
+        padding: 16,
         borderRadius: 12,
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: Colors.light.tint,
-        marginBottom: 20,
-    },
-    salesButtonText: {
-        color: Colors.light.tint,
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-    salesSubtext: {
-        color: Colors.light.text,
-        fontSize: 14,
-        marginTop: 4,
+        marginBottom: 16,
     },
 });

@@ -16,12 +16,24 @@ import { Redirect, router } from 'expo-router';
 import { Colors, gradient } from '@/constants/Colors';
 import { useSignIn, useUser } from '@clerk/clerk-expo';
 import { checkTenant } from '@/db/api';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 // import seed from '@/db/seed';
 
 
 export default function Login() {
   const { user } = useUser();
   if (user) return <Redirect href="/(app)/rooms" />
+
+  const colorScheme = useColorScheme();
+  const tintColor = useThemeColor({}, 'tint');
+  const whiteTextColor = useThemeColor({}, 'whiteText');
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardBackground = useThemeColor({}, 'cardBackground');
+  const inactiveTextColor = useThemeColor({}, 'inactiveText');
 
   const { signIn, setActive, isLoaded } = useSignIn()
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -95,44 +107,47 @@ export default function Login() {
       style={styles.container}
     >
       <LinearGradient
-        colors={gradient as [string, string, string]}
+        colors={colorScheme === 'dark'
+          ? ['#1a1a1a', '#2a2a2a', '#3a3a3a']
+          : gradient as [string, string, string]
+        }
         style={styles.gradient}
       >
-        <View style={styles.headerContainer}>
+        <ThemedView style={styles.headerContainer}>
           <FontAwesome5 name="user-circle" size={60} color="white" />
-          <Text style={styles.headerText}>
+          <ThemedText type="title" style={styles.headerText} lightColor="white" darkColor="white">
             Bentornato!
-          </Text>
-        </View>
+          </ThemedText>
+        </ThemedView>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <MaterialIcons name="email" size={24} color="#666" />
+        <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <MaterialIcons name="email" size={24} color={inactiveTextColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor="#666"
+              placeholderTextColor={inactiveTextColor}
             />
-          </View>
+          </ThemedView>
           {validEmail && (
-            <View style={styles.inputContainer}>
-              <MaterialIcons name="lock" size={24} color="#666" />
+            <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+              <MaterialIcons name="lock" size={24} color={inactiveTextColor} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: textColor }]}
                 placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="#666"
+                placeholderTextColor={inactiveTextColor}
               />
-            </View>
+            </ThemedView>
           )}
 
-          <TouchableOpacity style={styles.loginButton} onPress={() => {
+          <TouchableOpacity style={[styles.loginButton, { backgroundColor: tintColor }]} onPress={() => {
             setIsLoading(true);
             if (validEmail) {
               onSignInPress()
@@ -140,26 +155,26 @@ export default function Login() {
               onSignEmailPress()
             }
           }}>
-            {isLoading ? <ActivityIndicator size="small" color={Colors.light.whiteText} /> :
+            {isLoading ? <ActivityIndicator size="small" color={whiteTextColor} /> :
               <>
-                <Ionicons name="log-in-outline" size={24} color={Colors.light.whiteText} />
-                <Text style={styles.buttonText}>Accedi</Text>
+                <Ionicons name="log-in-outline" size={24} color={whiteTextColor} />
+                <ThemedText style={[styles.buttonText, { color: whiteTextColor }]}>Accedi</ThemedText>
               </>
             }
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
-            <Text style={styles.toggleText}>
+            <ThemedText style={[styles.toggleText, { color: tintColor }]}>
               Non hai un account? Registrati
-            </Text>
+            </ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/')}>
-            <Text style={styles.toggleText}>
+            <ThemedText style={[styles.toggleText, { color: tintColor }]}>
               Torna alla home
-            </Text>
+            </ThemedText>
           </TouchableOpacity>
-          {error && <Text style={styles.errorText}>{error}</Text>}
-        </View>
+          {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>}
+        </ThemedView>
       </LinearGradient>
     </KeyboardAvoidingView>
   );
@@ -178,10 +193,9 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
+    backgroundColor: 'transparent',
   },
   headerText: {
-    fontSize: 28,
-    color: 'white',
     marginTop: 20,
     fontWeight: 'bold',
   },
@@ -190,7 +204,6 @@ const styles = StyleSheet.create({
   },
   form: {
     width: "100%",
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
@@ -205,7 +218,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
     borderRadius: 10,
     marginBottom: 15,
     paddingHorizontal: 15,
@@ -214,18 +226,15 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 10,
-    color: '#333',
     fontSize: 16,
   },
   button: {
-    backgroundColor: Colors.light.tint,
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
   },
   loginButton: {
-    backgroundColor: Colors.light.tint,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -238,7 +247,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   buttonText: {
-    color: Colors.light.whiteText,
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
@@ -248,11 +256,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleText: {
-    color: '#4c669f',
     fontSize: 16,
   },
   errorText: {
-    color: 'red',
     marginTop: 10,
   },
 });
