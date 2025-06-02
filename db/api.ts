@@ -235,7 +235,7 @@ export const getBookingUserByMonth:
     (employeeId: string, year: number, month: number) => Promise<Book[]> =
     async (employeeId, year, month) => {
         const firstDate = new Date(year, month, 1)
-        firstDate.setHours(6, 0, 0, 0)
+        firstDate.setHours(0, 0, 0, 0)
         const lastDate = new Date(year, firstDate.getMonth() + 1, 0)
         lastDate.setHours(23, 59, 59, 0)
 

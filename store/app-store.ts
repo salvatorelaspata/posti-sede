@@ -102,6 +102,7 @@ export const useAppStore = create<AppState>()(
                             get().currentYear,
                             get().currentMonth
                         );
+                        console.log('Personal booking:', booking);
                         set({
                             booking: booking.map(b => ({
                                 id: b.id,
@@ -135,12 +136,14 @@ export const useAppStore = create<AppState>()(
                 if (get().location) {
                     try {
                         const employee = get().employee;
+                        const _date = new Date(get().currentYear, get().currentMonth, get().currentDay)
+                        _date.setHours(4, 0, 0, 0); // Reset time to midnight   
                         const id = await insertBooking(
                             {
                                 tenantId: get().tenant?.id || '',
                                 roomId: get().room?.id || '',
                                 employeeId: employee?.id || '',
-                                date: new Date(get().currentYear, get().currentMonth, get().currentDay),
+                                date: _date,
                                 period: 'full',
                                 status: 'pending',
                             }
@@ -193,6 +196,7 @@ export const useAppStore = create<AppState>()(
                             year,
                             month
                         );
+                        console.log('Montly booking:', booking);
                         set({
                             montlyBooking: booking.map(b => ({
                                 id: b.id,
