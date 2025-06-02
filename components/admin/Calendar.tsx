@@ -98,7 +98,7 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                                     style={[styles.calendarCell, { borderColor: borderColor }]}
                                     onPress={() => {
                                         if (attendanceCount > 0) {
-                                            console.log('Attendance for', dateString);
+                                            console.info('Attendance for', dateString);
                                         }
                                     }}
                                 >

@@ -32,7 +32,7 @@ export default function SettingsProfile() {
             Alert.alert('Successo', 'Profilo modificato con successo');
             router.back();
         } catch (error) {
-            console.log(error);
+            console.error(error);
             Alert.alert('Errore', 'Si è verificato un errore durante la modifica del profilo');
         }
     }

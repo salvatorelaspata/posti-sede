@@ -4,17 +4,18 @@ import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/hooks/useColorScheme";
+// import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppStore } from "@/store/app-store";
 import { Image, ImageBackground } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
+// import { LinearGradient } from "expo-linear-gradient";
+// import { isSameDate } from "@/hooks/useCalendar";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
 }
 
 export const RoomComponent = ({ room }: RoomComponentProps) => {
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const bgColor = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
@@ -25,11 +26,48 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
 
     const { room: _room, setRoom, booked } = useAppStore();
 
+    // const currentDate = new Date(currentYear, currentMonth, currentDay);
+    const isBookedByUser = booked?.roomId === room.id;
+
+    // Determina se l'utente può prenotare questa stanza
+    const canBook = !booked && !room.reserved && room.available > 0;
+
+    // Determina se la stanza è disabilitata
+    const isDisabled = booked && !isBookedByUser;
+
     const handleRoomPress = (_room: Room) => {
-        if (booked) {
-            return Alert.alert('Attenzione', 'Hai già una prenotazione per questo giorno nella stanza: ' + booked.roomName);
+        if (isBookedByUser) {
+            return Alert.alert(
+                'Prenotazione Esistente',
+                `Hai già prenotato questa stanza (${booked?.roomName}) per questo giorno.`,
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
+        } else if (booked && !isBookedByUser) {
+            return Alert.alert(
+                'Prenotazione Non Disponibile',
+                `Hai già una prenotazione per questo giorno nella stanza: ${booked.roomName}. Non puoi prenotare più di una stanza per giorno.`,
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
         } else if (room.reserved) {
-            return Alert.alert('Attenzione', 'La stanza è riservata');
+            return Alert.alert(
+                'Stanza Riservata',
+                'Questa stanza è riservata e non è disponibile per la prenotazione.',
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
+        } else if (room.available === 0) {
+            return Alert.alert(
+                'Stanza Al Completo',
+                'Questa stanza non ha posti disponibili per questo giorno.',
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
         }
         setRoom(_room);
     }
@@ -44,17 +82,50 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                     borderColor: borderColor,
                     shadowColor: cardShadow,
                 },
-                room.id === _room?.id && { borderColor: tintColor },
-                booked?.roomId === room.id && { borderColor: successColor, shadowColor: successColor },
+                // Evidenzia la stanza selezionata per la prenotazione
+                room.id === _room?.id && { borderColor: tintColor, borderWidth: 2 },
+                // Evidenzia in verde la stanza già prenotata dall'utente
+                isBookedByUser && {
+                    borderColor: successColor,
+                    borderWidth: 2,
+                    shadowColor: successColor,
+                    backgroundColor: `${successColor}10` // Sfondo leggermente colorato
+                },
+                // Stile per stanze non disponibili o disabilitate
+                isDisabled && {
+                    opacity: 0.5,
+                    borderColor: '#ccc'
+                },
+                room.reserved && !isBookedByUser && {
+                    opacity: 0.6,
+                    borderColor: errorColor
+                },
+                room.available === 0 && !isBookedByUser && {
+                    opacity: 0.6,
+                    borderColor: errorColor
+                }
             ]}
             onPress={() => handleRoomPress(room)}
-            disabled={!!booked}
+            disabled={isDisabled || (room.reserved && !isBookedByUser) || (room.available === 0 && !isBookedByUser)}
+            activeOpacity={canBook || isBookedByUser ? 0.7 : 1}
         >
             <ThemedView style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', borderRadius: 12 }}>
                 <ThemedView style={{ flex: 1, padding: 8, borderRadius: 12 }}>
                     <ThemedView style={styles.roomHeader}>
-                        <ThemedText type="defaultSemiBold">{room.name}</ThemedText>
-                        <ThemedView style={[styles.capacityBadge, { backgroundColor: tintColor }]}>
+                        <ThemedText type="defaultSemiBold" style={[
+                            isBookedByUser && { color: successColor }
+                        ]}>
+                            {room.name}
+                            {isBookedByUser && ' ⭐'}
+                        </ThemedText>
+                        <ThemedView style={[
+                            styles.capacityBadge,
+                            {
+                                backgroundColor: isBookedByUser ? successColor :
+                                    room.available === 0 ? errorColor :
+                                        tintColor
+                            }
+                        ]}>
                             <ThemedText type="smallSemiBold" style={{ color: textWhite }}>
                                 {room.capacity - room.available}/{room.capacity}
                             </ThemedText>
@@ -62,44 +133,54 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                     </ThemedView>
                     <ThemedView style={styles.roomInfo}>
                         <FontAwesome5 name="users" size={15} color={tintColor} />
-                        <ThemedText type="small" style={[(room.available === 0) && { color: errorColor }]}>
-                            {room.available} posti disponibili
-                            {booked?.roomId === room.id && ' - ✅ Prenotata'}
-                            {room.reserved && ' - 🛑 Riservata'}
+                        <ThemedText type="small" style={[
+                            (room.available === 0 && !isBookedByUser) && { color: errorColor },
+                            isBookedByUser && { color: successColor, fontWeight: '600' }
+                        ]}>
+                            {isBookedByUser ? (
+                                '✅ Prenotata da te'
+                            ) : room.reserved ? (
+                                '🛑 Stanza riservata'
+                            ) : room.available === 0 ? (
+                                '❌ Nessun posto disponibile'
+                            ) : (
+                                `${room.available} posti disponibili`
+                            )}
+                            {isDisabled && !isBookedByUser && ' (Non disponibile)'}
                         </ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.progressContainer}>
                         <ThemedView
                             style={[
                                 styles.progressBar,
-                                { width: `${(room.available / room.capacity) * 100}%`, backgroundColor: tintColor },
+                                {
+                                    width: `${(room.available / room.capacity) * 100}%`,
+                                    backgroundColor: isBookedByUser ? successColor :
+                                        room.available === 0 ? errorColor :
+                                            tintColor
+                                },
                             ]}
                         />
                     </ThemedView>
                 </ThemedView>
-                <Image source={{ uri: room.image }} style={{
-                    width: 100, height: 100,
-                    // borderTopRightRadius: 12,
-                    // borderBottomRightRadius: 12,
-                    borderRadius: 12,
-                    margin: 8,
-                    backgroundColor: tintColor
-                }} />
-                {/* <ImageBackground
-                    source={{ uri: room.image }}
-                    style={{
+                {/* <ThemedView style={{ position: 'relative' }}> */}
+                <Image source={{ uri: room.image }} style={[
+                    {
                         width: 100, height: 100,
-                        borderTopRightRadius: 12,
-                        borderBottomRightRadius: 12,
+                        borderRadius: 12,
+                        margin: 8,
                         backgroundColor: tintColor
-                    }}
-                >
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.1)', tintColor]}
-                        style={styles.gradient}
-                    >
-                    </LinearGradient>
-                </ImageBackground> */}
+                    },
+                    isBookedByUser && { opacity: 0.9 }
+                ]} />
+
+                {/* Overlay per stanza prenotata */}
+                {isBookedByUser && (
+                    <ThemedView style={styles.bookedOverlay}>
+                        <FontAwesome5 name="check-circle" size={24} color={textWhite} />
+                    </ThemedView>
+                )}
+                {/* </ThemedView> */}
 
             </ThemedView>
         </TouchableOpacity>
@@ -150,5 +231,16 @@ const styles = StyleSheet.create({
     progressBar: {
         height: '100%',
         borderRadius: 2,
+    },
+    bookedOverlay: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        width: 100,
+        height: 100,
+        borderRadius: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 });

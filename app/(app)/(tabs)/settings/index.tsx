@@ -11,7 +11,7 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// import { useColorScheme } from '@/hooks/useColorScheme';
 
 const SettingsScreen = () => {
     const router = useRouter();

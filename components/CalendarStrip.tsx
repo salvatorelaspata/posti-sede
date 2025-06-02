@@ -55,35 +55,6 @@ const CalendarStrip: React.FC = () => {
     });
   };
 
-  const renderDay = ({ item, index }: { item: DayItem; index: number }) => {
-    // L'item selezionato è sempre l'indice centrale poiché la lista viene rigenerata
-    const isSelected = index === CENTER_INDEX;
-    const isDisabled = item.isDisabled;
-    const isToday = item.isToday && !isSelected;
-    const isBooked = item.isBooked;
-    return (
-      <TouchableOpacity
-        style={[styles.dayItem, isSelected && styles.selectedDayItem, isDisabled && { opacity: 0.5 }]}
-        onPress={() => handleDayPress(index)}
-        activeOpacity={0.7}
-      >
-        <ThemedText type="smallSemiBold" style={[styles.dayName, isSelected && [{ color: tintColor, }]]}>
-          {item.dayName}
-        </ThemedText>
-        <ThemedView style={[styles.dateCircle, isSelected && { backgroundColor: tintColor }]}>
-          <ThemedText type='defaultSemiBold' style={[isDisabled && { color: inactiveText }, isSelected && { color: whiteText }]}>
-            {item.dayNumber}
-          </ThemedText>
-        </ThemedView>
-        <ThemedText type="small" style={[isSelected && [{ color: tintColor }]]}>
-          {item.month}
-        </ThemedText>
-        {isToday && <View style={[styles.todayDot, { backgroundColor: tintColor }]} />}
-        {isBooked && <View style={[styles.bookedDot, { backgroundColor: successColor }]} />}
-      </TouchableOpacity>
-    );
-  };
-
   const getItemLayout = (_: any, index: number) => {
     return {
       length: ITEM_WIDTH,
@@ -118,7 +89,34 @@ const CalendarStrip: React.FC = () => {
       <Animated.FlatList
         ref={flatListRef}
         data={days}
-        renderItem={renderDay}
+        renderItem={({ item, index }: { item: DayItem; index: number }) => {
+          // L'item selezionato è sempre l'indice centrale poiché la lista viene rigenerata
+          const isSelected = index === CENTER_INDEX;
+          const isDisabled = item.isDisabled;
+          const isToday = item.isToday && !isSelected;
+          const isBooked = booking?.some(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, item.date));
+          return (
+            <TouchableOpacity
+              style={[styles.dayItem, isSelected && styles.selectedDayItem, isDisabled && { opacity: 0.5 }]}
+              onPress={() => handleDayPress(index)}
+              activeOpacity={0.7}
+            >
+              <ThemedText type="smallSemiBold" style={[styles.dayName, isSelected && [{ color: tintColor, }]]}>
+                {item.dayName}
+              </ThemedText>
+              <ThemedView style={[styles.dateCircle, isSelected && { backgroundColor: tintColor }]}>
+                <ThemedText type='defaultSemiBold' style={[isDisabled && { color: inactiveText }, isSelected && { color: whiteText }]}>
+                  {item.dayNumber}
+                </ThemedText>
+              </ThemedView>
+              <ThemedText type="small" style={[isSelected && [{ color: tintColor }]]}>
+                {item.month}
+              </ThemedText>
+              {isToday && <View style={[styles.todayDot, { backgroundColor: tintColor }]} />}
+              {isBooked && <View style={[styles.bookedDot, { backgroundColor: successColor }]} />}
+            </TouchableOpacity>
+          );
+        }}
         keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}

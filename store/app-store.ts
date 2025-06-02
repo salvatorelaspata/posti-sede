@@ -8,7 +8,7 @@ import { DayItem, isSameDate } from '@/hooks/useCalendar';
 
 export type Book = {
     id: string;
-    date: Date;
+    date: Date | string; // Date can be a Date object or a string
     roomId: string;
     roomName: string;
 }
@@ -67,7 +67,7 @@ export const useAppStore = create<AppState>()(
                 const currentDay = date.getDate();
                 const booking = get().booking;
                 if (booking) {
-                    const booked = booking?.find(b => isSameDate(b.date, date));
+                    const booked = booking?.find(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, date));
                     set({ currentYear, currentMonth, currentDay, booked });
                 }
                 else
@@ -110,6 +110,19 @@ export const useAppStore = create<AppState>()(
                                 roomName: b.roomName || ''
                             }))
                         });
+                        if (booking.length > 0) {
+                            const booked = booking.find(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, new Date(get().currentYear, get().currentMonth, get().currentDay)));
+                            set({ booked: booked || null });
+                        }
+
+                        // imposto isBooked per i giorni del mese (days)
+
+                        // const days = get().days.map(day => {
+                        //     const isBooked = booking.some(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, day.date));
+                        //     return { ...day, isBooked };
+                        // });
+
+                        // set({ days });
                     }
                     catch (error) {
                         console.error('Error fetching personal booking:', error);
@@ -140,6 +153,7 @@ export const useAppStore = create<AppState>()(
                             roomName: get().room?.name || ''
                         });
                         set({ booking: newBooking });
+                        set({ booked: newBooking?.find(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, new Date(get().currentYear, get().currentMonth, get().currentDay))) || null });
                     }
                     catch (error) {
                         console.error('Error fetching personal booking:', error);
@@ -152,6 +166,8 @@ export const useAppStore = create<AppState>()(
                         await deleteBooking(bookingId);
                         const newBooking = get().booking?.filter(b => b.id !== bookingId);
                         set({ booking: newBooking });
+                        const booked = newBooking?.find(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, new Date(get().currentYear, get().currentMonth, get().currentDay)));
+                        set({ booked: booked || null });
                         // update montly booking
                         const montly = get().montlyBooking.filter(b => b.id !== bookingId);
                         set({ montlyBooking: montly });
@@ -162,21 +178,7 @@ export const useAppStore = create<AppState>()(
                 }
             },
             days: [],
-            setDays: (days) => {
-                const _days = days.map(d => {
-                    const booking = get().booking;
-                    if (booking) {
-                        const _booking = booking?.find(b => isSameDate(b.date, d.date));
-                        return {
-                            ...d,
-                            isBooked: !!_booking
-                        }
-                    } else {
-                        return d
-                    }
-                });
-                set({ days: _days });
-            },
+            setDays: (days) => { set({ days }) },
             currentMonthReservation: new Date().getMonth(),
             currentYearReservation: new Date().getFullYear(),
             setCurrentMonthReservation: (currentMonthReservation) => set({ currentMonthReservation }),

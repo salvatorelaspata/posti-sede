@@ -20,11 +20,14 @@ import CalendarStrip from '@/components/CalendarStrip';
 const HomeScreen = () => {
   const router = useRouter();
   const { rooms, fetchRooms } = useTenantStore();
-  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking, addBooking } = useAppStore();
+  const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking, addBooking, booked } = useAppStore();
 
   const scrollViewRef = useRef<ScrollView>(null);
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
+  const successColor = useThemeColor({}, 'success');
+  // const warningColor = useThemeColor({}, 'warning');
+  // const errorColor = useThemeColor({}, 'error');
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -42,19 +45,35 @@ const HomeScreen = () => {
         await addBooking();
         setRoom(null);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       } finally {
         fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
-        fetchPersonalBooking();
+        // fetchPersonalBooking();
       }
     }
   }
 
   return (
     <ThemedGestureHandlerRootView style={styles.container}>
-      <ThemedText type="subtitle" style={styles.sectionTitle}>Date disponibili {/*({currentMonth + 1}/{currentYear})*/}</ThemedText>
+      <ThemedView style={styles.sectionTitle}>
+        <ThemedText type="subtitle">Date disponibili</ThemedText>
+        <ThemedText type='small'>({currentYear})</ThemedText>
+      </ThemedView>
       {/* <HorizontalCalendar /> */}
       <CalendarStrip />
+
+      {/* Banner stato prenotazione */}
+      {booked && (
+        <ThemedView style={[styles.bookingBanner, { backgroundColor: `${successColor}15`, borderColor: successColor }]}>
+          <ThemedView style={styles.bookingBannerContent}>
+            <Ionicons name="checkmark-circle" size={20} color={successColor} />
+            <ThemedText type="small" style={[styles.bookingBannerText, { color: successColor }]}>
+              Hai prenotato la stanza "{booked.roomName}" per oggi
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      )}
+
       <ThemedView style={styles.sectionTitle}>
         <ThemedText type="subtitle">Stanze disponibili</ThemedText>
         <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
@@ -87,23 +106,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  bookButton: {
-    width: '100%',
-    backgroundColor: '#007AFF',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  bookButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
   roomsContainer: {
     flex: 1
   },
@@ -123,6 +125,22 @@ const styles = StyleSheet.create({
   noRoomsText: {
     textAlign: 'center',
     marginTop: 16,
+  },
+  bookingBanner: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  bookingBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bookingBannerText: {
+    flex: 1,
+    fontWeight: '500',
   },
 });
 

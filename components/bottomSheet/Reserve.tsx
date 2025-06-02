@@ -1,13 +1,13 @@
 import React, { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Checkbox from 'expo-checkbox';
-import { Room } from '@/types';
+// import { Room } from '@/types';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// import { useColorScheme } from '@/hooks/useColorScheme';
 import { formatDate } from '@/constants/Calendar';
 import { useAppStore } from '@/store/app-store';
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
@@ -19,15 +19,15 @@ interface ReserveBottomSheetProps {
 
 export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: ReserveBottomSheetProps) {
 
-    const { location, room, currentYear, currentMonth, currentDay, setRoom } = useAppStore();
+    const { location, room, currentYear, currentMonth, currentDay, setRoom, booked } = useAppStore();
 
     // Theme colors
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
     const iconColor = useThemeColor({}, 'icon');
     const whiteTextColor = useThemeColor({}, 'whiteText');
     const borderColor = useThemeColor({}, 'border');
-    const backgroundColor = useThemeColor({}, 'background');
+    // const backgroundColor = useThemeColor({}, 'background');
     const cardBackground = useThemeColor({}, 'cardBackground');
 
     // const bottomSheetRef = useRef<BottomSheet>(null);
@@ -35,14 +35,11 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const snapPoints = useMemo(() => [350], []);
+    // const snapPoints = useMemo(() => [350], []);
     // callbacks
     const handleSheetChanges = useCallback((index: number) => {
-        console.log('handleSheetChanges', index);
         // Close the sheet if dragged down completely
-        if (index === -1) {
-            setRoom(null);
-        }
+        if (index === -1) setRoom(null);
     }, [setRoom]);
 
     const handleInteraGiornata = useCallback(() => {
@@ -57,6 +54,24 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
 
     const handlePrenota = async () => {
         if (isLoading) return; // Prevent double booking
+
+        // Additional check for existing booking
+        if (booked) {
+            Alert.alert(
+                'Prenotazione Esistente',
+                `Hai già una prenotazione per questo giorno nella stanza: ${booked.roomName}. Non puoi prenotare più di una stanza per giorno.`,
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            bottomSheetRef.current?.close();
+                            setRoom(null);
+                        }
+                    }
+                ]
+            );
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -114,6 +129,16 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
                 <ThemedText type="defaultSemiBold" style={styles.title}>
                     {location?.name} - {room?.name} - {formatDate(new Date(currentYear, currentMonth, currentDay), 'short')}
                 </ThemedText>
+
+                {/* Warning banner se l'utente ha già una prenotazione */}
+                {booked && (
+                    <ThemedView style={[styles.warningBanner, { backgroundColor: '#ffebee', borderColor: '#f44336' }]}>
+                        <ThemedText type="small" style={{ color: '#f44336', textAlign: 'center' }}>
+                            ⚠️ Hai già una prenotazione per oggi nella stanza "{booked.roomName}"
+                        </ThemedText>
+                    </ThemedView>
+                )}
+
                 <ThemedView style={styles.formContainer}>
                     <ThemedView style={styles.formRow}>
                         <ThemedText onPress={handleInteraGiornata} style={{ flex: 1 }}>
@@ -149,20 +174,20 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
                 <ThemedView style={styles.buttonContainer}>
                     <TouchableOpacity
                         onPress={handlePrenota}
-                        disabled={isLoading}
-                        accessibilityLabel={isLoading ? 'Prenotazione in corso' : 'Conferma prenotazione'}
+                        disabled={isLoading || !!booked}
+                        accessibilityLabel={isLoading ? 'Prenotazione in corso' : booked ? 'Prenotazione non disponibile' : 'Conferma prenotazione'}
                         accessibilityRole="button"
                         style={[
                             styles.button,
                             styles.primaryButton,
                             {
-                                backgroundColor: isLoading ? iconColor : tintColor,
-                                opacity: isLoading ? 0.6 : 1
+                                backgroundColor: booked ? '#ccc' : isLoading ? iconColor : tintColor,
+                                opacity: (isLoading || booked) ? 0.6 : 1
                             }
                         ]}
                     >
                         <ThemedText type="defaultSemiBold" style={[{ color: whiteTextColor }]}>
-                            {isLoading ? 'Prenotando...' : 'Prenota'}
+                            {booked ? 'Non Disponibile' : isLoading ? 'Prenotando...' : 'Prenota'}
                         </ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -189,7 +214,6 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
 
 const styles = StyleSheet.create({
     bottomSheet: {
-        borderTopWidth: 0.5,
         flex: 1,
     },
     contentContainer: {
@@ -245,5 +269,12 @@ const styles = StyleSheet.create({
     title: {
         textAlign: 'center',
         paddingHorizontal: 16,
+    },
+    warningBanner: {
+        width: '100%',
+        padding: 12,
+        marginVertical: 8,
+        borderRadius: 8,
+        borderWidth: 1,
     },
 }); 

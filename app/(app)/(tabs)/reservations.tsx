@@ -36,7 +36,7 @@ export default function Reservations() {
                     try {
                         await removeBooking(bookingId);
                     } catch (error) {
-                        console.log(error);
+                        console.error(error);
                     }
                 },
             },
@@ -64,8 +64,6 @@ export default function Reservations() {
     }
 
     const setIndex = () => {
-        console.log('currentMonthReservation', currentMonthReservation)
-        console.log('new Date().getMonth()', new Date().getMonth())
         const currentDate = new Date(currentYearReservation, currentMonthReservation, 1)
         currentDate.setHours(6, 0, 0, 0)
         const today = new Date()
