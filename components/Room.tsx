@@ -3,8 +3,8 @@ import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { Room } from "@/types";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppStore } from "@/store/app-store";
 import { Image, ImageBackground } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,12 +14,14 @@ interface RoomComponentProps {
 }
 
 export const RoomComponent = ({ room }: RoomComponentProps) => {
+    const colorScheme = useColorScheme();
     const bgColor = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
     const successColor = useThemeColor({}, 'success');
     const errorColor = useThemeColor({}, 'error');
     const textWhite = useThemeColor({}, 'whiteText');
+    const cardShadow = useThemeColor({}, 'cardShadow');
 
     const { room: _room, setRoom, booked } = useAppStore();
 
@@ -37,8 +39,12 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
             key={room.id}
             style={[
                 styles.roomCard,
-                { backgroundColor: bgColor, borderColor },
-                room.id === _room?.id && { borderColor: Colors.light.tint },
+                {
+                    backgroundColor: bgColor,
+                    borderColor: borderColor,
+                    shadowColor: cardShadow,
+                },
+                room.id === _room?.id && { borderColor: tintColor },
                 booked?.roomId === room.id && { borderColor: successColor, shadowColor: successColor },
             ]}
             onPress={() => handleRoomPress(room)}
@@ -48,7 +54,7 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                 <ThemedView style={{ flex: 1, padding: 8, borderRadius: 12 }}>
                     <ThemedView style={styles.roomHeader}>
                         <ThemedText type="defaultSemiBold">{room.name}</ThemedText>
-                        <ThemedView style={styles.capacityBadge}>
+                        <ThemedView style={[styles.capacityBadge, { backgroundColor: tintColor }]}>
                             <ThemedText type="smallSemiBold" style={{ color: textWhite }}>
                                 {room.capacity - room.available}/{room.capacity}
                             </ThemedText>
@@ -89,7 +95,7 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                     }}
                 >
                     <LinearGradient
-                        colors={['rgba(0,0,0,0.1)', Colors.light.tint]}
+                        colors={['rgba(0,0,0,0.1)', tintColor]}
                         style={styles.gradient}
                     >
                     </LinearGradient>
@@ -106,7 +112,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginVertical: 4,
         elevation: 5,
-        shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.6,
         shadowRadius: 2,
@@ -118,7 +123,6 @@ const styles = StyleSheet.create({
         marginVertical: 4,
     },
     capacityBadge: {
-        backgroundColor: Colors.light.tint,
         paddingVertical: 4,
         paddingHorizontal: 8,
         borderRadius: 8,

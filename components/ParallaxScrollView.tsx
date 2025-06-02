@@ -8,8 +8,10 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
 // import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 const HEADER_HEIGHT = 250;
 
@@ -28,6 +30,7 @@ export default function ParallaxScrollView({
   headerBackgroundColor,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
+  const whiteTextColor = useThemeColor({}, 'whiteText');
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   // const bottom = useBottomTabOverflow();
@@ -82,8 +85,8 @@ export default function ParallaxScrollView({
           ]}>
           <Animated.View style={{ position: 'relative', }}>
             {headerImage}
-            <Animated.Text style={[headerTitleAnimatedStyle, styles.headerTitle]}>{headerTitle}</Animated.Text>
-            <Animated.Text style={[headerTitleAnimatedStyle, styles.headerSubtitle]}>{haederSubtitle}</Animated.Text>
+            <Animated.Text style={[headerTitleAnimatedStyle, styles.headerTitle, { color: whiteTextColor }]}>{headerTitle}</Animated.Text>
+            <Animated.Text style={[headerTitleAnimatedStyle, styles.headerSubtitle, { color: whiteTextColor }]}>{haederSubtitle}</Animated.Text>
           </Animated.View>
         </Animated.View>
         <ThemedView style={styles.content}>{children}</ThemedView>
@@ -111,7 +114,6 @@ const styles = StyleSheet.create({
     left: 20,
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginBottom: 10,
   },
   headerSubtitle: {
@@ -119,7 +121,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     fontSize: 18,
-    color: '#ffffff',
     opacity: 0.9,
   },
 });

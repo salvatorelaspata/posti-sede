@@ -4,7 +4,6 @@ import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useLayoutEffect } from "react";
-import { Colors } from "@/constants/Colors";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useUser } from "@clerk/clerk-expo";
@@ -20,6 +19,8 @@ export default function SettingsProfile() {
     const [lastName, setLastName] = useState<string>(user?.lastName || '');
     const tint = useThemeColor({}, 'tint');
     const whiteText = useThemeColor({}, 'whiteText');
+    const iconColor = useThemeColor({}, 'icon');
+    const borderColor = useThemeColor({}, 'border');
 
     const handleSave = async () => {
         if (!firstName || !lastName) {
@@ -54,7 +55,7 @@ export default function SettingsProfile() {
             }>
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.header}>
-                    <Ionicons name="arrow-back" size={24} onPress={() => router.back()} />
+                    <Ionicons name="arrow-back" size={24} color={iconColor} onPress={() => router.back()} />
                     <ThemedText type="title" style={[styles.title, { color: tint }]}>Profilo</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
@@ -79,10 +80,10 @@ export default function SettingsProfile() {
                 </ThemedView>
                 <ThemedView style={styles.spacer} />
                 <ThemedView style={styles.footer}>
-                    <TouchableOpacity style={[styles.button]} onPress={() => router.back()}>
+                    <TouchableOpacity style={[styles.button, { borderColor: borderColor }]} onPress={() => router.back()}>
                         <ThemedText type="default">Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: tint }]} onPress={handleSave}>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: tint, borderColor: tint }]} onPress={handleSave}>
                         <ThemedText type="defaultSemiBold" style={{ color: whiteText }}>Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>

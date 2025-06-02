@@ -5,6 +5,8 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { getMonthStringFromDate, getYearStringFromDate } from '@/constants/Calendar';
 
 interface HorizontalMonthSelectorProps {
@@ -17,6 +19,10 @@ interface HorizontalMonthSelectorProps {
 }
 
 export default function HorizontalMonthSelector({ selectedMonth, selectedYear, onMonthChange, onYearChange, handleNextMonth, handlePreviousMonth }: HorizontalMonthSelectorProps) {
+    const colorScheme = useColorScheme();
+    const iconColor = useThemeColor({}, 'icon');
+    const tintColor = useThemeColor({}, 'tint');
+
     // deprecated
     const handleMonthChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev') {
@@ -33,15 +39,17 @@ export default function HorizontalMonthSelector({ selectedMonth, selectedYear, o
 
     return (
         <ThemedView style={styles.container}>
-            <TouchableOpacity onPress={() => handleMonthChange('prev')}>
-                <Ionicons name="arrow-back" size={24} color="black" />
+            <TouchableOpacity onPress={() => handleMonthChange('prev')} style={styles.arrowButton}>
+                <Ionicons name="arrow-back" size={24} color={iconColor} />
             </TouchableOpacity>
-            {/* <ThemedView style={{ flexDirection: 'column', alignItems: 'center' }}> */}
-            <ThemedText type="default">{getYearStringFromDate(new Date(selectedYear, selectedMonth))}</ThemedText>
-            <ThemedText type="defaultSemiBold">{getMonthStringFromDate(new Date(selectedYear, selectedMonth))}</ThemedText>
-            {/* </ThemedView> */}
-            <TouchableOpacity onPress={() => handleMonthChange('next')}>
-                <Ionicons name="arrow-forward" size={24} color="black" />
+            <ThemedView style={styles.dateContainer}>
+                <ThemedText type="default" style={styles.yearText}>{getYearStringFromDate(new Date(selectedYear, selectedMonth))}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={[styles.monthText, { color: tintColor }]}>
+                    {getMonthStringFromDate(new Date(selectedYear, selectedMonth))}
+                </ThemedText>
+            </ThemedView>
+            <TouchableOpacity onPress={() => handleMonthChange('next')} style={styles.arrowButton}>
+                <Ionicons name="arrow-forward" size={24} color={iconColor} />
             </TouchableOpacity>
         </ThemedView>
     );
@@ -54,5 +62,26 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'space-between',
         alignItems: 'center',
+        paddingHorizontal: 8,
+    },
+    arrowButton: {
+        padding: 8,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dateContainer: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        flex: 1,
+    },
+    yearText: {
+        fontSize: 14,
+        opacity: 0.7,
+    },
+    monthText: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginTop: 2,
     },
 });

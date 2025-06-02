@@ -9,14 +9,17 @@ import StatBox from "@/components/StatBox";
 import { getMonthStatus, isPast, isPastWithToday } from "@/hooks/useCalendar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { Book, useAppStore } from "@/store/app-store";
 
 export default function Reservations() {
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     // const [currentMonthReservation, setCurrentMonthReservation] = useState<number>(new Date().getMonth());
     // const [currentYearReservation, setCurrentYearReservation] = useState<number>(new Date().getFullYear());
+    // const colorScheme = useColorScheme();
     const errorColor = useThemeColor({}, 'error');
     const shadowColor = useThemeColor({}, 'cardShadow');
+    const secondaryTextColor = useThemeColor({}, 'secondaryText');
     const { montlyBooking, getMontlyBooking, currentMonthReservation, currentYearReservation, setCurrentMonthReservation, setCurrentYearReservation, removeBooking } = useAppStore()
 
     const handleRemoveBooking = async (bookingId: string) => {
@@ -114,7 +117,7 @@ export default function Reservations() {
             <ThemedView style={styles.reservationInfo}>
                 <ThemedText style={styles.dateText}>{formatDate(item.date, 'full')}</ThemedText>
                 <ThemedView style={styles.roomInfoContainer}>
-                    <ThemedText style={styles.roomText}>{item.roomName}</ThemedText>
+                    <ThemedText style={[styles.roomText, { color: secondaryTextColor }]}>{item.roomName}</ThemedText>
                     {/* <ThemedText style={styles.timeText}>{item.time}</ThemedText> */}
                 </ThemedView>
             </ThemedView>
@@ -250,12 +253,10 @@ const styles = StyleSheet.create({
     },
     roomText: {
         fontSize: 13,
-        color: '#6c757d',
         marginRight: 6,
     },
     timeText: {
         fontSize: 13,
-        color: '#6c757d',
         fontWeight: '500',
     },
     emptyListContainer: {

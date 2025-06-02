@@ -2,6 +2,8 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "../ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAdminStore } from "@/store/admin-store";
 
 const getDatesInMonth = (date: Date) => {
@@ -25,6 +27,15 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
     const { selectedMonth, selectedYear } = useAdminStore();
     const dates = getDatesInMonth(new Date(selectedYear, selectedMonth, 1));
 
+    // Theme colors
+    const colorScheme = useColorScheme();
+    const cardBackground = useThemeColor({}, 'cardBackground');
+    const iconColor = useThemeColor({}, 'icon');
+    const tintColor = useThemeColor({}, 'tint');
+    const borderColor = useThemeColor({}, 'border');
+    const secondaryText = useThemeColor({}, 'secondaryText');
+    const cardShadow = useThemeColor({}, 'cardShadow');
+
     const weeks: Date[][] = [];
     let currentWeek: (Date | null)[] = [];
 
@@ -46,28 +57,34 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
     }
 
     return (
-        <ThemedView style={styles.adminCalendarContainer}>
+        <ThemedView style={[styles.adminCalendarContainer, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
             <ThemedView style={styles.monthSelector}>
-                <TouchableOpacity onPress={() => {
-                    const newDate = new Date(selectedYear, selectedMonth - 1, 1);
-                    onMonthChange(newDate);
-                }}>
-                    <MaterialIcons name="chevron-left" size={24} color="#333" />
+                <TouchableOpacity
+                    onPress={() => {
+                        const newDate = new Date(selectedYear, selectedMonth - 1, 1);
+                        onMonthChange(newDate);
+                    }}
+                    style={styles.monthArrow}
+                >
+                    <MaterialIcons name="chevron-left" size={24} color={iconColor} />
                 </TouchableOpacity>
                 <ThemedText style={styles.monthText}>
                     {new Date(selectedYear, selectedMonth, 1).toLocaleString('it-IT', { month: 'long', year: 'numeric' })}
                 </ThemedText>
-                <TouchableOpacity onPress={() => {
-                    const newDate = new Date(selectedYear, selectedMonth + 1, 1);
-                    onMonthChange(newDate);
-                }}>
-                    <MaterialIcons name="chevron-right" size={24} color="#333" />
+                <TouchableOpacity
+                    onPress={() => {
+                        const newDate = new Date(selectedYear, selectedMonth + 1, 1);
+                        onMonthChange(newDate);
+                    }}
+                    style={styles.monthArrow}
+                >
+                    <MaterialIcons name="chevron-right" size={24} color={iconColor} />
                 </TouchableOpacity>
             </ThemedView>
 
             <ThemedView style={styles.calendarGrid}>
                 {['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'].map((day) => (
-                    <ThemedText key={day} style={styles.calendarHeader}>{day}</ThemedText>
+                    <ThemedText key={day} style={[styles.calendarHeader, { color: secondaryText }]}>{day}</ThemedText>
                 ))}
                 {weeks.map((week, weekIndex) => (
                     <ThemedView key={weekIndex} style={styles.calendarRow}>
@@ -78,7 +95,7 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                             return (
                                 <TouchableOpacity
                                     key={dateIndex}
-                                    style={styles.calendarCell}
+                                    style={[styles.calendarCell, { borderColor: borderColor }]}
                                     onPress={() => {
                                         if (attendanceCount > 0) {
                                             console.log('Attendance for', dateString);
@@ -87,8 +104,8 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                                 >
                                     <ThemedText style={styles.calendarDate}>{date.getDate()}</ThemedText>
                                     {attendanceCount > 0 && (
-                                        <ThemedView style={styles.attendanceCount}>
-                                            <ThemedText style={styles.attendanceCountText}>{attendanceCount}</ThemedText>
+                                        <ThemedView style={[styles.attendanceCount, { backgroundColor: tintColor + '20' }]}>
+                                            <ThemedText style={[styles.attendanceCountText, { color: tintColor }]}>{attendanceCount}</ThemedText>
                                         </ThemedView>
                                     )}
                                 </TouchableOpacity>
@@ -103,16 +120,23 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
 
 const styles = StyleSheet.create({
     adminCalendarContainer: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         padding: 16,
         flex: 1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     monthSelector: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 16,
+    },
+    monthArrow: {
+        padding: 8,
+        borderRadius: 8,
     },
     monthText: {
         fontSize: 18,
@@ -127,7 +151,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingVertical: 8,
         fontSize: 14,
-        color: '#666',
+        fontWeight: '500',
     },
     calendarRow: {
         flexDirection: 'row',
@@ -139,7 +163,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 0.5,
-        borderColor: '#eee',
     },
     calendarDate: {
         fontSize: 16,
@@ -148,7 +171,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 4,
         right: 4,
-        backgroundColor: '#E3F2FD',
         width: 20,
         height: 20,
         borderRadius: 10,
@@ -157,6 +179,6 @@ const styles = StyleSheet.create({
     },
     attendanceCountText: {
         fontSize: 12,
-        color: '#1976D2',
+        fontWeight: '600',
     },
 })

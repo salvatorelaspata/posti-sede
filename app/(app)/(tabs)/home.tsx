@@ -13,6 +13,7 @@ import { useAppStore } from '@/store/app-store';
 import { useRouter } from 'expo-router';
 import { RoomComponent } from '@/components/Room';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import BottomSheet from '@gorhom/bottom-sheet';
 import CalendarStrip from '@/components/CalendarStrip';
 
@@ -22,6 +23,7 @@ const HomeScreen = () => {
   const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking, addBooking } = useAppStore();
 
   const scrollViewRef = useRef<ScrollView>(null);
+  const colorScheme = useColorScheme();
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
 
   const bottomSheetRef = useRef<BottomSheet>(null);

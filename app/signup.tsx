@@ -33,6 +33,7 @@ export default function SignUp() {
   const backgroundColor = useThemeColor({}, 'background');
   const cardBackground = useThemeColor({}, 'cardBackground');
   const inactiveTextColor = useThemeColor({}, 'inactiveText');
+  const inputBackground = useThemeColor({}, 'statBackground');
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -121,7 +122,7 @@ export default function SignUp() {
           </ThemedView>
 
           <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
-            <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
               <MaterialIcons name="vpn-key" size={24} color={inactiveTextColor} />
               <TextInput
                 value={code}
@@ -164,7 +165,7 @@ export default function SignUp() {
         </ThemedView>
 
         <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
-          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="person" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}
@@ -175,7 +176,7 @@ export default function SignUp() {
             />
           </ThemedView>
 
-          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="person-outline" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}
@@ -186,7 +187,7 @@ export default function SignUp() {
             />
           </ThemedView>
 
-          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="email" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}
@@ -199,7 +200,7 @@ export default function SignUp() {
             />
           </ThemedView>
 
-          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="lock" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}

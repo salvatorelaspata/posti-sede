@@ -9,9 +9,15 @@ import { useEffect } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { useAdminStore } from "@/store/admin-store";
 import { useAppStore } from "@/store/app-store";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function Admin() {
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    // const colorScheme = useColorScheme();
+    // const backgroundColor = useThemeColor({}, 'background');
+    const statBackground = useThemeColor({}, 'statBackground');
 
     const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear, fetchStats, stats, fetchAttendance } = useAdminStore();
     const { location } = useAppStore();
@@ -35,7 +41,7 @@ export default function Admin() {
             </ThemedView>
             <ThemedView style={styles.adminContainer}>
 
-                <ThemedView style={styles.statsContainer}>
+                <ThemedView style={[styles.statsContainer, { backgroundColor: statBackground }]}>
                     <StatBox number={`${stats.occupancy}%`} label="Occupazione" />
                     <StatBox number={stats.bookings} label="Prenotazioni" />
                     {/* <StatBox number={stats.rooms} label="Stanze" /> */}
@@ -74,8 +80,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 16,
         justifyContent: 'space-between',
-        backgroundColor: '#fff',
-
     },
     segmentedControl: {
         margin: 16,

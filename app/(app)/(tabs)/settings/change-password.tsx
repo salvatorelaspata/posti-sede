@@ -3,14 +3,14 @@ import { useRouter } from "expo-router";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-expo";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { HeaderImage } from "@/components/HeaderImage";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -21,8 +21,14 @@ export default function ChangePassword() {
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+
+    // Theme colors
+    const colorScheme = useColorScheme();
     const tint = useThemeColor({}, 'tint');
     const whiteText = useThemeColor({}, 'whiteText');
+    const textColor = useThemeColor({}, 'text');
+    const backgroundColor = useThemeColor({}, 'background');
+    const iconColor = useThemeColor({}, 'icon');
 
     const handleResetPassword = async () => {
         if (!user?.emailAddresses[0].emailAddress) return;
@@ -61,7 +67,7 @@ export default function ChangePassword() {
 
             <ThemedView style={[styles.container]}>
                 <ThemedView style={styles.header}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.light.tint} onPress={() => router.back()} />
+                    <Ionicons name="arrow-back" size={24} color={iconColor} onPress={() => router.back()} />
                     <ThemedText type="title" style={styles.title}>Cambia password</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
@@ -93,11 +99,11 @@ export default function ChangePassword() {
                 </ThemedView>
                 <ThemedView style={styles.spacer} />
                 <ThemedView style={styles.footer}>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.text }]} onPress={() => router.back()}>
-                        <ThemedText type="default" style={{ color: Colors.light.background }}>Annulla</ThemedText>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: textColor }]} onPress={() => router.back()}>
+                        <ThemedText type="default" style={{ color: backgroundColor }}>Annulla</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: Colors.light.tint }]} onPress={handleResetPassword}>
-                        <ThemedText type="defaultSemiBold" style={{ color: Colors.light.background }}>Salva</ThemedText>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: tint }]} onPress={handleResetPassword}>
+                        <ThemedText type="defaultSemiBold" style={{ color: backgroundColor }}>Salva</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
             </ThemedView>

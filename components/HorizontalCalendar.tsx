@@ -2,7 +2,8 @@ import { StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useEffect, useRef } from "react";
-import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import {
     GestureHandlerRootView,
     FlatList,
@@ -20,6 +21,12 @@ interface HorizontalCalendarProps { }
 export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
     const { currentYear, currentMonth, currentDay, setCurrentDate } = useAppStore();
     const flatListRef = useRef<FlatList<any>>(null);
+
+    // Theme colors
+    const colorScheme = useColorScheme();
+    const tintColor = useThemeColor({}, 'tint');
+    const borderColor = useThemeColor({}, 'border');
+    const cardShadow = useThemeColor({}, 'cardShadow');
 
     // const findFirstAvailableDay = () => {
     //     const availableDay = daysInCalendar(currentMonth).find(item =>
@@ -63,17 +70,33 @@ export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
             disabled={isDayDisabled(item.d)}
             style={[styles.dayButtonContainer, isDayDisabled(item.d) && styles.dayButtonDisabled]}
         >
-            <ThemedView style={[styles.dayButton, item.day === currentDay && styles.selectedDay]}>
+            <ThemedView style={[
+                styles.dayButton,
+                {
+                    borderColor: borderColor,
+                    shadowColor: cardShadow,
+                },
+                item.day === currentDay && {
+                    backgroundColor: tintColor,
+                    borderColor: tintColor,
+                }
+            ]}>
                 <ThemedText
                     type="subtitle"
-                    style={[styles.dayText, item.day === currentDay && styles.selectedDayText]}
+                    style={[
+                        styles.dayText,
+                        item.day === currentDay && { color: 'white' }
+                    ]}
                 >
                     {item.day}
                     {/* {item.d.toISOString()} */}
                 </ThemedText>
                 <ThemedText
                     type="default"
-                    style={[styles.dayTextDayOfWeek, item.day === currentDay && styles.selectedDayTextDayOfWeek]}
+                    style={[
+                        styles.dayTextDayOfWeek,
+                        item.day === currentDay && { color: 'white' }
+                    ]}
                 >
                     {item.dayOfWeek}
                 </ThemedText>
@@ -82,7 +105,7 @@ export default function HorizontalCalendar({ }: HorizontalCalendarProps) {
     );
 
     return (
-        <GestureHandlerRootView style={styles.calendar}>
+        <GestureHandlerRootView style={[styles.calendar, { borderColor: borderColor }]}>
             <FlatList
                 ref={flatListRef}
                 data={daysInCalendar(new Date(currentYear, currentMonth, currentDay))}
@@ -108,7 +131,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 100,
         borderBottomWidth: 0.5,
-        borderColor: Colors.light.tint,
         paddingBottom: 10,
         marginBottom: 10,
     },
@@ -120,12 +142,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 75,
         borderWidth: 0.5,
-        borderColor: Colors.light.tint,
         borderRadius: 10,
         padding: 5,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: Colors.light.tint,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
@@ -136,16 +156,6 @@ const styles = StyleSheet.create({
     },
     dayTextDayOfWeek: {
         textAlign: 'center'
-    },
-    selectedDay: {
-        backgroundColor: Colors.light.tint,
-        borderWidth: 0.5,
-    },
-    selectedDayText: {
-        color: 'white',
-    },
-    selectedDayTextDayOfWeek: {
-        color: 'white',
     },
     dayButtonDisabled: {
         opacity: 0.5,

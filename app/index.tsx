@@ -45,7 +45,7 @@ export default function LandingPage() {
     };
     return (
         <ParallaxScrollView
-            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+            headerBackgroundColor={{ light: tintColor, dark: tintColor }}
             headerTitle='posti sede'
             haederSubtitle='Gestisci gli spazi di lavoro in modo intelligente'
             headerImage={

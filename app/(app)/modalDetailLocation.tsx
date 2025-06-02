@@ -3,12 +3,19 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { router } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppStore } from "@/store/app-store";
 // import { SvgUri } from 'react-native-svg';
 import { Image } from "expo-image";
 export default function ModalDetailLocation() {
     const { location: locationFromStore } = useAppStore();
+
+    const colorScheme = useColorScheme();
+    const tintColor = useThemeColor({}, 'tint');
+    const whiteTextColor = useThemeColor({}, 'whiteText');
+    const borderColor = useThemeColor({}, 'border');
+
     return <ThemedSafeAreaView style={{ flex: 1 }}  >
         <ThemedView style={{ flex: 1 }}>
             <ThemedText type="title" style={{ margin: 16 }}>
@@ -37,10 +44,7 @@ export default function ModalDetailLocation() {
 
 const styles = StyleSheet.create({
     date: {
-        backgroundColor: Colors.light.tint,
-        color: Colors.light.whiteText,
         borderWidth: 1,
-        borderColor: 'gray',
         paddingVertical: 8,
         borderRadius: 4,
         paddingHorizontal: 16,

@@ -1,22 +1,23 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, StyleSheet, ScrollView, Alert, Animated } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import { MaterialIcons, Ionicons, Feather, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import SettingItem from '@/components/SettingsItem';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors, gradientHeader } from '@/constants/Colors';
+import { ThemedText } from '@/components/ThemedText';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 const SettingsScreen = () => {
     const router = useRouter();
     const [notifications, setNotifications] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
-    const [biometric, setBiometric] = useState(true);
+    // const [darkMode, setDarkMode] = useState(false);
+    // const [biometric, setBiometric] = useState(true);
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
     const notificationTypesOpacity = useState(new Animated.Value(0))[0];
     const { user } = useUser();
@@ -91,7 +92,14 @@ const SettingsScreen = () => {
     }, [notifications]);
 
     const tint = useThemeColor({}, 'tint');
-    const whiteText = useThemeColor({}, 'whiteText');
+    // const whiteText = useThemeColor({}, 'whiteText');
+    // const colorScheme = useColorScheme();
+    const iconColor = useThemeColor({}, 'icon');
+    const cardBackground = useThemeColor({}, 'cardBackground');
+    const textColor = useThemeColor({}, 'text');
+    const cardShadow = useThemeColor({}, 'cardShadow');
+    const inactiveText = useThemeColor({}, 'inactiveText');
+    const errorColor = useThemeColor({}, 'error');
 
     return (
         <ParallaxScrollView
@@ -116,37 +124,40 @@ const SettingsScreen = () => {
 
                     {/* Location Settings */}
                     <ThemedView style={styles.section}>
-                        <Text style={styles.sectionTitle}>Sede</Text>
+                        <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Sede</ThemedText>
+
                         <SettingItem
-                            icon={<Ionicons name="location-outline" size={24} color="#333" />}
+                            icon={<Ionicons name="location-outline" size={24} color={iconColor} />}
                             title="Cambia Sede"
                             onPress={() => router.replace('/(app)/rooms')}
                         />
                     </ThemedView>
                     {/* Profile Settings */}
                     <ThemedView style={styles.section}>
-                        <Text style={styles.sectionTitle}>Profilo</Text>
+                        <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Profilo Generali</ThemedText>
+
                         <SettingItem
-                            icon={<Ionicons name="person-outline" size={24} color="#333" />}
+                            icon={<Ionicons name="person-outline" size={24} color={iconColor} />}
                             title="Modifica Profilo"
                             onPress={() => router.push('/settings/profile')}
                         />
                         <SettingItem
-                            icon={<Ionicons name="lock-closed-outline" size={24} color="#333" />}
+                            icon={<Ionicons name="lock-closed-outline" size={24} color={iconColor} />}
                             title="Cambia Password"
                             onPress={() => router.push('/settings/change-password')}
                         />
                     </ThemedView>
 
                     {/* General Settings */}
-                    <ThemedView style={styles.section}>
-                        <Text style={styles.sectionTitle}>Impostazioni Generali</Text>
+                    <ThemedView style={[styles.section, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
+                        <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Impostazioni Generali</ThemedText>
                         <SettingItem
-                            icon={<Ionicons name="notifications-outline" size={24} color="#333" />}
-                            title="Notifiche"
+                            icon={<Ionicons name="notifications-outline" size={24} color={iconColor} />}
+                            title="Notifiche (coming soon)"
                             value={notifications}
                             onPress={() => setNotifications(!notifications)}
                             isSwitch
+                            disabled
                         />
                         {notificationTypesVisible && (
                             <Animated.View style={{ opacity: notificationTypesOpacity, margin: 16 }}>
@@ -157,40 +168,40 @@ const SettingsScreen = () => {
                                         onValueChange={() => toggleNotificationType('dayBefore')}
 
                                     />
-                                    <Text style={styles.checkboxLabel}>Ricordami il giorno prima</Text>
+                                    <ThemedText style={[styles.checkboxLabel, { color: textColor }]}>Ricordami il giorno prima</ThemedText>
                                 </ThemedView>
                                 <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.currentDay}
                                         onValueChange={() => toggleNotificationType('currentDay')}
                                     />
-                                    <Text style={styles.checkboxLabel}>Ricordami il giorno corrente</Text>
+                                    <ThemedText style={[styles.checkboxLabel, { color: textColor }]}>Ricordami il giorno corrente</ThemedText>
                                 </ThemedView>
                                 <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.weeklySummary}
                                         onValueChange={() => toggleNotificationType('weeklySummary')}
                                     />
-                                    <Text style={styles.checkboxLabel}>Resoconto settimanale</Text>
+                                    <ThemedText style={[styles.checkboxLabel, { color: textColor }]}>Resoconto settimanale</ThemedText>
                                 </ThemedView>
                                 <ThemedView style={styles.checkboxContainer}>
                                     <CheckBox
                                         value={notificationTypes.monthlySummary}
                                         onValueChange={() => toggleNotificationType('monthlySummary')}
                                     />
-                                    <Text style={styles.checkboxLabel}>Resoconto mensile</Text>
+                                    <ThemedText style={[styles.checkboxLabel, { color: textColor }]}>Resoconto mensile</ThemedText>
                                 </ThemedView>
                             </Animated.View>
                         )}
-                        <SettingItem
-                            icon={<Ionicons name="moon-outline" size={24} color="#333" />}
+                        {/* <SettingItem
+                            icon={<Ionicons name="moon-outline" size={24} color={iconColor} />}
                             title="Modalità Scura"
                             value={darkMode}
                             onPress={() => setDarkMode(!darkMode)}
                             isSwitch
-                        />
+                        /> */}
                         {/* <SettingItem
-                        icon={<Ionicons name="finger-print-outline" size={24} color="#333" />}
+                        icon={<Ionicons name="finger-print-outline" size={24} color={iconColor} />}
                         title="Autenticazione Biometrica"
                         value={biometric}
                         onPress={() => setBiometric(!biometric)}
@@ -199,24 +210,26 @@ const SettingsScreen = () => {
                     </ThemedView>
 
                     {/* Danger Zone */}
-                    <ThemedView style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: '#DC3545' }]}>Danger Zone</Text>
+                    <ThemedView style={[styles.section, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
+                        <ThemedText style={[styles.sectionTitle, { color: errorColor }]}>Danger Zone</ThemedText>
                         <SettingItem
-                            icon={<Feather name="log-out" size={24} color="#DC3545" />}
+                            icon={<Feather name="log-out" size={24} color={errorColor} />}
                             title="Logout"
-                            color="#DC3545"
+                            color={errorColor}
                             onPress={handleLogout}
                         />
                         <SettingItem
-                            icon={<MaterialIcons name="delete-outline" size={24} color="#DC3545" />}
+                            icon={<MaterialIcons name="delete-outline" size={24} color={errorColor} />}
                             title="Elimina Account"
-                            color="#DC3545"
+                            color={errorColor}
                             onPress={handleDeleteAccount}
                         />
                     </ThemedView>
 
                     <ThemedView style={styles.footer}>
-                        <Text style={styles.version}>Versione 1.0.0</Text>
+                        <ThemedText style={[styles.version, { color: inactiveText }]}>
+                            Versione 0.0.1
+                        </ThemedText>
                     </ThemedView>
                 </ScrollView>
             </ThemedView>
@@ -242,23 +255,23 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
     },
-    profileImagePlaceholder: {
-        marginTop: 50,
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    profileInitials: {
-        color: 'white',
-        fontSize: 50,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textAlignVertical: 'center',
-    },
+    // profileImagePlaceholder: {
+    //     marginTop: 50,
+    //     width: 80,
+    //     height: 80,
+    //     borderRadius: 40,
+    //     backgroundColor: 'rgba(255,255,255,0.3)',
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     marginBottom: 10,
+    // },
+    // profileInitials: {
+    //     color: 'white',
+    //     fontSize: 50,
+    //     fontWeight: 'bold',
+    //     textAlign: 'center',
+    //     textAlignVertical: 'center',
+    // },
     profileName: {
         color: 'white',
         fontSize: 20,
@@ -268,14 +281,11 @@ const styles = StyleSheet.create({
     profileEmail: {
         color: 'white',
         fontSize: 14,
-        opacity: 0.8,
     },
     section: {
-        backgroundColor: 'white',
         margin: 8,
         borderRadius: 10,
         padding: 10,
-        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
@@ -289,7 +299,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         paddingLeft: 10,
-        color: '#333',
     },
     settingItem: {
         flexDirection: 'row',
@@ -311,10 +320,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     version: {
-        color: '#666',
         fontSize: 12,
     },
     checkboxContainer: {
+        backgroundColor: 'transparent',
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 5,

@@ -30,6 +30,7 @@ export const Colors: {
     statPrimaryText: '#0a7ea4',
     statText: '#11181C',
     statShadow: '#000',
+    secondaryText: '#6c757d',
   },
   dark: {
     tint: '#50b9e9',
@@ -52,6 +53,7 @@ export const Colors: {
     statPrimaryText: '#50b9e9',
     statText: '#ECEDEE',
     statShadow: '#000',
+    secondaryText: '#9BA1A6',
   },
 };
 

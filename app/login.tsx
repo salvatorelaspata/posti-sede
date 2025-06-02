@@ -34,6 +34,7 @@ export default function Login() {
   const backgroundColor = useThemeColor({}, 'background');
   const cardBackground = useThemeColor({}, 'cardBackground');
   const inactiveTextColor = useThemeColor({}, 'inactiveText');
+  const inputBackground = useThemeColor({}, 'statBackground');
 
   const { signIn, setActive, isLoaded } = useSignIn()
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -121,7 +122,7 @@ export default function Login() {
         </ThemedView>
 
         <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
-          <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="email" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}
@@ -134,7 +135,7 @@ export default function Login() {
             />
           </ThemedView>
           {validEmail && (
-            <ThemedView style={[styles.inputContainer, { backgroundColor: colorScheme === 'dark' ? '#2B2B2B' : '#f8f9fa' }]}>
+            <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
               <MaterialIcons name="lock" size={24} color={inactiveTextColor} />
               <TextInput
                 style={[styles.input, { color: textColor }]}

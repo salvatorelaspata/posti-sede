@@ -10,13 +10,21 @@ import { useAppStore } from '@/store/app-store';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 // import { getTenantFromEmail } from '@/db/api';
 import { useUser } from '@clerk/clerk-expo';
-import { Colors } from '@/constants/Colors';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function App() {
   const router = useRouter()
   const { user } = useUser();
   const { locations, fetchLocations } = useTenantStore();
   const { setClerkUser, setLocation, tenant } = useAppStore();
+
+  // Theme colors
+  const colorScheme = useColorScheme();
+  const tintColor = useThemeColor({}, 'tint');
+  const whiteText = useThemeColor({}, 'whiteText');
+  const cardBackground = useThemeColor({}, 'cardBackground');
+  const cardShadow = useThemeColor({}, 'cardShadow');
 
   useEffect(() => {
     (async () => {
@@ -38,7 +46,7 @@ export default function App() {
           renderItem={({ item }) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.locationCard}
+              style={[styles.locationCard, { backgroundColor: cardBackground, shadowColor: cardShadow }]}
               onPress={() => {
                 setLocation(item);
                 router.push(`/(app)/(tabs)/home`)
@@ -51,11 +59,15 @@ export default function App() {
                   alt={item.name}
                 />
                 <LinearGradient
-                  colors={['transparent', Colors.light.tint]}
+                  colors={['transparent', tintColor]}
                   style={styles.locationGradient}
-
                 />
-                <ThemedText style={styles.locationName}>{item.name}</ThemedText>
+                <ThemedText style={[styles.locationName, {
+                  color: whiteText,
+                  textShadowColor: tintColor
+                }]}>
+                  {item.name}
+                </ThemedText>
               </ThemedView>
             </TouchableOpacity>
           )}
@@ -83,8 +95,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     elevation: 4,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -109,8 +119,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     left: 16,
-    color: Colors.light.whiteText,
-    textShadowColor: Colors.light.tint,
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,
     fontSize: 24,
