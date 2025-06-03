@@ -18,6 +18,7 @@ type AdminState = {
     };
     attendance: any[];
     fetchAttendance: (locationId: string, month: number, year: number) => void;
+    calendarAttendance: any[];
 };
 
 export const useAdminStore = create<AdminState>()(
@@ -41,8 +42,9 @@ export const useAdminStore = create<AdminState>()(
             attendance: [],
             fetchAttendance: async (locationId: string, month: number, year: number) => {
                 const attendance = await getAttendance(locationId, month, year);
-                set({ attendance });
+                set({ attendance, calendarAttendance: attendance });
             },
+            calendarAttendance: []
         }),
         {
             name: 'admin-storage',

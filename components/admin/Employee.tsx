@@ -12,12 +12,12 @@ export default function Employee() {
     const router = useRouter();
 
     // Theme colors
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const cardBackground = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const secondaryText = useThemeColor({}, 'secondaryText');
     const cardShadow = useThemeColor({}, 'cardShadow');
-    const backgroundColor = useThemeColor({}, 'background');
+    // const backgroundColor = useThemeColor({}, 'background');
     return (
         <FlatList
             keyExtractor={(item) => item.id}

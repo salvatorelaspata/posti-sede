@@ -19,7 +19,7 @@ interface HorizontalMonthSelectorProps {
 }
 
 export default function HorizontalMonthSelector({ selectedMonth, selectedYear, onMonthChange, onYearChange, handleNextMonth, handlePreviousMonth }: HorizontalMonthSelectorProps) {
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const iconColor = useThemeColor({}, 'icon');
     const tintColor = useThemeColor({}, 'tint');
 

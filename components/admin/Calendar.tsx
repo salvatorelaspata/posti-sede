@@ -1,10 +1,11 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "../ThemedText";
-import { MaterialIcons } from "@expo/vector-icons";
+// import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/hooks/useColorScheme";
+// import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAdminStore } from "@/store/admin-store";
+import { formatDate } from "@/constants/Calendar";
 
 const getDatesInMonth = (date: Date) => {
     const dates: Date[] = [];
@@ -27,10 +28,24 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
     const { selectedMonth, selectedYear } = useAdminStore();
     const dates = getDatesInMonth(new Date(selectedYear, selectedMonth, 1));
 
+    // Create a map of date to attendance count
+    const getAttendanceCountForDate = (date: Date) => {
+        if (!attendance || attendance.length === 0) return 0;
+
+        const formattedDate = formatDate(date, 'full');
+        let count = 0;
+        attendance.forEach((employee: any) => {
+            if (employee.days && employee.days.includes(formattedDate)) {
+                count++;
+            }
+        });
+        return count;
+    };
+
     // Theme colors
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const cardBackground = useThemeColor({}, 'cardBackground');
-    const iconColor = useThemeColor({}, 'icon');
+    // const iconColor = useThemeColor({}, 'icon');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
     const secondaryText = useThemeColor({}, 'secondaryText');
@@ -58,7 +73,7 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
 
     return (
         <ThemedView style={[styles.adminCalendarContainer, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
-            <ThemedView style={styles.monthSelector}>
+            {/* <ThemedView style={styles.monthSelector}>
                 <TouchableOpacity
                     onPress={() => {
                         const newDate = new Date(selectedYear, selectedMonth - 1, 1);
@@ -80,7 +95,7 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                 >
                     <MaterialIcons name="chevron-right" size={24} color={iconColor} />
                 </TouchableOpacity>
-            </ThemedView>
+            </ThemedView> */}
 
             <ThemedView style={styles.calendarGrid}>
                 {['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'].map((day) => (
@@ -90,15 +105,14 @@ export default function Calendar({ onMonthChange }: CalendarProps) {
                     <ThemedView key={weekIndex} style={styles.calendarRow}>
                         {week.map((date, dateIndex) => {
                             if (!date) return <ThemedView key={`empty-${dateIndex}`} style={styles.calendarCell} />;
-                            const dateString = date.toISOString().split('T')[0];
-                            const attendanceCount = attendance?.filter(a => a.date === dateString).length || 0;
+                            const attendanceCount = getAttendanceCountForDate(date);
                             return (
                                 <TouchableOpacity
                                     key={dateIndex}
                                     style={[styles.calendarCell, { borderColor: borderColor }]}
                                     onPress={() => {
                                         if (attendanceCount > 0) {
-                                            console.info('Attendance for', dateString);
+                                            console.info('Attendance for', formatDate(date, 'full'));
                                         }
                                     }}
                                 >

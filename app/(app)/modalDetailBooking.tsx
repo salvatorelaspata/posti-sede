@@ -11,7 +11,7 @@ export default function ModalDetailBooking() {
     const { attendance } = useAdminStore();
     const employeeAttendance = attendance.find((attendance) => attendance.id === employee);
 
-    const colorScheme = useColorScheme();
+    // const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
     const whiteTextColor = useThemeColor({}, 'whiteText');
     const borderColor = useThemeColor({}, 'border');
