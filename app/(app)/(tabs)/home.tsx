@@ -16,6 +16,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import BottomSheet from '@gorhom/bottom-sheet';
 import CalendarStrip from '@/components/CalendarStrip';
+import { isDayDisabled } from '@/hooks/useCalendar';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -26,10 +27,14 @@ const HomeScreen = () => {
   // const colorScheme = useColorScheme();
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
   const successColor = useThemeColor({}, 'success');
+  const errorColor = useThemeColor({}, 'error');
   // const warningColor = useThemeColor({}, 'warning');
-  // const errorColor = useThemeColor({}, 'error');
 
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // Controllo se il giorno corrente è disabilitato
+  const currentDate = new Date(currentYear, currentMonth, currentDay);
+  const isCurrentDayDisabled = isDayDisabled(currentDate);
 
   useEffect(() => {
     if (location) fetchRooms(location.id, new Date(currentYear, currentMonth, currentDay));
@@ -41,6 +46,19 @@ const HomeScreen = () => {
 
   const handleBooking = async () => {
     if (room && location) {
+      const currentDate = new Date(currentYear, currentMonth, currentDay);
+
+      // Controlla se il giorno è disabilitato
+      if (isDayDisabled(currentDate)) {
+        Alert.alert(
+          'Prenotazione Non Consentita',
+          'Non è possibile prenotare una stanza per questo giorno. I giorni nei weekend o passati non sono disponibili per le prenotazioni.',
+          [{ text: 'OK', style: 'default' }]
+        );
+        setRoom(null);
+        return;
+      }
+
       try {
         await addBooking();
         setRoom(null);
@@ -61,6 +79,18 @@ const HomeScreen = () => {
       </ThemedView>
       {/* <HorizontalCalendar /> */}
       <CalendarStrip />
+
+      {/* Banner giorno disabilitato */}
+      {isCurrentDayDisabled && (
+        <ThemedView style={[styles.bookingBanner, { backgroundColor: `${errorColor}15`, borderColor: errorColor }]}>
+          <ThemedView style={styles.bookingBannerContent}>
+            <Ionicons name="warning" size={20} color={errorColor} />
+            <ThemedText type="small" style={[styles.bookingBannerText, { color: errorColor }]}>
+              Giorno non disponibile per le prenotazioni (weekend o passato)
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      )}
 
       {/* Banner stato prenotazione */}
       {booked && (

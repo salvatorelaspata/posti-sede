@@ -132,6 +132,11 @@ export default function SignUp() {
                 placeholderTextColor={inactiveTextColor}
               />
             </ThemedView>
+            <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/')}>
+              <ThemedText style={[styles.toggleText, { color: tintColor }]}>
+                Torna alla home
+              </ThemedText>
+            </TouchableOpacity>
             {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>}
 
             <TouchableOpacity style={[styles.button, { backgroundColor: tintColor }]} onPress={onVerifyPress}>
@@ -227,7 +232,7 @@ export default function SignUp() {
             </ThemedText>
           </TouchableOpacity>
           <ThemedText type="small" >
-            N.B. E' necessario che la mail aziendale sia configurata per poter accedere a posti sede.
+            N.B. E' necessario che la mail aziendale sia configurata e valida per poter accedere a posti sede.
           </ThemedText>
         </ThemedView>
       </LinearGradient>

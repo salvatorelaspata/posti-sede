@@ -5,6 +5,7 @@ import { TokenCache } from '@clerk/clerk-expo/dist/cache'
 const createTokenCache = (): TokenCache => {
     return {
         getToken: async (key: string) => {
+            console.log(`Getting token for key: ${key} 🔐`)
             try {
                 const item = await SecureStore.getItemAsync(key)
                 if (item) {
@@ -20,8 +21,18 @@ const createTokenCache = (): TokenCache => {
             }
         },
         saveToken: (key: string, token: string) => {
+            console.log(`Saving token for key: ${key} 🔐`)
             return SecureStore.setItemAsync(key, token)
         },
+        clearToken: async (key: string) => {
+            console.log(`Removing token for key: ${key} 🔐`)
+            try {
+                await SecureStore.deleteItemAsync(key)
+                console.log(`${key} was removed 🔐 \n`)
+            } catch (error) {
+                console.error('secure store delete item error: ', error)
+            }
+        }
     }
 }
 

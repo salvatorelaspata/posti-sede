@@ -25,6 +25,13 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ascAppId": "6723893103",
+      "appleId": "salvatore.la.spata@icloud.com",
+      "appleTeamId": "XMQG77L94J",
+      "ascApiKeyPath": "./AuthKey_278355Y747.p8",
+      "ascApiKeyIssuerId": "bdf80fa9-20f6-462c-8ce4-eb8b38b0543a",
+      "ascApiKeyId": "7GNUV234PJ"
+    }
   }
 }

@@ -8,7 +8,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAppStore } from "@/store/app-store";
 import { Image, ImageBackground } from "expo-image";
 // import { LinearGradient } from "expo-linear-gradient";
-// import { isSameDate } from "@/hooks/useCalendar";
+import { isDayDisabled } from "@/hooks/useCalendar";
 
 interface RoomComponentProps {
     room: Room & { available: number; capacity: number };
@@ -24,19 +24,28 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
     const textWhite = useThemeColor({}, 'whiteText');
     const cardShadow = useThemeColor({}, 'cardShadow');
 
-    const { room: _room, setRoom, booked } = useAppStore();
+    const { room: _room, setRoom, booked, currentYear, currentMonth, currentDay } = useAppStore();
 
-    // const currentDate = new Date(currentYear, currentMonth, currentDay);
+    const currentDate = new Date(currentYear, currentMonth, currentDay);
     const isBookedByUser = booked?.roomId === room.id;
+    const isCurrentDayDisabled = isDayDisabled(currentDate);
 
     // Determina se l'utente può prenotare questa stanza
-    const canBook = !booked && !room.reserved && room.available > 0;
+    const canBook = !booked && !room.reserved && room.available > 0 && !isCurrentDayDisabled;
 
     // Determina se la stanza è disabilitata
     const isDisabled = booked && !isBookedByUser;
 
     const handleRoomPress = (_room: Room) => {
-        if (isBookedByUser) {
+        if (isCurrentDayDisabled) {
+            return Alert.alert(
+                'Giorno Non Disponibile',
+                'Non è possibile prenotare una stanza per questo giorno. I giorni nei weekend o passati non sono disponibili per le prenotazioni.',
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
+        } else if (isBookedByUser) {
             return Alert.alert(
                 'Prenotazione Esistente',
                 `Hai già prenotato questa stanza (${booked?.roomName}) per questo giorno.`,
@@ -103,10 +112,15 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                 room.available === 0 && !isBookedByUser && {
                     opacity: 0.6,
                     borderColor: errorColor
+                },
+                // Stile per giorni disabilitati
+                isCurrentDayDisabled && {
+                    opacity: 0.4,
+                    borderColor: '#ccc'
                 }
             ]}
             onPress={() => handleRoomPress(room)}
-            disabled={isDisabled || (room.reserved && !isBookedByUser) || (room.available === 0 && !isBookedByUser)}
+            disabled={isDisabled || (room.reserved && !isBookedByUser) || (room.available === 0 && !isBookedByUser) || isCurrentDayDisabled}
             activeOpacity={canBook || isBookedByUser ? 0.7 : 1}
         >
             <ThemedView style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', borderRadius: 12 }}>

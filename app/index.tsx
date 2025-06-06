@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { Colors, gradient } from '@/constants/Colors';
 import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
@@ -17,14 +16,14 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const { user } = useUser();
-    if (user) return <Redirect href="/(app)/rooms" />
+    const { isSignedIn } = useUser();
+    if (isSignedIn) return <Redirect href="/(app)/rooms" />
 
     const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
     const whiteTextColor = useThemeColor({}, 'whiteText');
     const textColor = useThemeColor({}, 'text');
-    const backgroundColor = useThemeColor({}, 'background');
+    // const backgroundColor = useThemeColor({}, 'background');
     const cardBackground = useThemeColor({}, 'cardBackground');
 
     const router = useRouter();
@@ -47,7 +46,7 @@ export default function LandingPage() {
         <ParallaxScrollView
             headerBackgroundColor={{ light: tintColor, dark: tintColor }}
             headerTitle='posti sede'
-            haederSubtitle='Gestisci gli spazi di lavoro in modo intelligente'
+            headerSubtitle='Gestisci gli spazi di lavoro in modo intelligente'
             headerImage={
                 <HeaderImage>
                     <ImageBackground
@@ -104,6 +103,18 @@ export default function LandingPage() {
                     <ThemedText style={[{ color: textColor, marginTop: 4 }]}>Per registrare la tua azienda</ThemedText>
                 </TouchableOpacity>
             </ThemedView>
+            {/* <SignedIn>
+                <ThemedText>Hello</ThemedText>
+                <ThemedText>{`<SignOutButton />`}</ThemedText>
+            </SignedIn>
+            <SignedOut>
+                <Link href="/login">
+                    <ThemedText>Sign in</ThemedText>
+                </Link>
+                <Link href="/signup">
+                    <ThemedText>Sign up</ThemedText>
+                </Link>
+            </SignedOut> */}
         </ParallaxScrollView >
     );
 }
@@ -138,7 +149,7 @@ const styles = StyleSheet.create({
     or: {
         textAlign: 'center',
         marginVertical: 16,
-        textDecorationLine: 'underline',
+        // textDecorationLine: 'underline',
     },
     content: {
         flex: 1,

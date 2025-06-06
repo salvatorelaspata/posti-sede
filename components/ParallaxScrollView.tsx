@@ -17,7 +17,7 @@ const HEADER_HEIGHT = 250;
 
 type Props = PropsWithChildren<{
   headerTitle?: string;
-  haederSubtitle?: string;
+  headerSubtitle?: string;
   headerImage: ReactElement;
   headerBackgroundColor: { dark: string; light: string };
 }>;
@@ -25,7 +25,7 @@ type Props = PropsWithChildren<{
 export default function ParallaxScrollView({
   children,
   headerTitle,
-  haederSubtitle,
+  headerSubtitle,
   headerImage,
   headerBackgroundColor,
 }: Props) {
@@ -52,20 +52,37 @@ export default function ParallaxScrollView({
   });
 
   const headerTitleAnimatedStyle = useAnimatedStyle(() => {
-
     return {
       transform: [
         {
           translateY: interpolate(
             scrollOffset.value,
             [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, -HEADER_HEIGHT * 0.75]
+            [-HEADER_HEIGHT / 2, 0, -HEADER_HEIGHT * 0.5]
           ),
         },
         {
-          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [3, 1, 1.2]),
+          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1.1]),
         },
       ],
+    };
+  });
+
+  const headerSubtitleAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            scrollOffset.value,
+            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+            [-HEADER_HEIGHT / 3, 0, -HEADER_HEIGHT * 0.3]
+          ),
+        },
+        {
+          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [1.5, 1, 1.05]),
+        },
+      ],
+      opacity: interpolate(scrollOffset.value, [0, HEADER_HEIGHT / 2], [1, 0]),
     };
   });
 
@@ -86,7 +103,7 @@ export default function ParallaxScrollView({
           <Animated.View style={{ position: 'relative', }}>
             {headerImage}
             <Animated.Text style={[headerTitleAnimatedStyle, styles.headerTitle, { color: whiteTextColor }]}>{headerTitle}</Animated.Text>
-            <Animated.Text style={[headerTitleAnimatedStyle, styles.headerSubtitle, { color: whiteTextColor }]}>{haederSubtitle}</Animated.Text>
+            <Animated.Text style={[headerSubtitleAnimatedStyle, styles.headerSubtitle, { color: whiteTextColor }]}>{headerSubtitle}</Animated.Text>
           </Animated.View>
         </Animated.View>
         <ThemedView style={styles.content}>{children}</ThemedView>
@@ -110,17 +127,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 50,
     left: 20,
-    fontSize: 36,
+    right: 20,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 10,
+    lineHeight: 36,
   },
   headerSubtitle: {
     position: 'absolute',
     bottom: 20,
     left: 20,
-    fontSize: 18,
+    right: 20,
+    fontSize: 16,
     opacity: 0.9,
+    lineHeight: 20,
   },
 });

@@ -7,10 +7,11 @@ import SettingItem from '@/components/SettingsItem';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useRouter } from 'expo-router';
-import { useAuth, useUser } from '@clerk/clerk-expo';
+import { useClerk, useUser } from '@clerk/clerk-expo';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import * as Linking from 'expo-linking'
 // import { useColorScheme } from '@/hooks/useColorScheme';
 
 const SettingsScreen = () => {
@@ -21,7 +22,7 @@ const SettingsScreen = () => {
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
     const notificationTypesOpacity = useState(new Animated.Value(0))[0];
     const { user } = useUser();
-    const { signOut } = useAuth();
+    const { signOut } = useClerk();
 
     type NotificationTypes = {
         dayBefore: boolean;
@@ -57,11 +58,13 @@ const SettingsScreen = () => {
             { text: "Annulla", style: "cancel" },
             {
                 text: "Logout", style: "destructive",
-                onPress: () => {
+                onPress: async () => {
                     // logout from clerk
-                    signOut();
+                    await signOut();
+
+                    Linking.openURL(Linking.createURL('/'))
                     // navigate to login screen
-                    router.replace('/');
+                    // router.replace('/');
                 }
             }
         ]);

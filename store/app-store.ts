@@ -102,7 +102,7 @@ export const useAppStore = create<AppState>()(
                             get().currentYear,
                             get().currentMonth
                         );
-                        console.log('Personal booking:', booking);
+                        // console.log('Personal booking:', booking);
                         set({
                             booking: booking.map(b => ({
                                 id: b.id,
