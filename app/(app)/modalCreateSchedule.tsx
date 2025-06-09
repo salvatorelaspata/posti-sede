@@ -19,7 +19,7 @@ interface SelectedDays {
 export default function ModalCreateSchedule() {
   const router = useRouter();
   const { location } = useAppStore();
-  
+
   // Theme colors
   const tintColor = useThemeColor({}, 'tint');
   const backgroundColor = useThemeColor({}, 'background');
@@ -73,9 +73,9 @@ export default function ModalCreateSchedule() {
     };
 
     console.log('Saving schedule:', scheduleData);
-    
+
     Alert.alert(
-      'Successo', 
+      'Successo',
       'Schedulazione creata con successo!',
       [{ text: 'OK', onPress: () => router.back() }]
     );
@@ -94,7 +94,7 @@ export default function ModalCreateSchedule() {
         >
           <Ionicons name="close" size={24} color={iconColor} />
         </TouchableOpacity>
-        
+
         <ThemedView style={styles.headerContent}>
           <ThemedText type="title" style={[styles.title, { color: textColor }]}>
             Nuova Schedulazione
@@ -103,7 +103,7 @@ export default function ModalCreateSchedule() {
             Sede {location?.name}
           </ThemedText>
         </ThemedView>
-        
+
         <ThemedView style={styles.placeholder} />
       </ThemedView>
 
@@ -113,7 +113,7 @@ export default function ModalCreateSchedule() {
           <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
             Dettagli Schedulazione
           </ThemedText>
-          
+
           <ThemedView style={styles.inputGroup}>
             <ThemedText type="default" style={[styles.label, { color: textColor }]}>
               Titolo *
@@ -172,6 +172,7 @@ export default function ModalCreateSchedule() {
 
           <ThemedView style={styles.calendarContainer}>
             <Calendar
+              firstDay={1}
               onDayPress={handleDayPress}
               markedDates={selectedDays}
               theme={{
@@ -250,7 +251,7 @@ export default function ModalCreateSchedule() {
             Annulla
           </ThemedText>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.button, styles.saveButton, { backgroundColor: tintColor }]}
           onPress={handleSaveSchedule}

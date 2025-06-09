@@ -1,3 +1,5 @@
+import { LocaleConfig } from "react-native-calendars";
+
 export function formatDate(date: Date | string, format: 'full' | 'short') {
     if (typeof date === 'string') {
         date = new Date(date);
@@ -44,3 +46,23 @@ export const getDayStringFromDate = (date: Date) => {
 export const getDayNumberFromDate = (date: Date) => {
     return date.toLocaleDateString('it-IT', { day: 'numeric' });
 }
+
+LocaleConfig.locales['it'] = {
+    monthNames: [
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ],
+    monthNamesShort: [
+        'Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
+        'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'
+    ],
+    dayNames: [
+        'Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'
+    ],
+    dayNamesShort: [
+        'Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'
+    ],
+    today: 'Oggi'
+};
+
+LocaleConfig.defaultLocale = 'it';

@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 
 export const SpecialTabButton = () => {
   const router = useRouter();
-  
+
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/(app)/modalCreateSchedule');
