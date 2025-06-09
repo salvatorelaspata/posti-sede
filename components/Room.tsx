@@ -1,13 +1,13 @@
+import React, { useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
+import { Room } from "@/types";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
-import { Room } from "@/types";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useThemeColor } from "@/hooks/useThemeColor";
-// import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppStore } from "@/store/app-store";
-import { Image, ImageBackground } from "expo-image";
-// import { LinearGradient } from "expo-linear-gradient";
 import { isDayDisabled } from "@/hooks/useCalendar";
 
 interface RoomComponentProps {
@@ -15,7 +15,6 @@ interface RoomComponentProps {
 }
 
 export const RoomComponent = ({ room }: RoomComponentProps) => {
-    // const colorScheme = useColorScheme();
     const bgColor = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const borderColor = useThemeColor({}, 'border');
@@ -24,7 +23,7 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
     const textWhite = useThemeColor({}, 'whiteText');
     const cardShadow = useThemeColor({}, 'cardShadow');
 
-    const { room: _room, setRoom, booked, currentYear, currentMonth, currentDay } = useAppStore();
+    const { room: _room, setRoom, booked, currentYear, currentMonth, currentDay, location } = useAppStore();
 
     const currentDate = new Date(currentYear, currentMonth, currentDay);
     const isBookedByUser = booked?.roomId === room.id;
@@ -163,6 +162,33 @@ export const RoomComponent = ({ room }: RoomComponentProps) => {
                             {isDisabled && !isBookedByUser && ' (Non disponibile)'}
                         </ThemedText>
                     </ThemedView>
+
+                    {/* Mostra le persone presenti se ce ne sono */}
+                    {(room.capacity - room.available) > 0 && (
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                if (location) {
+                                    router.push({
+                                        pathname: '/modalRoomPeople',
+                                        params: {
+                                            roomId: room.id,
+                                            roomName: room.name,
+                                            locationId: location.id,
+                                            date: new Date(currentYear, currentMonth, currentDay).toISOString()
+                                        }
+                                    });
+                                }
+                            }}
+                            style={[styles.peopleIndicator, { backgroundColor: `${tintColor}15`, borderColor: tintColor }]}
+                        >
+                            <Ionicons name="people" size={16} color={tintColor} />
+                            <ThemedText type="small" style={{ color: tintColor, marginLeft: 6 }}>
+                                {room.capacity - room.available} {(room.capacity - room.available) === 1 ? 'persona presente' : 'persone presenti'}
+                            </ThemedText>
+                            <Ionicons name="chevron-forward" size={16} color={tintColor} style={{ marginLeft: 4 }} />
+                        </TouchableOpacity>
+                    )}
                     <ThemedView style={styles.progressContainer}>
                         <ThemedView
                             style={[
@@ -226,6 +252,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        flexWrap: 'wrap',
+    },
+    peopleIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginTop: 8,
+        borderRadius: 8,
+        borderWidth: 1,
     },
     gradient: {
         position: 'absolute',

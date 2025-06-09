@@ -18,15 +18,15 @@ export default function HeaderBackground() {
         intensity={95}
         style={StyleSheet.absoluteFill}
       />
-      <View 
+      <View
         style={[
-          styles.overlay, 
-          { 
+          styles.overlay,
+          {
             backgroundColor: `${backgroundColor}E6`, // Aggiungiamo trasparenza per il blur
             borderBottomColor: borderColor,
             shadowColor,
           }
-        ]} 
+        ]}
       />
     </View>
   );

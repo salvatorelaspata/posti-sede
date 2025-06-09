@@ -67,14 +67,14 @@ export const getAvailabilityForLocation = async (locationId: string, date: Date)
     // Raccogliere tutti gli ID delle stanze
     const roomIds = allRooms.map(room => room.id);
 
-    // Seconda query: ottieni tutte le prenotazioni per le stanze in quella data
+    // Seconda query: ottieni tutte le prenotazioni per le stanze in quella data con info dipendenti
     const allBookings = await db
         .select()
         .from(bookings)
+        .leftJoin(employees, eq(bookings.employeeId, employees.id))
         .where(
             and(
                 inArray(bookings.roomId, roomIds),
-                // eq(bookings.date, date)
                 gte(bookings.date, startDate),
                 lt(bookings.date, endDate)
             )
@@ -82,11 +82,12 @@ export const getAvailabilityForLocation = async (locationId: string, date: Date)
 
     // Organizza le prenotazioni per roomId per un facile accesso
     const bookingsByRoomId = allBookings.reduce((acc, booking) => {
-        if (booking.roomId !== null && !acc[booking.roomId]) {
-            acc[booking.roomId] = [];
+        const roomId = booking.bookings.roomId;
+        if (roomId !== null && !acc[roomId]) {
+            acc[roomId] = [];
         }
-        if (booking.roomId !== null) {
-            acc[booking.roomId].push(booking);
+        if (roomId !== null) {
+            acc[roomId].push(booking);
         }
         return acc;
     }, {} as Record<string, typeof allBookings>);
@@ -253,3 +254,98 @@ export const getBookingUserByMonth:
             roomName: b.rooms?.name || ''
         }));
     }
+
+export const getPeopleInRoom = async (roomId: string, date: Date) => {
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+
+    const bookingsWithEmployees = await db
+        .select()
+        .from(bookings)
+        .leftJoin(employees, eq(bookings.employeeId, employees.id))
+        .where(
+            and(
+                eq(bookings.roomId, roomId),
+                gte(bookings.date, startDate),
+                lt(bookings.date, endDate)
+            )
+        );
+
+    return bookingsWithEmployees.map(booking => ({
+        id: booking.bookings.id,
+        employee: {
+            id: booking.employees?.id || '',
+            firstName: booking.employees?.firstName || 'Sconosciuto',
+            lastName: booking.employees?.lastName || '',
+            email: booking.employees?.email || '',
+            department: booking.employees?.department || 'N/A'
+        },
+        period: booking.bookings.period || 'full',
+        status: booking.bookings.status || 'pending'
+    }));
+};
+
+export const getAllPeopleInLocation = async (locationId: string, date: Date) => {
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Ottieni tutte le stanze per la location
+    const allRooms = await db
+        .select()
+        .from(rooms)
+        .where(eq(rooms.locationId, locationId));
+
+    // Ottieni tutte le prenotazioni per le stanze in quella data con info dipendenti
+    const allBookings = await db
+        .select()
+        .from(bookings)
+        .leftJoin(employees, eq(bookings.employeeId, employees.id))
+        .leftJoin(rooms, eq(bookings.roomId, rooms.id))
+        .where(
+            and(
+                eq(rooms.locationId, locationId),
+                gte(bookings.date, startDate),
+                lt(bookings.date, endDate)
+            )
+        );
+
+    // Organizza le prenotazioni per roomId
+    const bookingsByRoomId = allBookings.reduce((acc, booking) => {
+        const roomId = booking.bookings.roomId;
+        if (roomId && !acc[roomId]) {
+            acc[roomId] = [];
+        }
+        if (roomId) {
+            acc[roomId].push({
+                id: booking.bookings.id,
+                employee: {
+                    id: booking.employees?.id || '',
+                    firstName: booking.employees?.firstName || 'Sconosciuto',
+                    lastName: booking.employees?.lastName || '',
+                    email: booking.employees?.email || '',
+                    department: booking.employees?.department || 'N/A'
+                },
+                period: booking.bookings.period || 'full',
+                status: booking.bookings.status || 'pending'
+            });
+        }
+        return acc;
+    }, {} as Record<string, any[]>);
+
+    // Crea l'array delle stanze con le persone presenti
+    return allRooms.map(room => ({
+        room: {
+            id: room.id,
+            name: room.name,
+            capacity: room.capacity,
+            image: room.image,
+            reserved: room.reserved
+        },
+        people: bookingsByRoomId[room.id] || [],
+        occupancy: bookingsByRoomId[room.id]?.length || 0
+    })).filter(roomData => roomData.people.length > 0); // Solo stanze con persone
+};

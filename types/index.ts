@@ -19,3 +19,28 @@ export type ClerkError = {
         }
     }[]
 }
+
+export type RoomPerson = {
+    id: string;
+    employee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        department: string;
+    };
+    period: 'full' | 'morning' | 'afternoon';
+    status: 'pending' | 'confirmed' | 'cancelled';
+};
+
+export type RoomWithPeople = {
+    room: {
+        id: string;
+        name: string;
+        capacity: number;
+        image: string | null;
+        reserved: boolean | null;
+    };
+    people: RoomPerson[];
+    occupancy: number;
+};

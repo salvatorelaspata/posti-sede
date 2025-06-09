@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useAdminStore } from "@/store/admin-store";
 import { FlatList, Pressable, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/hooks/useColorScheme";
+// import { useColorScheme } from "@/hooks/useColorScheme";
 export default function ModalDetailBooking() {
     const { employee } = useLocalSearchParams();
     const { attendance } = useAdminStore();

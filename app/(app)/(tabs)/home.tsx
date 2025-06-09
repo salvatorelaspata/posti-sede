@@ -106,9 +106,17 @@ const HomeScreen = () => {
 
       <ThemedView style={styles.sectionTitle}>
         <ThemedText type="subtitle">Stanze disponibili</ThemedText>
-        <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
-          <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
-        </TouchableOpacity>
+        <ThemedView style={styles.headerIcons}>
+          <TouchableOpacity 
+            onPress={() => router.push('/(app)/modalAllPeople')}
+            style={styles.iconButton}
+          >
+            <Ionicons name="people" size={24} color={primaryButtonColor} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+            <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
+          </TouchableOpacity>
+        </ThemedView>
       </ThemedView>
       <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
         {rooms.length > 0 ? rooms.map((room) => (
@@ -144,6 +152,14 @@ const styles = StyleSheet.create({
 
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconButton: {
+    padding: 4,
   },
   bottomSheet: {
     flex: 1,

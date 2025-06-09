@@ -8,15 +8,15 @@ export default function HeaderBackground() {
   const shadowColor = useThemeColor({}, 'cardShadow');
 
   return (
-    <View 
+    <View
       style={[
-        styles.container, 
-        { 
+        styles.container,
+        {
           backgroundColor,
           borderBottomColor: borderColor,
           shadowColor,
         }
-      ]} 
+      ]}
     />
   );
 }

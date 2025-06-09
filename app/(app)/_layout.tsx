@@ -11,5 +11,7 @@ export default function App() {
     <Stack.Screen name="rooms" options={{ headerShown: false }} />
     <Stack.Screen name="modalDetailBooking" options={{ presentation: 'modal' }} />
     <Stack.Screen name="modalDetailLocation" options={{ presentation: 'modal' }} />
+    <Stack.Screen name="modalRoomPeople" options={{ presentation: 'modal' }} />
+    <Stack.Screen name="modalAllPeople" options={{ presentation: 'modal' }} />
   </Stack>);
 }
