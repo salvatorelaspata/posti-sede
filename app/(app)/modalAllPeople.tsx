@@ -17,7 +17,7 @@ const ModalAllPeople = () => {
   const [roomsWithPeople, setRoomsWithPeople] = useState<RoomWithPeople[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date(currentYear, currentMonth, currentDay));
-  
+
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -26,7 +26,7 @@ const ModalAllPeople = () => {
 
   const fetchAllPeople = async (date: Date) => {
     if (!location) return;
-    
+
     setLoading(true);
     try {
       const data = await getAllPeopleInLocation(location.id, date);
@@ -76,7 +76,7 @@ const ModalAllPeople = () => {
     <ThemedView style={styles.container}>
       {/* Header */}
       <ThemedView style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => router.back()}
           style={styles.closeButton}
         >
@@ -93,7 +93,7 @@ const ModalAllPeople = () => {
 
       {/* Navigazione giorni */}
       <ThemedView style={styles.navigationContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigateDay('prev')}
           style={[styles.navButton, { borderColor }]}
         >
@@ -102,8 +102,8 @@ const ModalAllPeople = () => {
             Giorno precedente
           </ThemedText>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           onPress={() => navigateDay('next')}
           style={[styles.navButton, { borderColor }]}
         >
@@ -147,8 +147,8 @@ const ModalAllPeople = () => {
           </ThemedView>
         ) : (
           roomsWithPeople.map((roomData) => (
-            <ThemedView 
-              key={roomData.room.id} 
+            <ThemedView
+              key={roomData.room.id}
               style={[styles.roomCard, { backgroundColor: cardBackgroundColor, borderColor }]}
             >
               {/* Header della stanza */}
@@ -176,10 +176,10 @@ const ModalAllPeople = () => {
                           {person.employee.firstName} {person.employee.lastName}
                         </ThemedText>
                         <ThemedView style={styles.periodContainer}>
-                          <Ionicons 
-                            name={getPeriodIcon(person.period)} 
-                            size={14} 
-                            color={primaryButtonColor} 
+                          <Ionicons
+                            name={getPeriodIcon(person.period)}
+                            size={14}
+                            color={primaryButtonColor}
                           />
                           <ThemedText type="small" style={[styles.periodText, { color: primaryButtonColor }]}>
                             {getPeriodText(person.period)}

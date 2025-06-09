@@ -107,7 +107,7 @@ const HomeScreen = () => {
       <ThemedView style={styles.sectionTitle}>
         <ThemedText type="subtitle">Stanze disponibili</ThemedText>
         <ThemedView style={styles.headerIcons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => router.push('/(app)/modalAllPeople')}
             style={styles.iconButton}
           >
