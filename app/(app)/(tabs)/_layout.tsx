@@ -8,6 +8,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppStore } from '@/store/app-store';
 import { useUser } from '@clerk/clerk-expo';
+import { SpecialTabButton } from '@/components/SpecialTabButton';
 
 export default function Tabs() {
 
@@ -71,6 +72,12 @@ export default function Tabs() {
         }}
       />
 
+      <ExpoTabs.Screen
+        name="add"
+        options={{
+          tabBarButton: SpecialTabButton
+        }}
+      />
       <ExpoTabs.Screen
         name="admin"
         options={{
