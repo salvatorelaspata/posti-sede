@@ -80,8 +80,28 @@ eas env:push --environment=<profile>
 eas build:run -p ios --latest
 ```
 
+## Submit to App Store
 
-## Teck Stack
+```bash
+eas build --platform ios --profile production
+```
+
+```bash
+eas submit --platform ios
+```
+
+
+## Submit to Play Store
+
+```bash
+eas build --platform android --profile production
+``` 
+
+```bash
+eas submit --platform android
+```
+
+## Teck stack
 
 - [React Native](https://reactnative.dev/)
 - [Expo](https://expo.dev/)

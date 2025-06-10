@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, ScrollView, Alert, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAppStore } from '@/store/app-store';
+import { useTenantStore } from '@/store/tenant-store';
 import { Calendar } from 'react-native-calendars';
-import { ThemedTextInput } from '@/components/ThemedTextInput';
+import { Room } from '@/types';
+import { Image } from 'expo-image';
 
 interface SelectedDays {
   [key: string]: {
@@ -19,6 +22,7 @@ interface SelectedDays {
 export default function ModalCreateSchedule() {
   const router = useRouter();
   const { location } = useAppStore();
+  const { rooms, fetchRooms } = useTenantStore();
 
   // Theme colors
   const tintColor = useThemeColor({}, 'tint');
@@ -32,9 +36,15 @@ export default function ModalCreateSchedule() {
 
   // State
   const [selectedDays, setSelectedDays] = useState<SelectedDays>({});
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+
+  useEffect(() => {
+    if (location && Object.keys(selectedDays).length > 0) {
+      // Prendi il primo giorno selezionato per caricare le room disponibili
+      const firstSelectedDay = Object.keys(selectedDays)[0];
+      fetchRooms(location.id, new Date(firstSelectedDay));
+    }
+  }, [location, selectedDays]);
 
   const handleDayPress = (day: any) => {
     const dateString = day.dateString;
@@ -53,8 +63,8 @@ export default function ModalCreateSchedule() {
   };
 
   const handleSaveSchedule = () => {
-    if (!title.trim()) {
-      Alert.alert('Errore', 'Inserisci un titolo per la schedulazione');
+    if (!selectedRoom) {
+      Alert.alert('Errore', 'Seleziona una stanza per la schedulazione');
       return;
     }
 
@@ -65,10 +75,9 @@ export default function ModalCreateSchedule() {
 
     // Qui implementerai la logica per salvare la schedulazione
     const scheduleData = {
-      title,
-      description,
+      roomId: selectedRoom.id,
+      roomName: selectedRoom.name,
       selectedDays: Object.keys(selectedDays),
-      isRecurring,
       locationId: location?.id,
     };
 
@@ -84,7 +93,7 @@ export default function ModalCreateSchedule() {
   const getSelectedDaysCount = () => Object.keys(selectedDays).length;
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor }]}>
+    <ThemedSafeAreaView style={[styles.container, { backgroundColor }]}>
       {/* Header */}
       <ThemedView style={[styles.header, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}>
         <TouchableOpacity
@@ -108,59 +117,93 @@ export default function ModalCreateSchedule() {
       </ThemedView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Form Fields */}
-        <ThemedView style={[styles.section, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
-          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
-            Dettagli Schedulazione
+        {/* Instructions - Compatte */}
+        {/* <ThemedView style={[styles.instructionsSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
+          <ThemedView style={styles.instructionsList}>
+            <ThemedView style={styles.instructionItem}>
+              <Ionicons name="calendar-outline" size={18} color={iconColor} />
+              <ThemedText type="small" style={[styles.instructionText, { color: textColor }]}>
+                Tocca i giorni per selezionarli
+              </ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.instructionItem}>
+              <Ionicons name="time-outline" size={18} color={iconColor} />
+              <ThemedText type="small" style={[styles.instructionText, { color: textColor }]}>
+                Schedulazione per tutti i giorni selezionati
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+        </ThemedView> */}
+
+
+        {/* Room Selection */}
+        <ThemedView style={[styles.roomSection, { backgroundColor }]}>
+          <ThemedText type="subtitle" style={[styles.compactSectionTitle, { color: textColor }]}>
+            Seleziona Stanza
           </ThemedText>
 
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText type="default" style={[styles.label, { color: textColor }]}>
-              Titolo *
-            </ThemedText>
-            <ThemedTextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Inserisci il titolo della schedulazione"
-              style={styles.input}
-            />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText type="default" style={[styles.label, { color: textColor }]}>
-              Descrizione
-            </ThemedText>
-            <ThemedTextInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Descrizione opzionale"
-              multiline
-              numberOfLines={3}
-              style={[styles.input, styles.textArea]}
-            />
-          </ThemedView>
-
-          {/* <ThemedView style={styles.inputGroup}>
-            <TouchableOpacity
-              style={styles.toggleRow}
-              onPress={() => setIsRecurring(!isRecurring)}
+          {rooms.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.roomScrollContainer}
             >
-              <ThemedText type="default" style={[styles.label, { color: textColor }]}>
-                Schedulazione ricorrente
+              {rooms.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.roomCardHorizontal,
+                    {
+                      backgroundColor: selectedRoom?.id === item.id ? cardBackground : cardBackground,
+                      borderColor: selectedRoom?.id === item.id ? tintColor : borderColor,
+                      borderWidth: selectedRoom?.id === item.id ? 2 : 1,
+                      shadowColor: cardShadow,
+                    }
+                  ]}
+                  onPress={() => setSelectedRoom(item)}
+                >
+                  {item.image && (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.roomImageHorizontal}
+                      contentFit="cover"
+                    />
+                  )}
+                  <ThemedView style={styles.roomInfoHorizontal}>
+                    <ThemedText type="defaultSemiBold" style={[styles.roomNameHorizontal, { color: textColor }]} numberOfLines={1}>
+                      {item.name}
+                    </ThemedText>
+                    {/* <ThemedText type="small" style={[styles.roomDetailsHorizontal, { color: inactiveText }]} numberOfLines={1}>
+                      {item.capacity} posti
+                    </ThemedText> */}
+                    {/* {item.available !== undefined && (
+                      <ThemedText type="small" style={[styles.roomDetailsHorizontal, { color: tintColor }]} numberOfLines={1}>
+                        {item.available} liberi
+                      </ThemedText>
+                    )} */}
+                  </ThemedView>
+                  {selectedRoom?.id === item.id && (
+                    <ThemedView style={[styles.selectedIndicator, { backgroundColor: tintColor }]}>
+                      <Ionicons name="checkmark" size={16} color="white" />
+                    </ThemedView>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <ThemedView style={styles.noRoomsContainerCompact}>
+              <Ionicons name="information-circle-outline" size={24} color={inactiveText} />
+              <ThemedText type="small" style={[styles.noRoomsTextCompact, { color: inactiveText }]}>
+                Seleziona un giorno per vedere le stanze
               </ThemedText>
-              <Ionicons 
-                name={isRecurring ? "checkbox" : "square-outline"} 
-                size={24} 
-                color={isRecurring ? tintColor : iconColor} 
-              />
-            </TouchableOpacity>
-          </ThemedView> */}
+            </ThemedView>
+          )}
         </ThemedView>
 
         {/* Calendar Section */}
-        <ThemedView style={[styles.section, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
-          <ThemedView style={styles.sectionHeader}>
-            <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
+        <ThemedView style={[styles.calendarSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
+          <ThemedView style={styles.compactSectionHeader}>
+            <ThemedText type="subtitle" style={[styles.compactSectionTitle, { color: textColor }]}>
               Seleziona Giorni
             </ThemedText>
             <ThemedView style={[styles.badge, { backgroundColor: tintColor }]}>
@@ -211,33 +254,6 @@ export default function ModalCreateSchedule() {
           )}
         </ThemedView>
 
-        {/* Instructions */}
-        <ThemedView style={[styles.section, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
-          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
-            Come funziona
-          </ThemedText>
-          <ThemedView style={styles.instructionsList}>
-            <ThemedView style={styles.instructionItem}>
-              <Ionicons name="calendar-outline" size={20} color={iconColor} />
-              <ThemedText type="default" style={[styles.instructionText, { color: textColor }]}>
-                Seleziona i giorni del calendario toccandoli
-              </ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.instructionItem}>
-              <Ionicons name="time-outline" size={20} color={iconColor} />
-              <ThemedText type="default" style={[styles.instructionText, { color: textColor }]}>
-                La schedulazione sarà attiva per tutti i giorni selezionati
-              </ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.instructionItem}>
-              <Ionicons name="location-outline" size={20} color={iconColor} />
-              <ThemedText type="default" style={[styles.instructionText, { color: textColor }]}>
-                Valida solo per la sede {location?.name}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-        </ThemedView>
-
         <ThemedView style={styles.bottomPadding} />
       </ScrollView>
 
@@ -258,11 +274,11 @@ export default function ModalCreateSchedule() {
         >
           <Ionicons name="save" size={20} color="white" style={styles.buttonIcon} />
           <ThemedText type="defaultSemiBold" style={[styles.buttonText, { color: 'white' }]}>
-            Salva Schedulazione
+            Salva
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
-    </ThemedView>
+    </ThemedSafeAreaView>
   );
 }
 
@@ -275,8 +291,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
     borderBottomWidth: 1,
   },
   closeButton: {
@@ -302,9 +318,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginHorizontal: 16,
-    marginTop: 16,
+    marginTop: 8,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -314,10 +330,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
   badge: {
@@ -380,12 +396,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   bottomPadding: {
-    height: 20,
+    height: 8,
   },
   footer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    paddingBottom: 28, // Ridotto per safe area
     borderTopWidth: 1,
     gap: 12,
   },
@@ -411,5 +428,131 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginRight: 8,
+  },
+  roomCard: {
+    borderWidth: 1,
+    borderRadius: 12,
+    marginBottom: 12,
+    padding: 12,
+  },
+  roomContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  roomImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  roomInfo: {
+    flex: 1,
+  },
+  roomName: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  roomDetails: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  noRoomsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  noRoomsText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  // Stili compatti per la versione ottimizzata
+  roomSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  compactSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  roomScrollContainer: {
+    paddingRight: 16,
+  },
+  roomCardHorizontal: {
+    width: 140,
+    marginRight: 12,
+    borderRadius: 12,
+    padding: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    position: 'relative',
+  },
+  roomImageHorizontal: {
+    width: '100%',
+    height: 80,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  roomInfoHorizontal: {
+    flex: 1,
+  },
+  roomNameHorizontal: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  roomDetailsHorizontal: {
+    fontSize: 12,
+    marginBottom: 1,
+  },
+  selectedIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noRoomsContainerCompact: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  noRoomsTextCompact: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  calendarSection: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 12,
+    padding: 16,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  compactSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  instructionsSection: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 12,
+    padding: 12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
