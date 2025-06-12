@@ -33,7 +33,7 @@ export const Colors: {
     secondaryText: '#6c757d',
   },
   dark: {
-    tint: '#50b9e9', // 80, 185, 233
+    tint: '#0a7ea4',//'#50b9e9', // 80, 185, 233
     text: '#ECEDEE',
     inactiveText: '#9BA1A6',
     whiteText: '#fff',
@@ -41,16 +41,16 @@ export const Colors: {
     border: '#2B2B2B',
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
-    tabIconSelected: '#50b9e9',
+    tabIconSelected: '#0a7ea4', // '#50b9e9',
     success: '#4CAF50',
     error: '#F44336',
-    primaryButton: '#50b9e9',
+    primaryButton: '#0a7ea4', // '#50b9e9',
     secondaryButton: '#687076',
     cardBackground: '#1F2024',
     cardText: '#ECEDEE',
     cardShadow: '#000',
     statBackground: '#2B2B2B',
-    statPrimaryText: '#50b9e9',
+    statPrimaryText: '#0a7ea4', // '#50b9e9',
     statText: '#ECEDEE',
     statShadow: '#000',
     secondaryText: '#9BA1A6',
