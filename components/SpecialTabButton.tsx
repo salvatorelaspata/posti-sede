@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     transform: [{ translateX: -20 }],
-    marginBottom: 38,
+    marginBottom: 26,
     borderRadius: 25,
     width: 50,
     height: 50,

@@ -10,7 +10,7 @@ export const Colors: {
   };
 } = {
   light: {
-    tint: '#0a7ea4',
+    tint: '#0a7ea4', // 10, 126, 164
     text: '#11181C',
     inactiveText: '#687076',
     whiteText: '#fff',
@@ -33,7 +33,7 @@ export const Colors: {
     secondaryText: '#6c757d',
   },
   dark: {
-    tint: '#50b9e9',
+    tint: '#50b9e9', // 80, 185, 233
     text: '#ECEDEE',
     inactiveText: '#9BA1A6',
     whiteText: '#fff',

@@ -65,23 +65,29 @@ export default function Layout() {
           bottom: 0,
           left: 0,
           zIndex: 1000,
-          backgroundColor: 'rgba(0, 0, 0, 0.1)',
-          backdropFilter: 'blur(10px)',
           marginHorizontal: 16,
-          marginBottom: 34,
-          borderRadius: 24,
+          marginBottom: 24,
+          borderRadius: 30,
           paddingHorizontal: 12,
-          paddingVertical: 8,
+          paddingVertical: 4,
           flexDirection: 'row',
           justifyContent: 'flex-start',
           alignItems: 'center',
-          shadowColor: '#000',
+          backgroundColor: colorScheme === 'dark' ?
+            'rgba(80, 185, 233, 0.15)' :
+            'rgba(10, 126, 164, 0.15)',
+          borderColor: colorScheme === 'dark' ?
+            'rgba(80, 185, 233, 0.80)' :
+            'rgba(10, 126, 164, 0.80)',
+          backdropFilter: 'blur(2px) saturate(180%)',
+          //  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2), inset 0 4px 20px rgba(255, 255, 255, 0.3);
+          // in react native, we use shadow properties instead of box-shadow
+          shadowColor: colorScheme === 'dark' ? '#000' : '#fff',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.15,
           shadowRadius: 12,
           elevation: 8,
           borderWidth: 0.5,
-          borderColor: 'rgba(255, 255, 255, 0.2)',
         }}
       >
         <TabTrigger

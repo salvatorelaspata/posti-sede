@@ -14,7 +14,7 @@ export type TabButtonProps = TabTriggerSlotProps & {
 export const TabButton = forwardRef<View, TabButtonProps>(
   ({ isFocused, icon, children, ...props }, ref) => {
     const tintColor = useThemeColor({}, 'tint');
-    const whiteTextColor = useThemeColor({}, 'whiteText');
+    const textColor = useThemeColor({}, 'text');
     return (
       <Pressable
         {...props}
@@ -31,7 +31,7 @@ export const TabButton = forwardRef<View, TabButtonProps>(
           // isFocused ? { backgroundColor: 'green' } : undefined
         ]}
       >
-        <FontAwesome name={icon} size={24} color={isFocused ? tintColor : whiteTextColor} />
+        <FontAwesome name={icon} size={24} color={isFocused ? tintColor : textColor} />
         {/* <Text style={[{ fontSize: 16 }, isFocused ? { color: 'white' } : undefined]}>
           {children}
         </Text> */}
