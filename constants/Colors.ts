@@ -57,3 +57,4 @@ export const Colors: {
   },
 };
 
+export const tabBarHeight = 100; // Height of the tab bar

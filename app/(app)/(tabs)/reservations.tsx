@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { Alert, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import HorizontalMonthSelector from "@/components/HorizontalMonthSelector";
 import { formatDate, getDaysInMonth, getTotalWorkingDaysInMonth } from "@/constants/Calendar";
@@ -11,6 +11,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Book, useAppStore } from "@/store/app-store";
+import { tabBarHeight } from "@/constants/Colors";
 
 export default function Reservations() {
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
@@ -20,6 +21,7 @@ export default function Reservations() {
     const errorColor = useThemeColor({}, 'error');
     const shadowColor = useThemeColor({}, 'cardShadow');
     const secondaryTextColor = useThemeColor({}, 'secondaryText');
+    const backgroundColor = useThemeColor({}, 'background');
     const { montlyBooking, getMontlyBooking, currentMonthReservation, currentYearReservation, setCurrentMonthReservation, setCurrentYearReservation, removeBooking } = useAppStore()
 
     const handleRemoveBooking = async (bookingId: string) => {
@@ -135,55 +137,58 @@ export default function Reservations() {
     );
 
     return (
-        <ThemedView style={styles.container}>
-            <ThemedText type="subtitle" style={styles.title}>Date disponibili</ThemedText>
-            {/* segmented control per selezionare: passate o future */}
-            <ThemedView style={styles.segmentedControlContainer}>
-                <SegmentedControl
-                    values={['Passate', 'Oggi', 'Pianificate']}
-                    selectedIndex={selectedIndex}
-                    style={styles.segmentedControl}
-                    onChange={(event) => handleSegmentedControlChange(event.nativeEvent.selectedSegmentIndex)}
-                />
+
+        <SafeAreaView style={{ flex: 1, backgroundColor: backgroundColor }}>
+            <ThemedView style={styles.container}>
+                <ThemedText type="subtitle" style={styles.title}>Date disponibili</ThemedText>
+                {/* segmented control per selezionare: passate o future */}
+                <ThemedView style={styles.segmentedControlContainer}>
+                    <SegmentedControl
+                        values={['Passate', 'Oggi', 'Pianificate']}
+                        selectedIndex={selectedIndex}
+                        style={styles.segmentedControl}
+                        onChange={(event) => handleSegmentedControlChange(event.nativeEvent.selectedSegmentIndex)}
+                    />
+                </ThemedView>
+                <ThemedView style={styles.monthSelectorContainer}>
+                    <HorizontalMonthSelector
+                        handleNextMonth={handleNextMonth}
+                        handlePreviousMonth={handlePreviousMonth}
+                        selectedMonth={currentMonthReservation}
+                        selectedYear={currentYearReservation}
+                        onMonthChange={setCurrentMonthReservation}
+                        onYearChange={setCurrentYearReservation}
+                    />
+                </ThemedView>
+                {/* crea i box inerenti alle prenotazioni del mese selezionato */}
+                <ThemedView style={styles.reservationsContainer}>
+                    <StatBox number={getDaysInMonth(currentMonthReservation, currentYearReservation)} label="Tot" />
+                    <StatBox number={getTotalWorkingDaysInMonth(currentMonthReservation, currentYearReservation)} label="Lavorati" />
+                    <StatBox number={montlyBooking?.length || 0} label="Prenotati" />
+                </ThemedView>
+                {/* crea la lista delle prenotazioni */}
+                <ThemedView style={styles.reservationsList}>
+                    {montlyBooking && <FlatList
+                        data={montlyBooking as Book[]}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.listContainer}
+                        ListEmptyComponent={
+                            <ThemedView style={styles.emptyListContainer}>
+                                <ThemedText style={[
+                                    styles.emptyListText,
+                                    // ...(isPast(new Date()) ? [styles.reservationItemPast] : [])
+                                ]} type="default">
+                                    Nessuna prenotazione trovata
+                                </ThemedText>
+                                {/* <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} /> */}
+                            </ThemedView>
+                        }
+                    />}
+                </ThemedView>
             </ThemedView>
-            <ThemedView style={styles.monthSelectorContainer}>
-                <HorizontalMonthSelector
-                    handleNextMonth={handleNextMonth}
-                    handlePreviousMonth={handlePreviousMonth}
-                    selectedMonth={currentMonthReservation}
-                    selectedYear={currentYearReservation}
-                    onMonthChange={setCurrentMonthReservation}
-                    onYearChange={setCurrentYearReservation}
-                />
-            </ThemedView>
-            {/* crea i box inerenti alle prenotazioni del mese selezionato */}
-            <ThemedView style={styles.reservationsContainer}>
-                <StatBox number={getDaysInMonth(currentMonthReservation, currentYearReservation)} label="Tot" />
-                <StatBox number={getTotalWorkingDaysInMonth(currentMonthReservation, currentYearReservation)} label="Lavorati" />
-                <StatBox number={montlyBooking?.length || 0} label="Prenotati" />
-            </ThemedView>
-            {/* crea la lista delle prenotazioni */}
-            <ThemedView style={styles.reservationsList}>
-                {montlyBooking && <FlatList
-                    data={montlyBooking as Book[]}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.listContainer}
-                    ListEmptyComponent={
-                        <ThemedView style={styles.emptyListContainer}>
-                            <ThemedText style={[
-                                styles.emptyListText,
-                                // ...(isPast(new Date()) ? [styles.reservationItemPast] : [])
-                            ]} type="default">
-                                Nessuna prenotazione trovata
-                            </ThemedText>
-                            {/* <Image source={image} style={[styles.emptyListImage, ...(isPast(new Date()) ? [styles.reservationItemPast] : [])]} /> */}
-                        </ThemedView>
-                    }
-                />}
-            </ThemedView>
-        </ThemedView>
+        </SafeAreaView>
     );
 }
 
@@ -220,7 +225,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         width: '100%',
-
+        // marginBottom: tabBarHeight
     },
     listContainer: {
         paddingHorizontal: 16,

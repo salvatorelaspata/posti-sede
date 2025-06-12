@@ -12,6 +12,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import * as Linking from 'expo-linking'
+import { tabBarHeight } from '@/constants/Colors';
 // import { useColorScheme } from '@/hooks/useColorScheme';
 
 const SettingsScreen = () => {
@@ -234,6 +235,7 @@ const SettingsScreen = () => {
                             Versione 0.0.1
                         </ThemedText>
                     </ThemedView>
+                    <ThemedView style={{ height: tabBarHeight }} />
                 </ScrollView>
             </ThemedView>
         </ParallaxScrollView>

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Room } from '@/types';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView, View } from 'react-native';
+// import { Room } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -13,13 +13,16 @@ import { useAppStore } from '@/store/app-store';
 import { useRouter } from 'expo-router';
 import { RoomComponent } from '@/components/Room';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// import { useColorScheme } from '@/hooks/useColorScheme';
 import BottomSheet from '@gorhom/bottom-sheet';
 import CalendarStrip from '@/components/CalendarStrip';
 import { isDayDisabled } from '@/hooks/useCalendar';
+import { tabBarHeight } from '@/constants/Colors';
+import { useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HomeScreen = () => {
   const router = useRouter();
+
   const { rooms, fetchRooms } = useTenantStore();
   const { location, room, setRoom, fetchPersonalBooking, currentDay, currentMonth, currentYear, booking, addBooking, booked } = useAppStore();
 
@@ -28,6 +31,7 @@ const HomeScreen = () => {
   const primaryButtonColor = useThemeColor({}, 'primaryButton');
   const successColor = useThemeColor({}, 'success');
   const errorColor = useThemeColor({}, 'error');
+  const backgroundColor = useThemeColor({}, 'background');
   // const warningColor = useThemeColor({}, 'warning');
 
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -70,73 +74,81 @@ const HomeScreen = () => {
       }
     }
   }
+  const { height, width } = useSafeAreaFrame();
+  const { top, bottom } = useSafeAreaInsets();
 
   return (
-    <ThemedGestureHandlerRootView style={styles.container}>
-      <ThemedView style={styles.sectionTitle}>
-        <ThemedText type="subtitle">Date disponibili</ThemedText>
-        <ThemedText type='small'>({currentYear})</ThemedText>
-      </ThemedView>
-      {/* <HorizontalCalendar /> */}
-      <CalendarStrip />
+    <View style={{ height, width, paddingTop: top, backgroundColor }}>
+      <ThemedGestureHandlerRootView style={styles.container}>
+        <ThemedView style={styles.sectionTitle}>
+          <ThemedText type="subtitle">Date disponibili</ThemedText>
+          <ThemedText type='small'>({currentYear})</ThemedText>
+        </ThemedView>
+        {/* <HorizontalCalendar /> */}
+        <CalendarStrip />
 
-      {/* Banner giorno disabilitato */}
-      {isCurrentDayDisabled && (
-        <ThemedView style={[styles.bookingBanner, { backgroundColor: `${errorColor}15`, borderColor: errorColor }]}>
-          <ThemedView style={styles.bookingBannerContent}>
-            <Ionicons name="warning" size={20} color={errorColor} />
-            <ThemedText type="small" style={[styles.bookingBannerText, { color: errorColor }]}>
-              Giorno non disponibile per le prenotazioni (weekend o passato)
-            </ThemedText>
+        {/* Banner giorno disabilitato */}
+        {isCurrentDayDisabled && (
+          <ThemedView style={[styles.bookingBanner, { backgroundColor: `${errorColor}15`, borderColor: errorColor }]}>
+            <ThemedView style={styles.bookingBannerContent}>
+              <Ionicons name="warning" size={20} color={errorColor} />
+              <ThemedText type="small" style={[styles.bookingBannerText, { color: errorColor }]}>
+                Giorno non disponibile per le prenotazioni (weekend o passato)
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+        )}
+
+        {/* Banner stato prenotazione */}
+        {booked && (
+          <ThemedView style={[styles.bookingBanner, { backgroundColor: `${successColor}15`, borderColor: successColor }]}>
+            <ThemedView style={styles.bookingBannerContent}>
+              <Ionicons name="checkmark-circle" size={20} color={successColor} />
+              <ThemedText type="small" style={[styles.bookingBannerText, { color: successColor }]}>
+                Hai prenotato la stanza "{booked.roomName}" per oggi
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+        )}
+
+        <ThemedView style={styles.sectionTitle}>
+          <ThemedText type="subtitle">Stanze disponibili</ThemedText>
+          <ThemedView style={styles.headerIcons}>
+            <TouchableOpacity
+              onPress={() => router.push('/(app)/modalAllPeople')}
+              style={styles.iconButton}
+            >
+              <Ionicons name="people" size={24} color={primaryButtonColor} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+              <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
+            </TouchableOpacity>
           </ThemedView>
         </ThemedView>
-      )}
+        <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
+          {rooms.length > 0 ? rooms.map((room) => (
+            <RoomComponent
+              key={room.id}
+              room={room}
+            />
+          )) :
+            <ThemedText style={styles.noRoomsText}>
+              Nessuna stanza disponibile
+            </ThemedText>}
 
-      {/* Banner stato prenotazione */}
-      {booked && (
-        <ThemedView style={[styles.bookingBanner, { backgroundColor: `${successColor}15`, borderColor: successColor }]}>
-          <ThemedView style={styles.bookingBannerContent}>
-            <Ionicons name="checkmark-circle" size={20} color={successColor} />
-            <ThemedText type="small" style={[styles.bookingBannerText, { color: successColor }]}>
-              Hai prenotato la stanza "{booked.roomName}" per oggi
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-      )}
+          <ThemedView style={{ height: tabBarHeight }} />
 
-      <ThemedView style={styles.sectionTitle}>
-        <ThemedText type="subtitle">Stanze disponibili</ThemedText>
-        <ThemedView style={styles.headerIcons}>
-          <TouchableOpacity
-            onPress={() => router.push('/(app)/modalAllPeople')}
-            style={styles.iconButton}
-          >
-            <Ionicons name="people" size={24} color={primaryButtonColor} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
-            <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
-          </TouchableOpacity>
-        </ThemedView>
-      </ThemedView>
-      <ThemedScrollView ref={scrollViewRef} style={styles.roomsContainer}>
-        {rooms.length > 0 ? rooms.map((room) => (
-          <RoomComponent
-            key={room.id}
-            room={room}
-          />
-        )) :
-          <ThemedText style={styles.noRoomsText}>
-            Nessuna stanza disponibile
-          </ThemedText>}
-        <ThemedView style={styles.bottomMargin} />
-      </ThemedScrollView>
+        </ThemedScrollView>
 
-      {room &&
-        <ReserveBottomSheet
-          bottomSheetRef={bottomSheetRef}
-          handleBooking={handleBooking} />
-      }
-    </ThemedGestureHandlerRootView >
+        {room &&
+          <ReserveBottomSheet
+            bottomSheetRef={bottomSheetRef}
+            handleBooking={handleBooking} />
+        }
+
+
+      </ThemedGestureHandlerRootView >
+    </View>
   );
 };
 
@@ -164,9 +176,6 @@ const styles = StyleSheet.create({
   bottomSheet: {
     flex: 1,
     backgroundColor: 'blue',
-  },
-  bottomMargin: {
-    // height: 500,
   },
   noRoomsText: {
     textAlign: 'center',

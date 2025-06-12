@@ -11,6 +11,7 @@ import { useTenantStore } from '@/store/tenant-store';
 import { Calendar } from 'react-native-calendars';
 import { Room } from '@/types';
 import { Image } from 'expo-image';
+import { tabBarHeight } from '@/constants/Colors';
 
 interface SelectedDays {
   [key: string]: {
@@ -93,7 +94,7 @@ export default function ModalCreateSchedule() {
   const getSelectedDaysCount = () => Object.keys(selectedDays).length;
 
   return (
-    <ThemedSafeAreaView style={[styles.container, { backgroundColor }]}>
+    <ThemedView style={[styles.container, { backgroundColor }]}>
       {/* Header */}
       <ThemedView style={[styles.header, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}>
         <TouchableOpacity
@@ -198,10 +199,6 @@ export default function ModalCreateSchedule() {
               </ThemedText>
             </ThemedView>
           )}
-        </ThemedView>
-
-        {/* Calendar Section */}
-        <ThemedView style={[styles.calendarSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
           <ThemedView style={styles.compactSectionHeader}>
             <ThemedText type="subtitle" style={[styles.compactSectionTitle, { color: textColor }]}>
               Seleziona Giorni
@@ -242,17 +239,22 @@ export default function ModalCreateSchedule() {
               minDate={new Date().toISOString().split('T')[0]}
               style={[styles.calendar, { borderColor }]}
             />
-          </ThemedView>
+            {/* </ThemedView> */}
 
-          {getSelectedDaysCount() > 0 && (
-            <ThemedView style={[styles.selectedDaysInfo, { backgroundColor: `${tintColor}15`, borderColor: tintColor }]}>
-              <Ionicons name="calendar" size={20} color={tintColor} />
-              <ThemedText type="small" style={[styles.selectedDaysText, { color: tintColor }]}>
-                Hai selezionato {getSelectedDaysCount()} giorni
-              </ThemedText>
-            </ThemedView>
-          )}
+            {getSelectedDaysCount() > 0 && (
+              <ThemedView style={[styles.selectedDaysInfo, { backgroundColor: `${tintColor}15`, borderColor: tintColor }]}>
+                <Ionicons name="calendar" size={20} color={tintColor} />
+                <ThemedText type="small" style={[styles.selectedDaysText, { color: tintColor }]}>
+                  Hai selezionato {getSelectedDaysCount()} giorni
+                </ThemedText>
+              </ThemedView>
+            )}
+          </ThemedView>
         </ThemedView>
+
+        {/* Calendar Section */}
+        {/* <ThemedView style={[styles.calendarSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}> */}
+
 
         <ThemedView style={styles.bottomPadding} />
       </ScrollView>
@@ -278,7 +280,7 @@ export default function ModalCreateSchedule() {
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 }
 
@@ -292,7 +294,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 8,
     borderBottomWidth: 1,
   },
   closeButton: {
@@ -543,7 +544,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    margin: 12,
   },
   instructionsSection: {
     marginHorizontal: 16,

@@ -11,6 +11,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { formatDate } from '@/constants/Calendar';
 import { useAppStore } from '@/store/app-store';
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { tabBarHeight } from '@/constants/Colors';
 
 interface ReserveBottomSheetProps {
     handleBooking: () => Promise<void>;
@@ -207,6 +208,7 @@ export default function ReserveBottomSheet({ handleBooking, bottomSheetRef }: Re
                         <ThemedText style={[{ color: whiteTextColor }]}>Annulla</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
+                <ThemedView style={{ height: tabBarHeight }} />
             </BottomSheetView>
         </BottomSheet>
     );
