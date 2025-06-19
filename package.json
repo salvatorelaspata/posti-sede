@@ -20,8 +20,6 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@clerk/clerk-expo": "^2.7.7",
-    "@clerk/types": "^4.46.0",
     "@expo/vector-icons": "^14.0.2",
     "@gorhom/bottom-sheet": "^5.1.1",
     "@neondatabase/serverless": "^0.10.4",

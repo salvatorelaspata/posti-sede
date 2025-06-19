@@ -115,12 +115,12 @@ const HomeScreen = () => {
           <ThemedText type="subtitle">Stanze disponibili</ThemedText>
           <ThemedView style={styles.headerIcons}>
             <TouchableOpacity
-              onPress={() => router.push('/(app)/modalAllPeople')}
+              onPress={() => router.push('/(protected)/modalAllPeople')}
               style={styles.iconButton}
             >
               <Ionicons name="people" size={24} color={primaryButtonColor} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+            <TouchableOpacity onPress={() => router.push('/(protected)/modalDetailLocation')}>
               <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
             </TouchableOpacity>
           </ThemedView>

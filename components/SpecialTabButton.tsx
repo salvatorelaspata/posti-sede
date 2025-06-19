@@ -9,7 +9,7 @@ export const SpecialTabButton = () => {
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/(app)/modalCreateSchedule');
+    router.push('/(protected)/modalCreateSchedule');
   };
 
   const whiteTextColor = useThemeColor({}, 'whiteText');
@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    transform: [{ translateX: -20 }],
-    marginBottom: 26,
+    // transform: [{ translateX: -20 }],
+    // marginBottom: 26,
     borderRadius: 25,
     width: 50,
     height: 50,

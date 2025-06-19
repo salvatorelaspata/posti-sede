@@ -1,23 +1,24 @@
 import { StyleSheet, FlatList, View, Pressable } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
-import { useUser } from "@clerk/clerk-expo";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAdminStore } from "@/store/admin-store";
 import { useRouter } from "expo-router";
 export default function Employee() {
-    const { user } = useUser();
     const { attendance } = useAdminStore();
     const router = useRouter();
 
-    // Theme colors
-    // const colorScheme = useColorScheme();
+    // colors
     const cardBackground = useThemeColor({}, 'cardBackground');
     const tintColor = useThemeColor({}, 'tint');
     const secondaryText = useThemeColor({}, 'secondaryText');
     const cardShadow = useThemeColor({}, 'cardShadow');
-    // const backgroundColor = useThemeColor({}, 'background');
+
+    // TODO
+    const user = {
+        id: '16b2681e-b944-402e-b734-b87251c6f1fe', // Replace with actual user ID from your auth context or store
+    }
+
     return (
         <FlatList
             keyExtractor={(item) => item.id}
@@ -37,7 +38,7 @@ export default function Employee() {
                     ]}
                     onPress={() => {
                         router.push({
-                            pathname: '/(app)/modalDetailBooking',
+                            pathname: '/(protected)/modalDetailBooking',
                             params: { employee: item.id }
                         })
                     }}

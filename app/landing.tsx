@@ -1,23 +1,24 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert } from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
-import { useUser } from '@clerk/clerk-expo';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { HeaderImage } from '@/components/HeaderImage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthContext } from '@/utils/authContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const { isSignedIn } = useUser();
-    if (isSignedIn) return <Redirect href="/(app)/rooms" />
+    const authContext = useContext(AuthContext);
+
+    if (authContext.isLoggedIn) return <Redirect href="/(protected)/rooms" />
 
     const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
@@ -66,6 +67,11 @@ export default function LandingPage() {
             }>
             <ThemedView style={styles.content}>
 
+
+                <Button title="[DEBUG] login" onPress={() => {
+                    authContext.logIn();
+                    router.replace('/(protected)/rooms');
+                }} />
 
                 <ThemedView style={styles.featuresContainer}>
                     <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>

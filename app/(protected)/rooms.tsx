@@ -1,5 +1,5 @@
-import React, { useEffect, useLayoutEffect } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useLayoutEffect } from 'react';
+import { Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,15 +9,14 @@ import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 // import { getTenantFromEmail } from '@/db/api';
-import { useUser } from '@clerk/clerk-expo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthContext } from '@/utils/authContext';
 
 export default function App() {
   const router = useRouter()
-  const { user } = useUser();
   const { locations, fetchLocations } = useTenantStore();
-  const { setClerkUser, setLocation, tenant } = useAppStore();
+  const { setLocation, tenant } = useAppStore();
 
   // Theme colors
   const colorScheme = useColorScheme();
@@ -27,14 +26,10 @@ export default function App() {
   const cardShadow = useThemeColor({}, 'cardShadow');
 
   useEffect(() => {
-    (async () => {
-      if (user) setClerkUser(user);
-    })();
-  }, [user]);
-
-  useEffect(() => {
     if (tenant) fetchLocations(tenant.id);
   }, [tenant]);
+
+  const authContext = useContext(AuthContext);
 
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
@@ -48,8 +43,9 @@ export default function App() {
               key={item.id}
               style={[styles.locationCard, { backgroundColor: cardBackground, shadowColor: cardShadow }]}
               onPress={() => {
+                console.log('Selected location:', item);
                 setLocation(item);
-                router.push(`/(app)/(tabs)/home`)
+                router.push(`/(protected)/(tabs)/home`)
               }}
             >
               <ThemedView style={styles.locationImageContainer}>
@@ -73,6 +69,10 @@ export default function App() {
           )}
         />
       </ThemedView>
+      <Button title="[DEBUG] logout" onPress={() => {
+        authContext.logOut();
+        router.replace('/login');
+      }} />
     </ThemedSafeAreaView>
   );
 }

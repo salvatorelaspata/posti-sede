@@ -1,19 +1,41 @@
-import { tokenCache } from '@/cache'
-import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
-import { Slot } from 'expo-router'
+import { AuthProvider } from '@/utils/authContext'
+import { Stack, usePathname } from 'expo-router'
+import { StatusBar } from "expo-status-bar";
+
+export const unstable_settings = {
+  initialRouteName: 'landing',
+};
 
 export default function RootLayout() {
-  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 
-  if (!publishableKey) {
-    throw new Error('Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env')
-  }
+  const pathname = usePathname();
+  console.log('RootLayout pathname:', pathname);
+
 
   return (
-    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-      <ClerkLoaded>
-        <Slot />
-      </ClerkLoaded>
-    </ClerkProvider>
+    <AuthProvider>
+      <StatusBar style="auto" />
+      <Stack>
+        <Stack.Screen
+          name="(protected)"
+          options={{
+            headerShown: false,
+            animation: "none",
+          }}
+        />
+        <Stack.Screen
+          name="login"
+          options={{ animation: "none", headerShown: false }}
+        />
+        <Stack.Screen
+          name="signup"
+          options={{ animation: "none", headerShown: false }}
+        />
+        <Stack.Screen
+          name="landing"
+          options={{ animation: "none", headerShown: false }}
+        />
+      </Stack>
+    </AuthProvider>
   )
 }

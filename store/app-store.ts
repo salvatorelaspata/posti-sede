@@ -2,8 +2,7 @@ import { create } from 'zustand';
 import { Location, Room, Booking, Tenant, Employee } from '@/types';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByDate, getBookingUserByMonth, insertBooking, deleteBooking } from '@/db/api';
-import { UserResource } from '@clerk/types';
+import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByMonth, insertBooking, deleteBooking } from '@/db/api';
 import { DayItem, isSameDate } from '@/hooks/useCalendar';
 
 export type Book = {
@@ -14,7 +13,7 @@ export type Book = {
 }
 
 type AppState = {
-    clerkUser: UserResource | null | undefined;
+    user: any;
     isAdmin: boolean;
     employee: Employee | null;
     tenant: Tenant | null;
@@ -27,7 +26,7 @@ type AppState = {
     currentDay: number;
     setCurrentDay: (currentDay: number) => void;
     setCurrentDate: (date: Date) => void;
-    setClerkUser: (clerkUser: UserResource) => Promise<void>;
+    setUser: (user: any) => Promise<void>;
     fetchPersonalBooking: () => Promise<void>;
     setLocation: (location: Location) => void;
     setRoom: (room: Room | null) => void;
@@ -49,7 +48,7 @@ type AppState = {
 export const useAppStore = create<AppState>()(
     persist(
         (set, get) => ({
-            clerkUser: null,
+            user: null,
             employee: null,
             isAdmin: false,
             tenant: null,
@@ -73,19 +72,18 @@ export const useAppStore = create<AppState>()(
                 else
                     set({ currentYear, currentMonth, currentDay })
             },
-            setClerkUser: async (clerkUser) => {
+            setUser: async (user) => {
                 // insert the user into the store
-                set({ clerkUser })
+                set({ user })
                 try {
-                    const clerkId = get().clerkUser?.id || '';
-                    // get the employee from the clerk id
-                    const employee = await getEmployeeByClerkId(clerkId);
+                    const userId = get().user?.id || '';
+                    const employee = await getEmployeeByClerkId(userId);
                     set({ employee });
                     // set the user role
                     if (employee)
                         set({ isAdmin: employee.role === 'admin' });
                     // get tanant from email
-                    const tenant = await getTenantFromEmail(get().clerkUser?.emailAddresses[0].emailAddress || '');
+                    const tenant = await getTenantFromEmail(get().user?.emailAddresses[0].emailAddress || '');
                     // set the tenant in the store
                     set({ tenant });
                 } catch (error) {
