@@ -18,8 +18,8 @@ export default function ProtectedLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* screens */}
-      <Stack.Screen name="rooms" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="rooms" options={{ headerShown: false, animation: 'fade' }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'simple_push' }} />
       {/* modals */}
       <Stack.Screen name="modalDetailBooking" options={{ presentation: 'modal' }} />
       <Stack.Screen name="modalDetailLocation" options={{ presentation: 'modal' }} />
