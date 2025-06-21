@@ -28,6 +28,14 @@ export default function Login() {
   const { user, signIn, isLoading } = useAuth();
   if (user) return <Redirect href="/(protected)/rooms" />
 
+  const _signIn = async () => {
+    try {
+      await signIn();
+    } catch (error) {
+      console.error('Sign-in error:', error);
+    }
+  };
+
   const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
   // const whiteTextColor = useThemeColor({}, 'whiteText');
@@ -155,7 +163,7 @@ export default function Login() {
 
           {/* {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>} */}
 
-          <SignInWithGoogleButton onPress={signIn} disabled={isLoading} />
+          <SignInWithGoogleButton onPress={_signIn} disabled={isLoading} />
 
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/landing')}>
             <ThemedText style={[styles.toggleText, { color: tintColor }]}>

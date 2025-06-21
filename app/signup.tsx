@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { Colors, gradient } from '@/constants/Colors';
-import { checkTenant, createEmployeeFromEmailAndPassword } from '@/db/api';
+import { checkTenant } from '@/db/api';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedText } from '@/components/ThemedText';

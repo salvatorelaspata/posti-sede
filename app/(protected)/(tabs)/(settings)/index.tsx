@@ -10,12 +10,16 @@ import { useRouter } from 'expo-router';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { tabBarHeight } from '@/constants/Colors';
+// import { tabBarHeight } from '@/constants/Colors';
 import { useAuth } from '@/context/auth';
 import { Image } from 'expo-image';
+import { useAppStore } from '@/store/app-store';
+import { useTenantStore } from '@/store/tenant-store';
 
 const SettingsScreen = () => {
     const { user, signOut } = useAuth();
+    const { reset: resetApp } = useAppStore();
+    const { reset: resetTenant } = useTenantStore();
     const router = useRouter();
     const [notifications, setNotifications] = useState(false);
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
@@ -56,6 +60,8 @@ const SettingsScreen = () => {
                 text: "Logout", style: "destructive",
                 onPress: async () => {
                     await signOut();
+                    resetApp();
+                    resetTenant();
                     router.replace('/login');
                 }
             }
@@ -210,7 +216,7 @@ const SettingsScreen = () => {
                             Versione 0.0.1
                         </ThemedText>
                     </ThemedView>
-                    <ThemedView style={{ height: tabBarHeight }} />
+                    {/* <ThemedView style={{ height: tabBarHeight }} /> */}
                 </ScrollView>
             </ThemedView>
         </ParallaxScrollView>

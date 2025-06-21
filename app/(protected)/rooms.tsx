@@ -13,10 +13,10 @@ import { useAuth } from '@/context/auth';
 
 export default function App() {
   const router = useRouter()
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   if (!user) return <Redirect href="/login" />
-  const { locations, fetchLocations } = useTenantStore();
-  const { setLocation, tenant } = useAppStore();
+  const { locations, setTenantFromUser, reset: resetTenant } = useTenantStore();
+  const { setLocation, reset: resetApp, setEmployee } = useAppStore();
 
   // Theme colors
   const tintColor = useThemeColor({}, 'tint');
@@ -25,13 +25,29 @@ export default function App() {
   const cardShadow = useThemeColor({}, 'cardShadow');
 
   useEffect(() => {
-    console.log(tenant)
-    if (tenant) fetchLocations(tenant.id);
-  }, [tenant]);
+    console.log('App component mounted, fetching tenant locations', user);
+    if (user) {
+      const fetchEmployee = async () => {
+        try {
+          const employee = await setTenantFromUser(user);
+          if (employee) {
+            console.log('Employee set:', employee);
+            setEmployee(employee);
+          } else {
+            console.error('Failed to set employee for user:', user.email);
+          }
+        }
+        catch (error) {
+          console.error('Error fetching employee:', error);
+        }
+      };
+      fetchEmployee();
+    }
+  }, [user]);
 
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
-      <ThemedText type="title" style={styles.title}>Sedi disponibili</ThemedText>
+      <ThemedText type="title" style={styles.title}>Sedi</ThemedText>
       <ThemedText type='small' style={styles.info}>
         👋 {user.given_name}, seleziona una sede per visualizzare le postazioni disponibili
       </ThemedText>
@@ -68,8 +84,21 @@ export default function App() {
               </ThemedView>
             </TouchableOpacity>
           )}
+          ListEmptyComponent={<ThemedText style={{ textAlign: 'center', marginTop: 16 }}>Nessuna sede disponibile per la tua organizzazione</ThemedText>}
         />
       </ThemedView>
+      {/* Logout button */}
+      <TouchableOpacity
+        style={{ margin: 16, padding: 16, backgroundColor: tintColor, borderRadius: 8, marginTop: 16 }}
+        onPress={async () => {
+          await signOut();
+          resetApp();
+          resetTenant();
+          router.push('/login');
+        }}
+      >
+        <ThemedText type='defaultSemiBold' style={{ color: 'white', textAlign: 'center' }}>Logout</ThemedText>
+      </TouchableOpacity>
     </ThemedSafeAreaView>
   );
 }
@@ -77,7 +106,7 @@ export default function App() {
 const styles = StyleSheet.create({
   locationContainer: {
     flex: 1,
-    padding: 16,
+
   },
   title: {
     textAlign: 'center',
@@ -85,8 +114,10 @@ const styles = StyleSheet.create({
   },
   info: {
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   locationGrid: {
+    marginHorizontal: 16,
     flexDirection: 'column',
     flex: 1,
   },

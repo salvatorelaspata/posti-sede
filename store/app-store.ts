@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { Location, Room, Booking, Tenant, Employee } from '@/types';
+import { Location, Room, Tenant, Employee } from '@/types';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTenantFromEmail, getEmployeeByClerkId, getBookingUserByMonth, insertBooking, deleteBooking } from '@/db/api';
+import { getBookingUserByMonth, insertBooking, deleteBooking } from '@/db/api';
 import { DayItem, isSameDate } from '@/hooks/useCalendar';
 
 export type Book = {
@@ -13,9 +13,9 @@ export type Book = {
 }
 
 type AppState = {
-    user: any;
     isAdmin: boolean;
     employee: Employee | null;
+    setEmployee: (employee: Employee | null) => void;
     tenant: Tenant | null;
     location: Location | null;
     room: Room | null;
@@ -26,7 +26,6 @@ type AppState = {
     currentDay: number;
     setCurrentDay: (currentDay: number) => void;
     setCurrentDate: (date: Date) => void;
-    setUser: (user: any) => Promise<void>;
     fetchPersonalBooking: () => Promise<void>;
     setLocation: (location: Location) => void;
     setRoom: (room: Room | null) => void;
@@ -43,13 +42,14 @@ type AppState = {
     montlyBooking: Book[];
     getMontlyBooking: (year: number, month: number) => Promise<void>;
     setMontlyBooking: (booking: Book[]) => void;
+    reset: () => void;
 };
 
 export const useAppStore = create<AppState>()(
     persist(
         (set, get) => ({
-            user: null,
             employee: null,
+            setEmployee: (employee: Employee | null) => set({ employee }),
             isAdmin: false,
             tenant: null,
             location: null,
@@ -71,25 +71,6 @@ export const useAppStore = create<AppState>()(
                 }
                 else
                     set({ currentYear, currentMonth, currentDay })
-            },
-            setUser: async (user) => {
-                // insert the user into the store
-                set({ user })
-                try {
-                    const userId = get().user?.id || '';
-                    const employee = await getEmployeeByClerkId(userId);
-                    set({ employee });
-                    // set the user role
-                    if (employee)
-                        set({ isAdmin: employee.role === 'admin' });
-                    // get tanant from email
-                    const tenant = await getTenantFromEmail(get().user?.emailAddresses[0].emailAddress || '');
-                    // set the tenant in the store
-                    set({ tenant });
-                } catch (error) {
-                    console.error('Error fetching user role:', error);
-                    set({ isAdmin: false });
-                }
             },
             fetchPersonalBooking: async () => {
                 if (get().location) {
@@ -114,14 +95,6 @@ export const useAppStore = create<AppState>()(
                             set({ booked: booked || null });
                         }
 
-                        // imposto isBooked per i giorni del mese (days)
-
-                        // const days = get().days.map(day => {
-                        //     const isBooked = booking.some(b => isSameDate(typeof b.date === 'string' ? new Date(b.date) : b.date, day.date));
-                        //     return { ...day, isBooked };
-                        // });
-
-                        // set({ days });
                     }
                     catch (error) {
                         console.error('Error fetching personal booking:', error);
@@ -210,10 +183,27 @@ export const useAppStore = create<AppState>()(
                 }
             },
             setMontlyBooking: (booking) => set({ montlyBooking: booking }),
+            reset: () => set({
+                employee: null,
+                isAdmin: false,
+                tenant: null,
+                location: null,
+                room: null,
+                booked: null,
+                booking: [],
+                currentYear: new Date().getFullYear(),
+                currentMonth: new Date().getMonth(),
+                currentDay: new Date().getDate(),
+                days: [],
+                montlyBooking: [],
+                currentYearReservation: new Date().getFullYear(),
+                currentMonthReservation: new Date().getMonth(),
+            }),
         }),
         {
             name: 'app-storage',
             storage: createJSONStorage(() => AsyncStorage),
+
         }
     )
 );

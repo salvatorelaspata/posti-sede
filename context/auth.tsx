@@ -408,7 +408,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           formData.append("platform", "web");
         }
 
-        console.log("request", request);
+        // console.log("request", request);
 
         // Get the code verifier from the request object
         // This is the same verifier that was used to generate the code challenge

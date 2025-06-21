@@ -15,14 +15,12 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   let idpClientId: string;
-  console.log("url", url);
+
   const internalClient = url.searchParams.get("client_id");
 
   const redirectUri = url.searchParams.get("redirect_uri");
 
   let platform;
-
-  console.log("redirectUri", redirectUri, APP_SCHEME, BASE_URL);
 
   if (redirectUri === APP_SCHEME) {
     platform = "mobile";

@@ -22,8 +22,6 @@ export const tenants = pgTable('tenants', {
 export const employees = pgTable('employees', {
     id: uuid('id').primaryKey().defaultRandom(),
     tenantId: uuid('tenant_id').references(() => tenants.id),
-    // userId: uuid('user_id').references(() => users.id),
-    clerkId: varchar('clerk_id', { length: 256 }).notNull(),
     role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
     email: varchar('email', { length: 256 }).notNull(),
     firstName: varchar('first_name', { length: 256 }).notNull(),
@@ -117,33 +115,5 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
     room: one(rooms, {
         fields: [bookings.roomId],
         references: [rooms.id],
-    }),
-}));
-
-// gestione autenticazione
-export const user = pgTable('user', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    email: varchar('email', { length: 256 }).notNull(),
-    passwordHash: varchar('password_hash', { length: 512 }).notNull(),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
-});
-
-export const refreshToken = pgTable('refresh_token', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    token: varchar('token', { length: 512 }).notNull(),
-    userId: uuid('user_id').references(() => user.id),
-    createdAt: timestamp('created_at').defaultNow(),
-    expiresAt: timestamp('expires_at').notNull(),
-});
-
-export const userRelations = relations(user, ({ many }) => ({
-    refreshTokens: many(refreshToken),
-}));
-
-export const refreshTokenRelations = relations(refreshToken, ({ one }) => ({
-    user: one(user, {
-        fields: [refreshToken.userId],
-        references: [user.id],
     }),
 }));

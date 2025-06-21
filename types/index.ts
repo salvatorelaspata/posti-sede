@@ -6,20 +6,6 @@ export type Room = typeof rooms.$inferSelect;
 export type Booking = typeof bookings.$inferInsert;
 export type Employee = typeof employees.$inferSelect;
 
-
-export type ClerkError = {
-    status: number,
-    clerkError: boolean,
-    errors: {
-        code: string,
-        message: string,
-        longMessage: string,
-        meta: {
-            paramName: string,
-        }
-    }[]
-}
-
 export type RoomPerson = {
     id: string;
     employee: {

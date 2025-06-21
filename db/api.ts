@@ -23,30 +23,21 @@ export const checkTenant = async (email: string) => {
     return tenantId.length > 0;
 }
 
+export const checkEmployee = async (email: string) => {
+    const employee = await db.select().from(employees).where(eq(employees.email, email)).limit(1);
+    return employee.length > 0 ? employee[0] : null;
+}
 
-export const createEmployeeFromEmailAndPassword = async (email: string, clerkId: string, firstname: string, lastname: string) => {
-    // get tenant from email
-    const tenant = email.split('@')[1];
-    const tenantId = await db.select().from(tenants).where(sql`${tenants.allowedDomains} @> ${JSON.stringify([tenant])}`)
-    if (tenantId.length === 0) {
-        throw new Error('Tenant non trovato');
+export const insertEmployee = async (employee: Employee): Promise<Employee> => {
+    try {
+        // Inserisce un nuovo impiegato e restituisce il suo ID
+        const newEmployee = await db.insert(employees).values(employee).returning();
+        return newEmployee[0];
+    } catch (error) {
+        console.error("Errore nell'inserimento dell'impiegato:", error);
+        throw error;
     }
-
-    const employee = await db.insert(employees).values({
-        tenantId: tenantId[0].id,
-        clerkId: clerkId,
-        email: email,
-        firstName: firstname,
-        lastName: lastname,
-    }).returning();
-
-    return employee[0];
-}
-
-export const getEmployeeByClerkId = async (clerkId: string) => {
-    const employee = await db.select().from(employees).where(eq(employees.clerkId, clerkId));
-    return employee[0];
-}
+};
 
 export const getAvailabilityForLocation = async (locationId: string, date: Date) => {
     const startDate = new Date(date);
@@ -159,7 +150,6 @@ export const getAttendance = async (locationId: string, month: number, year: num
         id: string,
         employeeName: string,
         employeeDepartment: string,
-        userId: string,
         days: string[],
         employee: Employee
     }>();
@@ -175,7 +165,6 @@ export const getAttendance = async (locationId: string, month: number, year: num
                     id: employeeId,
                     employeeName: booking.employees?.firstName || 'Sconosciuto',
                     employeeDepartment: booking.employees?.department || 'Sconosciuto',
-                    userId: booking.employees?.clerkId || 'Sconosciuto',
                     employee: booking.employees,
                     days: []
                 });

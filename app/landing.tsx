@@ -102,18 +102,6 @@ export default function LandingPage() {
                     <ThemedText style={[{ color: textColor, marginTop: 4 }]}>Per registrare la tua azienda</ThemedText>
                 </TouchableOpacity>
             </ThemedView>
-            {/* <SignedIn>
-                <ThemedText>Hello</ThemedText>
-                <ThemedText>{`<SignOutButton />`}</ThemedText>
-            </SignedIn>
-            <SignedOut>
-                <Link href="/login">
-                    <ThemedText>Sign in</ThemedText>
-                </Link>
-                <Link href="/signup">
-                    <ThemedText>Sign up</ThemedText>
-                </Link>
-            </SignedOut> */}
         </ParallaxScrollView >
     );
 }
