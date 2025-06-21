@@ -1,44 +1,53 @@
-import React, { useEffect, useLayoutEffect } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
-// import { getTenantFromEmail } from '@/db/api';
-import { useUser } from '@clerk/clerk-expo';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAuth } from '@/context/auth';
 
 export default function App() {
   const router = useRouter()
-  const { user } = useUser();
-  const { locations, fetchLocations } = useTenantStore();
-  const { setClerkUser, setLocation, tenant } = useAppStore();
+  const { user, signOut } = useAuth();
+  if (!user) return <Redirect href="/login" />
+  const { locations, setTenantFromUser, reset: resetTenant } = useTenantStore();
+  const { setLocation, reset: resetApp, setEmployee, setTenant } = useAppStore();
 
   // Theme colors
-  const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
   const whiteText = useThemeColor({}, 'whiteText');
   const cardBackground = useThemeColor({}, 'cardBackground');
   const cardShadow = useThemeColor({}, 'cardShadow');
 
   useEffect(() => {
-    (async () => {
-      if (user) setClerkUser(user);
-    })();
-  }, [user]);
+    console.log('App component mounted, fetching tenant locations', user);
+    if (user) {
+      const fetchEmployee = async () => {
+        try {
+          const { employee, tenant } = await setTenantFromUser(user);
 
-  useEffect(() => {
-    if (tenant) fetchLocations(tenant.id);
-  }, [tenant]);
+          setEmployee(employee);
+          setTenant(tenant);
+        }
+        catch (error) {
+          console.error('Error fetching employee:', error);
+        }
+      };
+      fetchEmployee();
+    }
+  }, [user]);
 
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
-      <ThemedText type="title" style={styles.title}>Seleziona la tua sede</ThemedText>
+      <ThemedText type="title" style={styles.title}>Sedi</ThemedText>
+      <ThemedText type='small' style={styles.info}>
+        👋 {user.given_name}, seleziona una sede per visualizzare le postazioni disponibili
+      </ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
           data={locations}
@@ -48,8 +57,9 @@ export default function App() {
               key={item.id}
               style={[styles.locationCard, { backgroundColor: cardBackground, shadowColor: cardShadow }]}
               onPress={() => {
+                console.log('Selected location:', item);
                 setLocation(item);
-                router.push(`/(app)/(tabs)/home`)
+                router.push(`/(protected)/(tabs)/home`)
               }}
             >
               <ThemedView style={styles.locationImageContainer}>
@@ -71,8 +81,21 @@ export default function App() {
               </ThemedView>
             </TouchableOpacity>
           )}
+          ListEmptyComponent={<ThemedText style={{ textAlign: 'center', marginTop: 16 }}>Nessuna sede disponibile per la tua organizzazione</ThemedText>}
         />
       </ThemedView>
+      {/* Logout button */}
+      <TouchableOpacity
+        style={{ margin: 16, padding: 16, backgroundColor: tintColor, borderRadius: 8, marginTop: 16 }}
+        onPress={async () => {
+          await signOut();
+          resetApp();
+          resetTenant();
+          router.push('/login');
+        }}
+      >
+        <ThemedText type='defaultSemiBold' style={{ color: 'white', textAlign: 'center' }}>Logout</ThemedText>
+      </TouchableOpacity>
     </ThemedSafeAreaView>
   );
 }
@@ -80,13 +103,18 @@ export default function App() {
 const styles = StyleSheet.create({
   locationContainer: {
     flex: 1,
+
   },
   title: {
     textAlign: 'center',
-    marginVertical: 8
+    marginBottom: 8,
+  },
+  info: {
+    marginBottom: 8,
+    marginHorizontal: 16,
   },
   locationGrid: {
-    marginTop: 16,
+    marginHorizontal: 16,
     flexDirection: 'column',
     flex: 1,
   },
@@ -98,7 +126,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: 16
   },
   locationImageContainer: {
     height: 200,

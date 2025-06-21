@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Text, StyleSheet, ScrollView, Alert, Animated } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
@@ -7,24 +7,23 @@ import SettingItem from '@/components/SettingsItem';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useRouter } from 'expo-router';
-import { useClerk, useUser } from '@clerk/clerk-expo';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import * as Linking from 'expo-linking'
-import { tabBarHeight } from '@/constants/Colors';
-// import { useColorScheme } from '@/hooks/useColorScheme';
+// import { tabBarHeight } from '@/constants/Colors';
+import { useAuth } from '@/context/auth';
+import { Image } from 'expo-image';
+import { useAppStore } from '@/store/app-store';
+import { useTenantStore } from '@/store/tenant-store';
 
 const SettingsScreen = () => {
+    const { user, signOut } = useAuth();
+    const { reset: resetApp } = useAppStore();
+    const { reset: resetTenant } = useTenantStore();
     const router = useRouter();
     const [notifications, setNotifications] = useState(false);
-    // const [darkMode, setDarkMode] = useState(false);
-    // const [biometric, setBiometric] = useState(true);
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
     const notificationTypesOpacity = useState(new Animated.Value(0))[0];
-    const { user } = useUser();
-    const { signOut } = useClerk();
-
     type NotificationTypes = {
         dayBefore: boolean;
         currentDay: boolean;
@@ -60,12 +59,10 @@ const SettingsScreen = () => {
             {
                 text: "Logout", style: "destructive",
                 onPress: async () => {
-                    // logout from clerk
                     await signOut();
-
-                    Linking.openURL(Linking.createURL('/'))
-                    // navigate to login screen
-                    // router.replace('/');
+                    resetApp();
+                    resetTenant();
+                    router.replace('/login');
                 }
             }
         ]);
@@ -111,11 +108,9 @@ const SettingsScreen = () => {
             headerImage={
                 <HeaderImage>
                     <>
-                        {/* <ThemedView style={styles.profileImagePlaceholder}>
-                            <Text style={styles.profileInitials}>{user?.imageUrl}</Text>
-                        </ThemedView> */}
-                        <Text style={styles.profileName}>{user?.fullName}</Text>
-                        <Text style={styles.profileEmail}>{user?.emailAddresses[0].emailAddress}</Text>
+                        <Image source={{ uri: user?.picture }} style={styles.profileImage} />
+                        <ThemedText style={styles.profileName} type='defaultSemiBold'>{user?.name}</ThemedText>
+                        <ThemedText style={styles.profileEmail} type='small'>{user?.email}</ThemedText>
                         <LinearGradient
                             colors={['rgba(0,0,0,0.1)', tint]}
                             style={styles.gradient}
@@ -133,7 +128,7 @@ const SettingsScreen = () => {
                         <SettingItem
                             icon={<Ionicons name="location-outline" size={24} color={iconColor} />}
                             title="Cambia Sede"
-                            onPress={() => router.replace('/(app)/rooms')}
+                            onPress={() => router.replace('/(protected)/rooms')}
                         />
                     </ThemedView>
                     {/* Profile Settings */}
@@ -143,12 +138,12 @@ const SettingsScreen = () => {
                         <SettingItem
                             icon={<Ionicons name="person-outline" size={24} color={iconColor} />}
                             title="Modifica Profilo"
-                            onPress={() => router.push('/settings/profile')}
+                            onPress={() => router.push('/(protected)/(tabs)/(settings)/profile')}
                         />
                         <SettingItem
                             icon={<Ionicons name="lock-closed-outline" size={24} color={iconColor} />}
                             title="Cambia Password"
-                            onPress={() => router.push('/settings/change-password')}
+                            onPress={() => router.push('/(protected)/(tabs)/(settings)/change-password')}
                         />
                     </ThemedView>
 
@@ -197,20 +192,6 @@ const SettingsScreen = () => {
                                 </ThemedView>
                             </Animated.View>
                         )}
-                        {/* <SettingItem
-                            icon={<Ionicons name="moon-outline" size={24} color={iconColor} />}
-                            title="Modalità Scura"
-                            value={darkMode}
-                            onPress={() => setDarkMode(!darkMode)}
-                            isSwitch
-                        /> */}
-                        {/* <SettingItem
-                        icon={<Ionicons name="finger-print-outline" size={24} color={iconColor} />}
-                        title="Autenticazione Biometrica"
-                        value={biometric}
-                        onPress={() => setBiometric(!biometric)}
-                        isSwitch
-                    /> */}
                     </ThemedView>
 
                     {/* Danger Zone */}
@@ -235,7 +216,7 @@ const SettingsScreen = () => {
                             Versione 0.0.1
                         </ThemedText>
                     </ThemedView>
-                    <ThemedView style={{ height: tabBarHeight }} />
+                    {/* <ThemedView style={{ height: tabBarHeight }} /> */}
                 </ScrollView>
             </ThemedView>
         </ParallaxScrollView>
@@ -260,6 +241,12 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
     },
+    profileImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        marginBottom: 10,
+    },
     // profileImagePlaceholder: {
     //     marginTop: 50,
     //     width: 80,
@@ -278,15 +265,9 @@ const styles = StyleSheet.create({
     //     textAlignVertical: 'center',
     // },
     profileName: {
-        color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
         marginBottom: 5,
     },
-    profileEmail: {
-        color: 'white',
-        fontSize: 14,
-    },
+    profileEmail: {},
     section: {
         margin: 8,
         borderRadius: 10,

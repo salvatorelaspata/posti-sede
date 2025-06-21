@@ -1,23 +1,24 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert } from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet, TouchableOpacity, Dimensions, ImageBackground, Alert, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Redirect, useRouter } from 'expo-router';
 import { composeAsync } from 'expo-mail-composer';
 import { canOpenURL } from 'expo-linking';
-import { useUser } from '@clerk/clerk-expo';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { HeaderImage } from '@/components/HeaderImage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAuth } from '@/context/auth';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const { isSignedIn } = useUser();
-    if (isSignedIn) return <Redirect href="/(app)/rooms" />
+    const { user, signIn } = useAuth();
+
+    if (user) return <Redirect href="/(protected)/rooms" />
 
     const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
@@ -65,8 +66,6 @@ export default function LandingPage() {
                 </HeaderImage>
             }>
             <ThemedView style={styles.content}>
-
-
                 <ThemedView style={styles.featuresContainer}>
                     <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>
                         <MaterialIcons style={{ position: 'absolute', right: 16, top: 16 }} name="location-city" size={24} color={tintColor} />
@@ -103,18 +102,6 @@ export default function LandingPage() {
                     <ThemedText style={[{ color: textColor, marginTop: 4 }]}>Per registrare la tua azienda</ThemedText>
                 </TouchableOpacity>
             </ThemedView>
-            {/* <SignedIn>
-                <ThemedText>Hello</ThemedText>
-                <ThemedText>{`<SignOutButton />`}</ThemedText>
-            </SignedIn>
-            <SignedOut>
-                <Link href="/login">
-                    <ThemedText>Sign in</ThemedText>
-                </Link>
-                <Link href="/signup">
-                    <ThemedText>Sign up</ThemedText>
-                </Link>
-            </SignedOut> */}
         </ParallaxScrollView >
     );
 }

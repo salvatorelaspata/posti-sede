@@ -10,7 +10,6 @@ npm install
 
 - `EXPO_PUBLIC_DATABASE_URL`: The URL of the database.
 - `EXPO_PUBLIC_DATABASE_DRIVER`: The driver of the database. (neon)
-- `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`: The publishable key of the Clerk project.
 
 Set environment variables in the `.env.local` file.
 
@@ -108,7 +107,6 @@ eas submit --platform android
 - [Neon](https://neon.tech/)
 - [Drizzle](https://orm.drizzle.team/)
 - [Zustand](https://zustand.docs.pmnd.rs/)
-- [Clerk](https://clerk.com/)
 
 
 # TODO

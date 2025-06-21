@@ -3,10 +3,8 @@ import { Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useUser } from "@clerk/clerk-expo";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { HeaderImage } from "@/components/HeaderImage";
@@ -14,7 +12,13 @@ import { LinearGradient } from "expo-linear-gradient";
 
 export default function SettingsProfile() {
     const router = useRouter();
-    const { user } = useUser();
+    // TODO
+    const user = {
+        id: '16b2681e-b944-402e-b734-b87251c6f1fe', // Replace with actual user ID from your auth context or store
+        firstName: 'Sa', // Replace with actual user name
+        lastName: 'La', // Replace with actual user name
+    }
+
     const [firstName, setFirstName] = useState<string>(user?.firstName || '');
     const [lastName, setLastName] = useState<string>(user?.lastName || '');
     const tint = useThemeColor({}, 'tint');
@@ -28,7 +32,7 @@ export default function SettingsProfile() {
             return;
         }
         try {
-            await user?.update({ firstName: firstName.toString(), lastName: lastName.toString() });
+            // TODO: Implementa la logica per aggiornare il profilo utente
             Alert.alert('Successo', 'Profilo modificato con successo');
             router.back();
         } catch (error) {
@@ -50,7 +54,6 @@ export default function SettingsProfile() {
                         >
                         </LinearGradient>
                     </>
-                    {/* </ImageBackground> */}
                 </HeaderImage>
             }>
             <ThemedView style={styles.container}>
@@ -59,20 +62,16 @@ export default function SettingsProfile() {
                     <ThemedText type="title" style={[styles.title, { color: tint }]}>Profilo</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.form}>
-                    {/* first name */}
                     <ThemedView style={styles.selector}>
                         <ThemedText type="default" style={{ color: tint }}>Nome</ThemedText>
                         <ThemedTextInput
-                            // style={styles.selectorInput}
                             value={firstName}
                             onChangeText={setFirstName}
                         />
                     </ThemedView>
-                    {/* last name */}
                     <ThemedView style={styles.selector}>
                         <ThemedText type="default" style={{ color: tint }}>Cognome</ThemedText>
                         <ThemedTextInput
-                            // style={styles.selectorInput}
                             value={lastName}
                             onChangeText={setLastName}
                         />
@@ -110,12 +109,6 @@ const styles = StyleSheet.create({
     selector: {
         flexDirection: 'column',
     },
-    // selectorInput: {
-    //     width: '100%',
-    //     borderWidth: 1,
-    //     borderRadius: 8,
-    //     padding: 8,
-    // },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',

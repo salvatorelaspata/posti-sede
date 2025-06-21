@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -14,17 +14,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { Colors, gradient } from '@/constants/Colors';
-import { useSignUp, useUser } from '@clerk/clerk-expo';
-import { checkTenant, createEmployeeFromEmailAndPassword } from '@/db/api';
+import { checkTenant } from '@/db/api';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useAuth } from '@/context/auth';
 
 
 export default function SignUp() {
-  const { user } = useUser();
-  if (user) return <Redirect href="/(app)/rooms" />
+
+  const { user, isLoading: isAuthLoading, signIn } = useAuth();
+
+  if (user) return <Redirect href="/(protected)/rooms" />
 
   const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
@@ -42,7 +44,7 @@ export default function SignUp() {
   const [pendingVerification, setPendingVerification] = useState<boolean>(false)
   const [code, setCode] = useState<string>('')
   const [error, setError] = useState<string>('')
-  const { isLoaded, signUp, setActive } = useSignUp()
+  // const { isLoaded, signUp, setActive } = useSignUp()
 
   const handleSignUp = async () => {
     if (!email || !password || !firstName || !lastName) {
@@ -55,15 +57,8 @@ export default function SignUp() {
       Alert.alert('Errore', 'Il dominio dell\'email non è autorizzato');
       return;
     }
-    if (!isLoaded) return
+    if (!isAuthLoading) return
     try {
-      await signUp.create({
-        emailAddress: email,
-        password,
-        firstName,
-        lastName,
-      })
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
       setPendingVerification(true)
       setError('')
     } catch (err: any) {
@@ -77,25 +72,11 @@ export default function SignUp() {
 
   }
   const onVerifyPress = async () => {
-    if (!isLoaded) return
+    if (!isAuthLoading) return
     try {
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({
-        code,
-      })
-      if (signUpAttempt.status === 'complete') {
-        const clerkId = signUpAttempt?.createdUserId || ""
-        await createEmployeeFromEmailAndPassword(email, clerkId, firstName, lastName)
-        await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace('/(app)/rooms')
-      } else {
-        // If the status is not complete, check why. User may need to
-        // complete further steps.
-        console.error(JSON.stringify(signUpAttempt, null, 2))
-        setError('Codice OTP errato')
-      }
+      await signIn();
+      router.replace('/(protected)/rooms')
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
       setError('Codice OTP errato')
     }
@@ -132,7 +113,7 @@ export default function SignUp() {
                 placeholderTextColor={inactiveTextColor}
               />
             </ThemedView>
-            <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/')}>
+            <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/landing')}>
               <ThemedText style={[styles.toggleText, { color: tintColor }]}>
                 Torna alla home
               </ThemedText>

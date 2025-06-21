@@ -19,6 +19,7 @@ import CalendarStrip from '@/components/CalendarStrip';
 import { isDayDisabled } from '@/hooks/useCalendar';
 import { tabBarHeight } from '@/constants/Colors';
 import { useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SpecialTabButton } from '@/components/SpecialTabButton';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -90,24 +91,24 @@ const HomeScreen = () => {
         {/* Banner giorno disabilitato */}
         {isCurrentDayDisabled && (
           <ThemedView style={[styles.bookingBanner, { backgroundColor: `${errorColor}15`, borderColor: errorColor }]}>
-            <ThemedView style={styles.bookingBannerContent}>
+            <View style={styles.bookingBannerContent}>
               <Ionicons name="warning" size={20} color={errorColor} />
               <ThemedText type="small" style={[styles.bookingBannerText, { color: errorColor }]}>
                 Giorno non disponibile per le prenotazioni (weekend o passato)
               </ThemedText>
-            </ThemedView>
+            </View>
           </ThemedView>
         )}
 
         {/* Banner stato prenotazione */}
         {booked && (
           <ThemedView style={[styles.bookingBanner, { backgroundColor: `${successColor}15`, borderColor: successColor }]}>
-            <ThemedView style={styles.bookingBannerContent}>
+            <View style={styles.bookingBannerContent}>
               <Ionicons name="checkmark-circle" size={20} color={successColor} />
               <ThemedText type="small" style={[styles.bookingBannerText, { color: successColor }]}>
                 Hai prenotato la stanza "{booked.roomName}" per oggi
               </ThemedText>
-            </ThemedView>
+            </View>
           </ThemedView>
         )}
 
@@ -115,12 +116,12 @@ const HomeScreen = () => {
           <ThemedText type="subtitle">Stanze disponibili</ThemedText>
           <ThemedView style={styles.headerIcons}>
             <TouchableOpacity
-              onPress={() => router.push('/(app)/modalAllPeople')}
+              onPress={() => router.push('/(protected)/modalAllPeople')}
               style={styles.iconButton}
             >
               <Ionicons name="people" size={24} color={primaryButtonColor} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/(app)/modalDetailLocation')}>
+            <TouchableOpacity onPress={() => router.push('/(protected)/modalDetailLocation')}>
               <Ionicons name="information-circle" size={24} color={primaryButtonColor} />
             </TouchableOpacity>
           </ThemedView>
@@ -146,7 +147,7 @@ const HomeScreen = () => {
             handleBooking={handleBooking} />
         }
 
-
+        <SpecialTabButton />
       </ThemedGestureHandlerRootView >
     </View>
   );

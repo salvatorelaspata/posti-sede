@@ -22,8 +22,6 @@ export const tenants = pgTable('tenants', {
 export const employees = pgTable('employees', {
     id: uuid('id').primaryKey().defaultRandom(),
     tenantId: uuid('tenant_id').references(() => tenants.id),
-    // userId: uuid('user_id').references(() => users.id),
-    clerkId: varchar('clerk_id', { length: 256 }).notNull(),
     role: varchar('role', { length: 50 }).$type<'admin' | 'manager' | 'employee'>().default('employee'),
     email: varchar('email', { length: 256 }).notNull(),
     firstName: varchar('first_name', { length: 256 }).notNull(),

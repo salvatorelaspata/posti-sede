@@ -24,7 +24,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="myapp"/>
+        <data android:scheme="postisede"/>
+        <data android:scheme="com.salvatorelaspata.postisede"/>
         <data android:scheme="exp+posti-sede"/>
       </intent-filter>
     </activity>

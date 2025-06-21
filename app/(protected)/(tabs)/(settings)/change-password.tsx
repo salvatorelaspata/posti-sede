@@ -2,28 +2,25 @@ import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/hooks/useColorScheme";
+
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+
 
 import { useState } from "react";
-import { useUser } from "@clerk/clerk-expo";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { HeaderImage } from "@/components/HeaderImage";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function ChangePassword() {
     const router = useRouter();
-    const { user } = useUser();
 
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
 
     // Theme colors
-    const colorScheme = useColorScheme();
     const tint = useThemeColor({}, 'tint');
     const whiteText = useThemeColor({}, 'whiteText');
     const textColor = useThemeColor({}, 'text');
@@ -31,16 +28,12 @@ export default function ChangePassword() {
     const iconColor = useThemeColor({}, 'icon');
 
     const handleResetPassword = async () => {
-        if (!user?.emailAddresses[0].emailAddress) return;
         if (newPassword !== confirmNewPassword) {
             Alert.alert('Errore', 'Le password non corrispondono');
             return;
         }
         try {
-            await user.updatePassword({
-                newPassword: newPassword,
-                currentPassword: oldPassword,
-            });
+            // TODO: Implementa la logica per cambiare la password
 
             Alert.alert('Successo', 'Password cambiata con successo');
             router.back();

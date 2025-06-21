@@ -39,6 +39,8 @@ app-example
 
 # env
 .env
-.env*.production
+.env.development
+.env.local
+.env.production
 
 *.p8
