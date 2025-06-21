@@ -14,7 +14,7 @@ type TenantState = {
     tenant: Tenant | null;
     locations: Location[];
     rooms: AvailabilityRooms[];
-    setTenantFromUser: (user: AuthUser) => Promise<Employee | null>;
+    setTenantFromUser: (user: AuthUser) => Promise<{ employee: Employee | null; tenant: Tenant | null } | null>;
     fetchLocations: (tenantId: string) => Promise<void>;
     fetchRooms: (locationId: string, date: Date) => Promise<void>;
     reset: () => void;
@@ -68,7 +68,7 @@ export const useTenantStore = create<TenantState>()(
                 } else {
                     set({ locations: [], rooms: [] }); // Reset if no tenant found
                 }
-                return employee;
+                return { employee, tenant };
             },
             fetchLocations: async (tenantId) => {
                 const result = await db

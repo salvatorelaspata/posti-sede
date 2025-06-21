@@ -117,7 +117,7 @@ export default function ModalCreateSchedule() {
         <ThemedView style={styles.placeholder} />
       </ThemedView>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ThemedView style={styles.content}>
         {/* Instructions - Compatte */}
         {/* <ThemedView style={[styles.instructionsSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}>
           <ThemedView style={styles.instructionsList}>
@@ -254,10 +254,7 @@ export default function ModalCreateSchedule() {
 
         {/* Calendar Section */}
         {/* <ThemedView style={[styles.calendarSection, { backgroundColor: cardBackground, shadowColor: cardShadow }]}> */}
-
-
-        <ThemedView style={styles.bottomPadding} />
-      </ScrollView>
+      </ThemedView>
 
       {/* Footer */}
       <ThemedView style={[styles.footer, { backgroundColor: cardBackground, borderTopColor: borderColor }]}>
@@ -314,9 +311,7 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 32,
   },
-  content: {
-    flex: 1,
-  },
+  content: {},
   section: {
     marginHorizontal: 16,
     marginTop: 8,
@@ -402,7 +397,8 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 12,
+    backgroundColor: 'red',
     paddingBottom: 28, // Ridotto per safe area
     borderTopWidth: 1,
     gap: 12,

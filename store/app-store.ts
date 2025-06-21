@@ -17,6 +17,7 @@ type AppState = {
     employee: Employee | null;
     setEmployee: (employee: Employee | null) => void;
     tenant: Tenant | null;
+    setTenant: (tenant: Tenant | null) => void;
     location: Location | null;
     room: Room | null;
     booked: Book | null;
@@ -52,6 +53,7 @@ export const useAppStore = create<AppState>()(
             setEmployee: (employee: Employee | null) => set({ employee }),
             isAdmin: false,
             tenant: null,
+            setTenant: (tenant: Tenant | null) => set({ tenant }),
             location: null,
             room: null,
             booked: null,

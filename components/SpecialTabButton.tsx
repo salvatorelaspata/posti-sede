@@ -25,8 +25,8 @@ export const SpecialTabButton = () => {
 const styles = StyleSheet.create({
   button: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
+    bottom: 80,
+    right: 16,
     // transform: [{ translateX: -20 }],
     // marginBottom: 26,
     borderRadius: 25,

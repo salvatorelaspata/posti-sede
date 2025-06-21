@@ -16,7 +16,7 @@ export default function App() {
   const { user, signOut } = useAuth();
   if (!user) return <Redirect href="/login" />
   const { locations, setTenantFromUser, reset: resetTenant } = useTenantStore();
-  const { setLocation, reset: resetApp, setEmployee } = useAppStore();
+  const { setLocation, reset: resetApp, setEmployee, setTenant } = useAppStore();
 
   // Theme colors
   const tintColor = useThemeColor({}, 'tint');
@@ -29,13 +29,10 @@ export default function App() {
     if (user) {
       const fetchEmployee = async () => {
         try {
-          const employee = await setTenantFromUser(user);
-          if (employee) {
-            console.log('Employee set:', employee);
-            setEmployee(employee);
-          } else {
-            console.error('Failed to set employee for user:', user.email);
-          }
+          const { employee, tenant } = await setTenantFromUser(user);
+
+          setEmployee(employee);
+          setTenant(tenant);
         }
         catch (error) {
           console.error('Error fetching employee:', error);

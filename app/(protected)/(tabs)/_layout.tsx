@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuth } from '@/context/auth';
+import { SpecialTabButton } from '@/components/SpecialTabButton';
 
 // Blur background per iOS, colore per altri
 const TabBarBackground = Platform.OS === 'ios' ? require('@/components/ui/TabBarBackground.ios').default : undefined;
@@ -90,7 +91,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(settings)"
         options={{
-          href: isAdmin ? "/(protected)/(tabs)/(settings)" : null,
+          href: "/(protected)/(tabs)/(settings)",
           title: "Impostazioni",
           tabBarLabel: "Impostazioni",
           tabBarIcon: ({ color, size }) => (
@@ -102,6 +103,7 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* <SpecialTabButton /> */}
     </Tabs>
   );
 }
