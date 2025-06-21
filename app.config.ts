@@ -3,6 +3,8 @@ import { ConfigContext, ExpoConfig } from "expo/config"
 const IS_DEV = process.env.APP_VARIANT === "development"
 const IS_PREVIEW = process.env.APP_VARIANT === "preview"
 
+console.log(`App variant: ${process.env.APP_VARIANT}`)
+
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
     return 'com.salvatorelaspata.postisede.dev';
@@ -32,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   "version": "1.0.0",
   "orientation": "portrait",
   "icon": "./assets/images/icon.png",
-  "scheme": "myapp",
+  "scheme": "postisede",
   "userInterfaceStyle": "automatic",
   "newArchEnabled": true,
   "ios": {
@@ -51,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   "web": {
     "bundler": "metro",
-    "output": "static",
+    "output": "server",
     "favicon": "./assets/images/favicon.png"
   },
   "plugins": [

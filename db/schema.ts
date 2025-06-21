@@ -119,3 +119,31 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
         references: [rooms.id],
     }),
 }));
+
+// gestione autenticazione
+export const user = pgTable('user', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: varchar('email', { length: 256 }).notNull(),
+    passwordHash: varchar('password_hash', { length: 512 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const refreshToken = pgTable('refresh_token', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    token: varchar('token', { length: 512 }).notNull(),
+    userId: uuid('user_id').references(() => user.id),
+    createdAt: timestamp('created_at').defaultNow(),
+    expiresAt: timestamp('expires_at').notNull(),
+});
+
+export const userRelations = relations(user, ({ many }) => ({
+    refreshTokens: many(refreshToken),
+}));
+
+export const refreshTokenRelations = relations(refreshToken, ({ one }) => ({
+    user: one(user, {
+        fields: [refreshToken.userId],
+        references: [user.id],
+    }),
+}));

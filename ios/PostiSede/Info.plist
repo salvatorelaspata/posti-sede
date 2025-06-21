@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
+          <string>postisede</string>
           <string>com.salvatorelaspata.postisede</string>
         </array>
       </dict>

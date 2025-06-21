@@ -11,10 +11,11 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { HeaderImage } from '@/components/HeaderImage';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { tabBarHeight } from '@/constants/Colors';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
+import { Image } from 'expo-image';
 
 const SettingsScreen = () => {
-    const authContext = useContext(AuthContext);
+    const { user, signOut } = useAuth();
     const router = useRouter();
     const [notifications, setNotifications] = useState(false);
     const [notificationTypesVisible, setNotificationTypesVisible] = useState(false);
@@ -54,7 +55,7 @@ const SettingsScreen = () => {
             {
                 text: "Logout", style: "destructive",
                 onPress: async () => {
-                    authContext.logOut()
+                    await signOut();
                     router.replace('/login');
                 }
             }
@@ -101,11 +102,9 @@ const SettingsScreen = () => {
             headerImage={
                 <HeaderImage>
                     <>
-                        {/* <ThemedView style={styles.profileImagePlaceholder}>
-                            <Text style={styles.profileInitials}>{user?.imageUrl}</Text>
-                        </ThemedView> */}
-                        <Text style={styles.profileName}>{'TODO'}</Text>
-                        <Text style={styles.profileEmail}>{'TODO'}</Text>
+                        <Image source={{ uri: user?.picture }} style={styles.profileImage} />
+                        <ThemedText style={styles.profileName} type='defaultSemiBold'>{user?.name}</ThemedText>
+                        <ThemedText style={styles.profileEmail} type='small'>{user?.email}</ThemedText>
                         <LinearGradient
                             colors={['rgba(0,0,0,0.1)', tint]}
                             style={styles.gradient}
@@ -236,6 +235,12 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
     },
+    profileImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        marginBottom: 10,
+    },
     // profileImagePlaceholder: {
     //     marginTop: 50,
     //     width: 80,
@@ -254,15 +259,9 @@ const styles = StyleSheet.create({
     //     textAlignVertical: 'center',
     // },
     profileName: {
-        color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
         marginBottom: 5,
     },
-    profileEmail: {
-        color: 'white',
-        fontSize: 14,
-    },
+    profileEmail: {},
     section: {
         margin: 8,
         borderRadius: 10,

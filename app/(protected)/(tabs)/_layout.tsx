@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import { useAppStore } from '@/store/app-store';
-import { AuthContext } from '@/utils/authContext';
-import { Tabs, usePathname } from 'expo-router';
+import { Redirect, Tabs, usePathname } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAuth } from '@/context/auth';
 
 // Blur background per iOS, colore per altri
 const TabBarBackground = Platform.OS === 'ios' ? require('@/components/ui/TabBarBackground.ios').default : undefined;
@@ -14,16 +14,11 @@ export default function TabLayout() {
   const pathname = usePathname();
   console.log('TabLayout pathname:', pathname);
 
-  // const colorScheme = useColorScheme();
   const { isAdmin } = useAppStore();
-  const authContext = useContext(AuthContext);
+  const { user } = useAuth();
 
-  if (!authContext.isReady) {
-    return null;
-  }
-
-  if (!authContext.isLoggedIn) {
-    return null; // or a loading spinner
+  if (!user) {
+    return <Redirect href={'/login'} />;
   }
 
   // Colori coerenti con il tema
@@ -41,7 +36,7 @@ export default function TabLayout() {
           backgroundColor: tabBarBg,
           borderTopColor: borderColor,
           borderTopWidth: 1,
-          height: 60,
+          height: 70,
         },
         tabBarBackground: TabBarBackground ? () => <TabBarBackground /> : undefined,
         headerShown: false,

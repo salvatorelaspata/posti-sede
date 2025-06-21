@@ -1,4 +1,5 @@
-import { AuthProvider } from '@/utils/authContext'
+
+import { AuthProvider } from '@/context/auth';
 import { Stack, usePathname } from 'expo-router'
 import { StatusBar } from "expo-status-bar";
 

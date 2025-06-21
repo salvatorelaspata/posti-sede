@@ -1,39 +1,40 @@
-import React, { useContext, useEffect, useLayoutEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useTenantStore } from '@/store/tenant-store';
 import { useAppStore } from '@/store/app-store';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
-// import { getTenantFromEmail } from '@/db/api';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
 
 export default function App() {
   const router = useRouter()
+  const { user } = useAuth();
+  if (!user) return <Redirect href="/login" />
   const { locations, fetchLocations } = useTenantStore();
   const { setLocation, tenant } = useAppStore();
 
   // Theme colors
-  const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
   const whiteText = useThemeColor({}, 'whiteText');
   const cardBackground = useThemeColor({}, 'cardBackground');
   const cardShadow = useThemeColor({}, 'cardShadow');
 
   useEffect(() => {
+    console.log(tenant)
     if (tenant) fetchLocations(tenant.id);
   }, [tenant]);
 
-  const authContext = useContext(AuthContext);
-
   return (
     <ThemedSafeAreaView style={styles.locationContainer}>
-      <ThemedText type="title" style={styles.title}>Seleziona la tua sede</ThemedText>
+      <ThemedText type="title" style={styles.title}>Sedi disponibili</ThemedText>
+      <ThemedText type='small' style={styles.info}>
+        👋 {user.given_name}, seleziona una sede per visualizzare le postazioni disponibili
+      </ThemedText>
       <ThemedView style={styles.locationGrid}>
         <FlatList
           data={locations}
@@ -69,10 +70,6 @@ export default function App() {
           )}
         />
       </ThemedView>
-      <Button title="[DEBUG] logout" onPress={() => {
-        authContext.logOut();
-        router.replace('/login');
-      }} />
     </ThemedSafeAreaView>
   );
 }
@@ -80,13 +77,16 @@ export default function App() {
 const styles = StyleSheet.create({
   locationContainer: {
     flex: 1,
+    padding: 16,
   },
   title: {
     textAlign: 'center',
-    marginVertical: 8
+    marginBottom: 8,
+  },
+  info: {
+    marginBottom: 8,
   },
   locationGrid: {
-    marginTop: 16,
     flexDirection: 'column',
     flex: 1,
   },
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: 16
   },
   locationImageContainer: {
     height: 200,

@@ -19,13 +19,14 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
 
 
 export default function SignUp() {
-  const authContext = useContext(AuthContext);
 
-  if (authContext.isLoggedIn) return <Redirect href="/(protected)/rooms" />
+  const { user, isLoading: isAuthLoading, signIn } = useAuth();
+
+  if (user) return <Redirect href="/(protected)/rooms" />
 
   const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
@@ -56,7 +57,7 @@ export default function SignUp() {
       Alert.alert('Errore', 'Il dominio dell\'email non è autorizzato');
       return;
     }
-    if (!authContext.isReady) return
+    if (!isAuthLoading) return
     try {
       setPendingVerification(true)
       setError('')
@@ -71,9 +72,9 @@ export default function SignUp() {
 
   }
   const onVerifyPress = async () => {
-    if (!authContext.isReady) return
+    if (!isAuthLoading) return
     try {
-      authContext.logIn();
+      await signIn();
       router.replace('/(protected)/rooms')
     } catch (err) {
       console.error(JSON.stringify(err, null, 2))

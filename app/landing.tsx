@@ -11,14 +11,14 @@ import { HeaderImage } from '@/components/HeaderImage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
-    const authContext = useContext(AuthContext);
+    const { user, signIn } = useAuth();
 
-    if (authContext.isLoggedIn) return <Redirect href="/(protected)/rooms" />
+    if (user) return <Redirect href="/(protected)/rooms" />
 
     const colorScheme = useColorScheme();
     const tintColor = useThemeColor({}, 'tint');
@@ -66,13 +66,6 @@ export default function LandingPage() {
                 </HeaderImage>
             }>
             <ThemedView style={styles.content}>
-
-
-                <Button title="[DEBUG] login" onPress={() => {
-                    authContext.logIn();
-                    router.replace('/(protected)/rooms');
-                }} />
-
                 <ThemedView style={styles.featuresContainer}>
                     <ThemedView style={[styles.featureCard, { backgroundColor: cardBackground, borderColor: tintColor, borderWidth: 2 }]}>
                         <MaterialIcons style={{ position: 'absolute', right: 16, top: 16 }} name="location-city" size={24} color={tintColor} />

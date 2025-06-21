@@ -1,17 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Redirect, Stack, usePathname } from 'expo-router';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
 
 export default function ProtectedLayout() {
-  const authContext = useContext(AuthContext);
+  const { user } = useAuth();
 
   const pathname = usePathname();
   console.log('ProtectedLayout pathname:', pathname);
-  if (!authContext.isReady) {
-    return null; // or a loading spinner
-  }
 
-  if (!authContext.isLoggedIn) {
+  if (!user) {
     return <Redirect href={'/login'} />
   }
 

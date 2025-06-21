@@ -14,77 +14,77 @@ import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
 import { Colors, gradient } from '@/constants/Colors';
-import { checkTenant } from '@/db/api';
+// import { checkTenant } from '@/db/api';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { AuthContext } from '@/utils/authContext';
+import { useAuth } from '@/context/auth';
+import SignInWithGoogleButton from '@/components/SignInWithGoogleButton';
 // import seed from '@/db/seed';
 
 
 export default function Login() {
-  const authContext = useContext(AuthContext);
-  if (authContext.isLoggedIn) return <Redirect href="/(protected)/rooms" />
+  const { user, signIn, isLoading } = useAuth();
+  if (user) return <Redirect href="/(protected)/rooms" />
 
   const colorScheme = useColorScheme();
   const tintColor = useThemeColor({}, 'tint');
-  const whiteTextColor = useThemeColor({}, 'whiteText');
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
+  // const whiteTextColor = useThemeColor({}, 'whiteText');
+  // const textColor = useThemeColor({}, 'text');
   const cardBackground = useThemeColor({}, 'cardBackground');
-  const inactiveTextColor = useThemeColor({}, 'inactiveText');
-  const inputBackground = useThemeColor({}, 'statBackground');
+  // const inactiveTextColor = useThemeColor({}, 'inactiveText');
+  // const inputBackground = useThemeColor({}, 'statBackground');
 
-  // const { signIn, setActive, isLoaded } = useSignIn()
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [validEmail, setValidEmail] = useState<boolean>(false);
-  const onSignEmailPress = React.useCallback(async () => {
-    try {
-      const tenant = await checkTenant(email);
-      if (!tenant) {
-        setError('Email non valida')
-        return
-      }
-      setValidEmail(true);
-      setIsLoading(false);
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2))
-      setError('Email non valida')
-      setIsLoading(false);
-    }
-  }, [authContext.isReady, email, password])
+  // const [email, setEmail] = useState<string>('');
+  // const [password, setPassword] = useState<string>('');
+  // const [error, setError] = useState<string>('');
+  // const [validEmail, setValidEmail] = useState<boolean>(false);
+  // const onSignEmailPress = React.useCallback(async () => {
+  //   try {
+  //     const tenant = await checkTenant(email);
+  //     if (!tenant) {
+  //       setError('Email non valida')
+  //       return
+  //     }
+  //     setValidEmail(true);
+  //     setIsLoading(false);
+  //   } catch (err) {
+  //     console.error(JSON.stringify(err, null, 2))
+  //     setError('Email non valida')
+  //     setIsLoading(false);
+  //   }
+  // }, [isAuthLoading, email, password])
 
 
-  const onSignInPress = React.useCallback(async () => {
-    if (!authContext.isReady) return
+  // const onSignInPress = React.useCallback(async () => {
+  //   if (!isAuthLoading) return
 
-    if (!email || !password) {
-      setError('Email e password sono obbligatori')
-      setIsLoading(false);
-      return
-    }
-    const tenant = await checkTenant(email);
-    if (!tenant) {
-      setError('Email non valida')
-      setIsLoading(false);
-      return
-    }
-    // Start the sign-in process using the email and password provided
-    try {
-      authContext.logIn();
-      router.replace('/(protected)/rooms');
-      setIsLoading(false);
-    } catch (err: any) {
-      if (err.status === 422) setError('Account non trovato. Registrati!')
-      else setError('Email o password errati')
-      setIsLoading(false);
-    }
-  }, [authContext.isReady, email, password])
+  //   if (!email || !password) {
+  //     setError('Email e password sono obbligatori')
+  //     setIsLoading(false);
+  //     return
+  //   }
+  //   const tenant = await checkTenant(email);
+  //   if (!tenant) {
+  //     setError('Email non valida')
+  //     setIsLoading(false);
+  //     return
+  //   }
+  //   // Start the sign-in process using the email and password provided
+  //   try {
+  //     await signIn();
+  //     router.replace('/(protected)/rooms');
+  //     setIsLoading(false);
+  //   } catch (err: any) {
+  //     if (err.status === 422) setError('Account non trovato. Registrati!')
+  //     else setError('Email o password errati')
+  //     setIsLoading(false);
+  //   }
+  // }, [isAuthLoading, email, password])
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -105,7 +105,7 @@ export default function Login() {
         </ThemedView>
 
         <ThemedView style={[styles.form, { backgroundColor: cardBackground }]}>
-          <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
+          {/* <ThemedView style={[styles.inputContainer, { backgroundColor: inputBackground }]}>
             <MaterialIcons name="email" size={24} color={inactiveTextColor} />
             <TextInput
               style={[styles.input, { color: textColor }]}
@@ -129,9 +129,9 @@ export default function Login() {
                 placeholderTextColor={inactiveTextColor}
               />
             </ThemedView>
-          )}
+          )} */}
 
-          <TouchableOpacity style={[styles.loginButton, { backgroundColor: tintColor }]} onPress={() => {
+          {/* <TouchableOpacity style={[styles.loginButton, { backgroundColor: tintColor }]} onPress={() => {
             setIsLoading(true);
             if (validEmail) {
               onSignInPress()
@@ -145,19 +145,24 @@ export default function Login() {
                 <ThemedText style={[styles.buttonText, { color: whiteTextColor }]}>Accedi</ThemedText>
               </>
             }
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
+          {/* <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/signup')}>
             <ThemedText style={[styles.toggleText, { color: tintColor }]}>
               Non hai un account? Registrati
             </ThemedText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
+          {/* {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>} */}
+
+          <SignInWithGoogleButton onPress={signIn} disabled={isLoading} />
+
           <TouchableOpacity style={styles.toggleButton} onPress={() => router.navigate('/landing')}>
             <ThemedText style={[styles.toggleText, { color: tintColor }]}>
               Torna alla home
             </ThemedText>
           </TouchableOpacity>
-          {error && <ThemedText style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>{error}</ThemedText>}
+
         </ThemedView>
       </LinearGradient>
     </KeyboardAvoidingView>
