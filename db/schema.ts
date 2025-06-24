@@ -30,6 +30,14 @@ export const employees = pgTable('employees', {
     createdAt: timestamp('created_at').defaultNow()
 });
 
+// Tabella admin users per censire le email degli utenti amministratori
+export const adminUsers = pgTable('admin_users', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: varchar('email', { length: 256 }).notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Tabella sedi (multi-tenant)
 export const locations = pgTable('locations', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -94,10 +102,6 @@ export const employeesRelations = relations(employees, ({ one, many }) => ({
     tenant: one(tenants, {
         fields: [employees.tenantId],
         references: [tenants.id],
-    }),
-    employee: one(employees, {
-        fields: [employees.id],
-        references: [employees.id],
     }),
     bookings: many(bookings),
 }));

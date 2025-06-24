@@ -57,6 +57,13 @@
       "when": 1750515117682,
       "tag": "0007_fine_captain_flint",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1750789315588,
+      "tag": "0008_mysterious_gabe_jones",
+      "breakpoints": true
     }
   ]
 }

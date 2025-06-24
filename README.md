@@ -1,5 +1,9 @@
 # Posti Sede
 
+Posti sede è un'applicazione mobile che permette di prenotare un posto in un ufficio, visualizzare le sedi disponibili e gestire le prenotazioni. 
+
+È sviluppata con React Native e Expo, utilizzando Neon come database e Drizzle come ORM.
+
 ## Setup
 
 ```bash
@@ -98,6 +102,16 @@ eas build --platform android --profile production
 
 ```bash
 eas submit --platform android
+```
+
+## Deploy web (api)
+
+```bash
+npx expo export --platform web -c
+```
+
+```bash
+eas deploy --prod
 ```
 
 ## Teck stack
